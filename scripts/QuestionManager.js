@@ -14,11 +14,80 @@ class QuestionManager {
     }
 
     // Initialiser
-    init(totalQuestions) {
-        this.totalQuestions = totalQuestions;
-        this.totalQuestionsEl.textContent = totalQuestions;
-        shuffleArray(this.remainingGames);
+    // Dans init(), remplacer par :
+init(totalQuestions) {
+    this.totalQuestions = totalQuestions;
+    this.totalQuestionsEl.textContent = totalQuestions;
+    
+    // Mélanger les jeux de manière plus aléatoire
+    this.remainingGames = shuffleArray([...GAMES]);
+    
+    // Si on a moins de jeux que de questions, on en duplique
+    if (this.remainingGames.length < totalQuestions) {
+        console.warn(`⚠️ Seulement ${this.remainingGames.length} jeux disponibles pour ${totalQuestions} questions`);
+        // Dupliquer et remélanger
+        const needed = totalQuestions - this.remainingGames.length;
+        const extraGames = [];
+        
+        for (let i = 0; i < needed; i++) {
+            const randomIndex = Math.floor(Math.random() * GAMES.length);
+            extraGames.push({...GAMES[randomIndex]});
+        }
+        
+        this.remainingGames = [...this.remainingGames, ...extraGames];
+        this.remainingGames = shuffleArray(this.remainingGames);
     }
+    
+    console.log(`🎲 ${this.remainingGames.length} jeux préparés pour le quiz`);
+}
+
+// Dans prepareQuestion(), modifier la sélection :
+prepareQuestion(questionNumber) {
+    if (this.remainingGames.length === 0) {
+        // Si plus de jeux, remélanger depuis le début
+        this.remainingGames = shuffleArray([...GAMES]);
+        console.log('🔄 Plus de jeux, remélange...');
+    }
+
+    this.reset();
+    this.questionCountEl.textContent = questionNumber;
+    
+    // Prendre le premier jeu du tableau mélangé
+    this.currentGame = this.remainingGames.shift(); // shift() prend le premier
+    
+    // Préparer les réponses avec exclusion du jeu actuel
+    this.prepareAnswers();
+    
+    return true;
+}
+
+// Modifier prepareAnswers() pour éviter les doublons :
+prepareAnswers() {
+    const correctAnswer = this.currentGame.name;
+    
+    // Filtrer tous les jeux SAUF le jeu actuel
+    const availableGames = GAMES.filter(game => game.name !== correctAnswer);
+    
+    // Mélanger et prendre 3 jeux différents
+    const shuffledWrong = shuffleArray([...availableGames]).slice(0, 3);
+    const wrongAnswers = shuffledWrong.map(game => game.name);
+    
+    // Mélanger toutes les réponses
+    const allAnswers = shuffleArray([correctAnswer, ...wrongAnswers]);
+    
+    this.answersGrid.innerHTML = '';
+    allAnswers.forEach((answer) => {
+        const button = document.createElement('button');
+        button.className = 'answer-btn';
+        button.textContent = answer;
+        button.dataset.correct = (answer === correctAnswer).toString();
+        button.addEventListener('click', () => this.checkAnswer(button));
+        this.answersGrid.appendChild(button);
+    });
+    
+    this.userAnswered = false;
+    this.userAnswerCorrect = false;
+}
 
     // Préparer une nouvelle question
     prepareQuestion(questionNumber) {
