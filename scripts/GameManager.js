@@ -4,7 +4,6 @@ class GameManager {
         this.isPlaying = false;
         this.hasUserInteracted = false;
         this.startTime = null;
-        this.isTransitioning = false; // NOUVEAU: empêcher les transitions simultanées
         
         // Modules
         this.youtubePlayer = null;
@@ -20,12 +19,7 @@ class GameManager {
 
     // Initialiser le jeu
     init() {
-        console.log('🎮 [DEBUG] Initialisation du jeu...');
-        
-        // DÉSACTIVER le bouton suivant au début
-        this.nextBtn.disabled = true;
-        this.nextBtn.style.opacity = '0.5';
-        this.nextBtn.style.display = 'none'; // Caché au début
+        console.log('🎮 Initialisation du jeu...');
         
         // Initialiser les modules
         this.questionManager = new QuestionManager();
@@ -33,14 +27,8 @@ class GameManager {
         
         this.phaseManager = new PhaseManager();
         this.phaseManager.onPhaseComplete = () => {
-            console.log('🔔 [DEBUG] PhaseManager.onPhaseComplete() appelé');
-            if (!this.isTransitioning) {
-                this.isTransitioning = true;
-                setTimeout(() => {
-                    this.nextQuestion();
-                    this.isTransitioning = false;
-                }, 500);
-            }
+            console.log('🔔 Phase terminée, passage question suivante');
+            setTimeout(() => this.nextQuestion(), 500);
         };
         
         // Initialiser le lecteur YouTube
@@ -48,15 +36,12 @@ class GameManager {
         
         // Événements
         this.startBtn.addEventListener('click', () => this.startGame());
-        this.nextBtn.addEventListener('click', () => {
-            console.log('🖱️ [DEBUG] Bouton suivant cliqué');
-            this.nextQuestion();
-        });
+        this.nextBtn.addEventListener('click', () => this.nextQuestion());
         
         // Débloquer l'audio
         this.setupAudioInteraction();
         
-        console.log('✅ [DEBUG] Jeu initialisé');
+        console.log('✅ Jeu initialisé');
     }
 
     // Initialiser le lecteur YouTube
@@ -84,9 +69,9 @@ class GameManager {
                 audioContext.resume();
                 
                 this.hasUserInteracted = true;
-                console.log('🔊 [DEBUG] Audio débloqué');
+                console.log('🔊 Audio débloqué');
             } catch (error) {
-                console.warn('⚠️ [DEBUG] Impossible de débloquer l\'audio:', error);
+                console.warn('⚠️ Impossible de débloquer l\'audio:', error);
             }
         };
         
@@ -96,22 +81,19 @@ class GameManager {
 
     // YouTube est prêt
     onYouTubeReady() {
-        console.log('✅ [DEBUG] YouTube Player prêt');
-        // Activer le bouton suivant maintenant
-        this.nextBtn.disabled = false;
-        this.nextBtn.style.opacity = '1';
+        console.log('✅ YouTube Player prêt');
     }
 
     // Erreur YouTube
     onYouTubeError(error) {
-        console.error('❌ [DEBUG] Erreur YouTube:', error);
+        console.error('❌ Erreur YouTube:', error);
         this.showError('Erreur vidéo - Passage à la question suivante');
         setTimeout(() => this.nextQuestion(), 2000);
     }
 
     // Démarrer le jeu
     startGame() {
-        console.log('🚀 [DEBUG] Démarrage du jeu');
+        console.log('🚀 Démarrage du jeu');
         
         // Changer d'écran
         this.homeScreen.classList.remove('active');
@@ -119,23 +101,16 @@ class GameManager {
         this.quizScreen.classList.remove('hidden');
         this.quizScreen.classList.add('active');
         
-        console.log('✅ [DEBUG] Écrans switchés');
+        console.log('✅ Écrans switchés');
         
-        // Attendre que l'UI se stabilise
-        setTimeout(() => {
-            console.log('⏰ [DEBUG] Démarrage première question...');
-            this.startQuestion();
-        }, 500);
+        // Démarrer la première question
+        setTimeout(() => this.startQuestion(), 100);
     }
 
     // Démarrer une question
     startQuestion() {
-        console.log(`❓ [DEBUG] Début startQuestion(), question ${this.currentQuestion}`);
-        
-        // Vérifier si on a atteint la limite
         if (this.currentQuestion >= CONFIG.TOTAL_QUESTIONS || 
             !this.questionManager.hasMoreQuestions()) {
-            console.log('🏁 [DEBUG] Fin du jeu atteinte');
             this.endGame();
             return;
         }
@@ -143,30 +118,18 @@ class GameManager {
         this.currentQuestion++;
         this.isPlaying = true;
         
-        console.log(`📝 [DEBUG] Préparation question ${this.currentQuestion}`);
-        
         // Préparer la question
         const questionReady = this.questionManager.prepareQuestion(this.currentQuestion);
         if (!questionReady) {
-            console.error('❌ [DEBUG] Échec préparation question');
             this.endGame();
             return;
         }
         
-        console.log('🎮 [DEBUG] Question prête, chargement vidéo...');
-        
         // Charger et démarrer la vidéo
         this.loadAndStartVideo();
         
-        // DÉMARRER LA PHASE 1
-        console.log('⏱️ [DEBUG] Démarrage Phase 1 via PhaseManager');
-        if (this.phaseManager) {
-            this.phaseManager.startPhase(1);
-        } else {
-            console.error('❌ [DEBUG] PhaseManager non initialisé!');
-        }
-        
-        console.log('✅ [DEBUG] startQuestion() terminé');
+        // Démarrer la phase 1
+        this.phaseManager.startPhase(1);
     }
 
     // Charger et démarrer la vidéo
@@ -179,37 +142,34 @@ class GameManager {
             Math.random() * (CONFIG.MAX_START_TIME - CONFIG.MIN_START_TIME)
         ) + CONFIG.MIN_START_TIME;
         
-        console.log(`🎬 [DEBUG] Chargement: ${currentGame.name} à ${this.startTime}s`);
+        console.log(`🎬 Chargement: ${currentGame.name} à ${this.startTime}s`);
         
         this.youtubePlayer.loadVideo(currentGame.videoId, this.startTime);
         this.youtubePlayer.unmute();
-        console.log(`✅ [DEBUG] Vidéo ${currentGame.name} demandée`);
+        console.log(`✅ Vidéo ${currentGame.name} demandée`);
     }
 
     // Passer à la question suivante
     nextQuestion() {
-        console.log(`🔄 [DEBUG] nextQuestion() appelé, question actuelle: ${this.currentQuestion}`);
+        console.log('🔄 Question suivante');
         
-        // Masquer le bouton suivant
-        this.nextBtn.style.display = 'none';
+        // Réinitialiser les tentatives YouTube
+        if (this.youtubePlayer.resetLoadAttempts) {
+            this.youtubePlayer.resetLoadAttempts();
+        }
         
         // Arrêter la vidéo
         this.youtubePlayer.stop();
         
         // Réinitialiser les phases
-        if (this.phaseManager) {
-            this.phaseManager.reset();
-        }
+        this.phaseManager.reset();
         
-        // Masquer le résultat
+        // Masquer le bouton suivant
         this.questionManager.hideResult();
+        this.nextBtn.style.display = 'none';
         
-        console.log('⏳ [DEBUG] Attente 1s avant prochaine question...');
-        
-        // Délai avant la question suivante
-        setTimeout(() => {
-            this.startQuestion();
-        }, 1000);
+        // Démarrer la question suivante
+        setTimeout(() => this.startQuestion(), 1000);
     }
 
     // Afficher une erreur
@@ -221,13 +181,11 @@ class GameManager {
 
     // Terminer le jeu
     endGame() {
-        console.log('🏁 [DEBUG] Fin du jeu');
+        console.log('🏁 Fin du jeu');
         
         // Arrêter tout
         this.youtubePlayer.stop();
-        if (this.phaseManager) {
-            this.phaseManager.clearTimers();
-        }
+        this.phaseManager.clearTimers();
         
         // Masquer les sections
         document.querySelector('.answers-section').style.display = 'none';
