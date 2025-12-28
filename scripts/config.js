@@ -1,9 +1,9 @@
-// Configuration du jeu
+// Configuration du jeu - NOUVELLE VERSION
 const CONFIG = {
-    PHASE1_TIME: 15,    // Audio seul - Layer 100% opaque
-    PHASE2_TIME: 5,     // Vidéo visible - Layer passe de 100% à 0%
-    PHASE3_TIME: 5,     // Réponse affichée
+    PHASE1_TIME: 20,     // Phase d'écoute (20 sec) - overlay 100% opaque
+    PHASE2_TIME: 10,     // Phase révélation (10 sec) - overlay fade in/out
+    FADE_DURATION: 3,    // Durée des transitions de fade (sec)
     TOTAL_QUESTIONS: 10,
-    MIN_START_TIME: 30,  // Secondes minimum pour démarrer la vidéo
-    MAX_START_TIME: 180  // Secondes maximum pour démarrer la vidéo
+    MIN_START_TIME: 30,
+    MAX_START_TIME: 180
 };

@@ -12,14 +12,10 @@ class PhaseManager {
         this.overlayIcon = document.getElementById('overlay-icon');
         this.phaseInfo = document.getElementById('phase-info');
         this.phaseTimerEl = document.getElementById('phase-timer');
-        
-        console.log('⏱️ [DEBUG] PhaseManager initialisé');
     }
 
     // Démarrer une phase spécifique
     startPhase(phaseNumber) {
-        console.log(`🔄 [DEBUG] PhaseManager.startPhase(${phaseNumber}) appelé`);
-        
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
@@ -38,78 +34,83 @@ class PhaseManager {
             case 1:
                 this.phaseTimer = CONFIG.PHASE1_TIME;
                 this.overlayIcon.textContent = '🎧';
-                this.phaseInfo.textContent = 'Écoutez le gameplay (15 secondes)';
-                console.log('🎧 [DEBUG] Phase 1: Audio seul démarré');
+                this.phaseInfo.textContent = 'Écoutez la musique (20 secondes)';
                 break;
                 
             case 2:
                 this.phaseTimer = CONFIG.PHASE2_TIME;
-                this.overlayIcon.textContent = '👁️';
-                this.phaseInfo.textContent = 'Regardez la vidéo (5 secondes)';
-                this.startLayerFade();
-                console.log('👁️ [DEBUG] Phase 2: Vidéo démarrée');
-                break;
                 
-            case 3:
-                this.phaseTimer = CONFIG.PHASE3_TIME;
-                
-                // Rétablir l'opacité à 100%
-                this.layerOpacity = 1;
-                this.overlay.style.backgroundColor = 'rgba(15, 12, 41, 1)';
-                this.overlay.classList.remove('transparent');
-                
-                // Détecter si l'utilisateur a répondu
+                // Révéler le nom du jeu
                 if (window.gameManager && window.gameManager.questionManager) {
-                    const qm = window.gameManager.questionManager;
-                    if (qm.hasUserAnswered()) {
-                        this.overlayIcon.textContent = qm.resultEl.classList.contains('correct') ? '🎉' : '❌';
-                        this.phaseInfo.textContent = qm.resultEl.classList.contains('correct') 
-                            ? 'Bonne réponse !' 
-                            : 'Mauvaise réponse';
-                    } else {
-                        // Réponse automatique
-                        const result = qm.autoRevealAnswer();
-                        this.overlayIcon.textContent = '🔍';
-                        this.phaseInfo.textContent = `Réponse: ${result.gameName}`;
+                    const currentGame = window.gameManager.questionManager.getCurrentGame();
+                    if (currentGame) {
+                        this.overlayIcon.textContent = '🎮';
+                        this.phaseInfo.textContent = `${currentGame.name}`;
+                        this.phaseInfo.style.fontSize = '1.8rem';
+                        this.phaseInfo.style.fontWeight = 'bold';
                     }
-                } else {
-                    this.overlayIcon.textContent = '🔍';
-                    this.phaseInfo.textContent = 'Révélation de la réponse';
                 }
                 
-                console.log('🔍 [DEBUG] Phase 3: Révélation démarrée');
+                // Démarrer l'animation fade in/out
+                this.startRevealAnimation();
                 break;
         }
         
         // Démarrer le timer
         this.phaseTimerEl.textContent = this.phaseTimer;
-        console.log(`⏳ [DEBUG] Timer phase ${phaseNumber}: ${this.phaseTimer}s`);
-        
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
 
-    // Transition d'opacité pour la phase 2
-    startLayerFade() {
-        console.log('🎨 [DEBUG] Début du fade de l\'overlay');
-        const opacityDecrement = 1 / CONFIG.PHASE2_TIME;
+    // Animation fade in/out pour la phase 2
+    startRevealAnimation() {
+        console.log('🎨 Début animation révélation');
+        
+        const totalTime = CONFIG.PHASE2_TIME * 1000; // en ms
+        const fadeDuration = CONFIG.FADE_DURATION * 1000; // en ms
+        
+        // État: 0 = opaque (100%), 1 = transparent (0%), 2 = opaque (100%)
+        let animationState = 0;
+        let startTime = Date.now();
         
         this.fadeInterval = setInterval(() => {
-            this.layerOpacity = Math.max(0, this.layerOpacity - opacityDecrement);
+            const elapsed = Date.now() - startTime;
+            const progress = elapsed / totalTime;
             
+            // Calculer l'opacité en fonction du temps
+            if (progress < fadeDuration / totalTime) {
+                // Phase 1: fade out (100% → 0%)
+                animationState = 0;
+                this.layerOpacity = 1 - (elapsed / fadeDuration);
+            } else if (progress > 1 - (fadeDuration / totalTime)) {
+                // Phase 3: fade in (0% → 100%)
+                animationState = 2;
+                const timeInFadeIn = elapsed - (totalTime - fadeDuration);
+                this.layerOpacity = timeInFadeIn / fadeDuration;
+            } else {
+                // Phase 2: complètement transparent
+                animationState = 1;
+                this.layerOpacity = 0;
+            }
+            
+            // Appliquer l'opacité
             this.overlay.style.backgroundColor = `rgba(15, 12, 41, ${this.layerOpacity})`;
             this.overlayIcon.style.opacity = this.layerOpacity;
             this.phaseInfo.style.opacity = this.layerOpacity;
             this.phaseTimerEl.style.opacity = this.layerOpacity;
             
-            if (this.layerOpacity <= 0) {
+            // Cacher/montrer selon l'opacité
+            if (this.layerOpacity <= 0.1 && animationState === 1) {
                 this.overlay.classList.add('transparent');
                 this.overlayIcon.classList.add('hidden');
                 this.phaseInfo.classList.add('hidden');
                 this.phaseTimerEl.classList.add('hidden');
-                clearInterval(this.fadeInterval);
-                console.log('🎨 [DEBUG] Fade terminé, overlay transparent');
+            } else {
+                this.overlay.classList.remove('transparent');
+                this.overlayIcon.classList.remove('hidden');
+                this.phaseInfo.classList.remove('hidden');
+                this.phaseTimerEl.classList.remove('hidden');
             }
-        }, 1000);
+        }, 50); // Mise à jour toutes les 50ms pour animation fluide
     }
 
     // Mettre à jour le timer de phase
@@ -117,29 +118,12 @@ class PhaseManager {
         this.phaseTimer--;
         this.phaseTimerEl.textContent = this.phaseTimer;
         
-        console.log(`⏳ [DEBUG] Timer phase ${this.currentPhase}: ${this.phaseTimer}s restant`);
-        
         if (this.phaseTimer <= 0) {
-            console.log(`⏰ [DEBUG] Phase ${this.currentPhase} terminée`);
-            
-            if (this.currentPhase < 3) {
-                // Passer à la phase suivante
-                console.log(`🔄 [DEBUG] Passage à la phase ${this.currentPhase + 1}`);
+            if (this.currentPhase < 2) {
                 this.startPhase(this.currentPhase + 1);
             } else {
-                // Toutes les phases terminées
-                console.log('✅ [DEBUG] Toutes les phases terminées');
                 this.clearTimers();
-                
-                // Afficher le bouton suivant
-                if (window.gameManager && window.gameManager.nextBtn) {
-                    window.gameManager.nextBtn.style.display = 'flex';
-                    console.log('🔼 [DEBUG] Bouton suivant affiché');
-                }
-                
-                // Appeler le callback de fin
                 if (this.onPhaseComplete) {
-                    console.log('🔔 [DEBUG] Appel de onPhaseComplete()');
                     this.onPhaseComplete();
                 }
             }
@@ -151,19 +135,16 @@ class PhaseManager {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
             this.phaseInterval = null;
-            console.log('🛑 [DEBUG] Timer phase arrêté');
         }
         
         if (this.fadeInterval) {
             clearInterval(this.fadeInterval);
             this.fadeInterval = null;
-            console.log('🛑 [DEBUG] Fade timer arrêté');
         }
     }
 
     // Réinitialiser pour une nouvelle question
     reset() {
-        console.log('🔄 [DEBUG] PhaseManager.reset()');
         this.clearTimers();
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
@@ -178,13 +159,9 @@ class PhaseManager {
         this.overlayIcon.style.opacity = 1;
         this.phaseInfo.style.opacity = 1;
         this.phaseTimerEl.style.opacity = 1;
+        this.phaseInfo.style.fontSize = ''; // Réinitialiser la taille
+        this.phaseInfo.style.fontWeight = ''; // Réinitialiser le poids
         
         this.phaseTimerEl.textContent = this.phaseTimer;
-        console.log('✅ [DEBUG] PhaseManager réinitialisé');
-    }
-
-    // Vérifier si on est en phase de réponse
-    isAnswerPhase() {
-        return this.currentPhase === 3;
     }
 }

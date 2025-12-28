@@ -310,3 +310,123 @@
         text-align: center;
     }
 }
+
+/* ===== STYLES POUR LA NOUVELLE VERSION ===== */
+
+/* Réponses pendant la phase 1 */
+.answer-btn.user-selected {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.answer-btn.user-selected.correct {
+    background: rgba(46, 213, 115, 0.3);
+    border-color: #2ed573;
+    color: #2ed573;
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.4);
+}
+
+.answer-btn.user-selected.incorrect {
+    background: rgba(255, 71, 87, 0.3);
+    border-color: #ff4757;
+    color: #ff4757;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+}
+
+.answer-btn.correct-answer {
+    border: 2px dashed #2ed573;
+}
+
+/* Résultat final pendant la phase 2 */
+.final-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.result-icon {
+    font-size: 3.5rem;
+}
+
+.result-text {
+    font-size: 1.3rem;
+}
+
+.correct-final {
+    background: rgba(46, 213, 115, 0.15);
+    border-left: 5px solid #2ed573;
+    color: #2ed573;
+}
+
+.incorrect-final {
+    background: rgba(255, 71, 87, 0.15);
+    border-left: 5px solid #ff4757;
+    color: #ff4757;
+}
+
+.no-answer-final {
+    background: rgba(116, 125, 140, 0.15);
+    border-left: 5px solid #747d8c;
+    color: #747d8c;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Barre de progression à 2 segments */
+.phase-progress {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+}
+
+.phase-segment {
+    height: 100%;
+}
+
+.segment-1 {
+    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    width: 67%; /* 20s sur 30s total */
+}
+
+.segment-2 {
+    background: linear-gradient(90deg, #3742fa, #5352ed);
+    width: 33%; /* 10s sur 30s total */
+}
+
+.phase-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #a4b0be;
+}
+
+.phase-label span:first-child {
+    width: 67%;
+    text-align: left;
+}
+
+.phase-label span:last-child {
+    width: 33%;
+    text-align: right;
+}
