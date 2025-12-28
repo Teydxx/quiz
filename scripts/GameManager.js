@@ -56,27 +56,44 @@ class GameManager {
     }
 
     // Débloquer l'audio
+    // Remplacer setupAudioInteraction() par :
     setupAudioInteraction() {
+        // Créer un context audio dès le début
+        let audioContext = null;
+        
         const unlockAudio = () => {
             if (this.hasUserInteracted) return;
             
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Créer un buffer sonore très court
+                const buffer = audioContext.createBuffer(1, 1, 22050);
                 const source = audioContext.createBufferSource();
-                source.buffer = audioContext.createBuffer(1, 1, 22050);
+                source.buffer = buffer;
                 source.connect(audioContext.destination);
-                source.start();
-                audioContext.resume();
+                
+                // Démarrer immédiatement
+                source.start(0);
+                
+                // Resumer le context (peut être suspendu par défaut)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
                 
                 this.hasUserInteracted = true;
-                console.log('🔊 Audio débloqué');
+                console.log('🔊 Audio débloqué et context prêt');
+                
             } catch (error) {
                 console.warn('⚠️ Impossible de débloquer l\'audio:', error);
             }
         };
         
-        // Débloquer au premier clic
+        // Débloquer au premier clic SUR TOUTE LA PAGE
         document.addEventListener('click', unlockAudio, { once: true });
+        
+        // Également débloquer au clic sur le bouton start
+        this.startBtn.addEventListener('click', unlockAudio, { once: true });
     }
 
     // YouTube est prêt

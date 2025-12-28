@@ -183,4 +183,39 @@ class QuestionManager {
     hasMoreQuestions() {
         return this.remainingGames.length > 0;
     }
+
+    // Ajouter cette méthode :
+hideAnswersForReveal() {
+    console.log('🎭 Cacher les réponses pour révélation');
+    
+    // Animation de disparition
+    this.answersGrid.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    this.answersGrid.style.opacity = '0';
+    this.answersGrid.style.transform = 'translateY(20px)';
+    
+    // Cacher complètement après l'animation
+    setTimeout(() => {
+        this.answersGrid.style.display = 'none';
+    }, 300);
 }
+
+// Et dans reset(), ajouter :
+reset() {
+    this.userAnswered = false;
+    this.userAnswerCorrect = false;
+    this.hideResult();
+    this.answersGrid.innerHTML = '';
+    
+    // Réafficher la grille de réponses
+    this.answersGrid.style.display = 'grid';
+    this.answersGrid.style.opacity = '1';
+    this.answersGrid.style.transform = 'translateY(0)';
+    this.answersGrid.style.transition = '';
+    
+    // Cacher le bouton suivant
+    if (this.nextBtn) {
+        this.nextBtn.style.display = 'none';
+    }
+}
+}
+

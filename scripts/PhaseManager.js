@@ -40,20 +40,58 @@ class PhaseManager {
             case 2:
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
-                // Révéler le nom du jeu
-                if (window.gameManager && window.gameManager.questionManager) {
-                    const currentGame = window.gameManager.questionManager.getCurrentGame();
-                    if (currentGame) {
-                        this.overlayIcon.textContent = '🎮';
-                        this.phaseInfo.textContent = `${currentGame.name}`;
-                        this.phaseInfo.style.fontSize = '1.8rem';
-                        this.phaseInfo.style.fontWeight = 'bold';
-                    }
-                }
+                // Cacher temporairement les infos pendant le fade
+                this.overlayIcon.style.opacity = '0';
+                this.phaseInfo.style.opacity = '0';
+                this.phaseTimerEl.style.opacity = '0';
                 
-                // Démarrer l'animation fade in/out
-                this.startRevealAnimation();
-                break;
+                // Déterminer la couleur et l'icône selon la réponse
+                let resultColor = '#ff4757'; // Rouge par défaut (pas de réponse/mauvaise)
+                let resultIcon = '❌';
+                let resultText = 'Pas de réponse';
+                
+                if (window.gameManager && window.gameManager.questionManager) {
+                    const qm = window.gameManager.questionManager;
+                    if (qm.hasUserAnswered()) {
+                        if (qm.userAnswerCorrect) {
+                            resultColor = '#2ed573'; // Vert si bonne réponse
+                            resultIcon = '🎉';
+                            resultText = 'CORRECT !';
+                        } else {
+                            resultColor = '#ff4757'; // Rouge si mauvaise
+                            resultIcon = '❌';
+                            resultText = 'INCORRECT';
+                        }
+                    }
+                    
+                    // Afficher le nom du jeu au centre
+                    const currentGame = qm.getCurrentGame();
+                    if (currentGame) {
+                        // Créer ou récupérer l'élément d'affichage du résultat
+                        let resultDisplay = this.overlay.querySelector('.result-display');
+                        if (!resultDisplay) {
+                            resultDisplay = document.createElement('div');
+                            resultDisplay.className = 'result-display';
+                            this.overlay.appendChild(resultDisplay);
+                        }
+                        
+                        // Mettre à jour le contenu
+                        resultDisplay.innerHTML = `
+                            <div class="result-icon-big">${resultIcon}</div>
+                            <div class="result-game-name" style="color: ${resultColor}">${currentGame.name}</div>
+                            <div class="result-status" style="color: ${resultColor}">${resultText}</div>
+                        `;
+                        
+                        resultDisplay.style.display = 'block';
+                    }
+                    if (window.gameManager && window.gameManager.questionManager) {
+        window.gameManager.questionManager.hideAnswersForReveal();
+    }
+    }
+    
+    // Démarrer l'animation fade in/out
+    this.startRevealAnimation();
+    break;
         }
         
         // Démarrer le timer
@@ -130,7 +168,7 @@ class PhaseManager {
         }
     }
 
-    // Arrêter tous les timers
+    // Dans clearTimers(), ajouter :
     clearTimers() {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
@@ -141,9 +179,15 @@ class PhaseManager {
             clearInterval(this.fadeInterval);
             this.fadeInterval = null;
         }
+        
+        // Cacher l'affichage du résultat
+        const resultDisplay = this.overlay.querySelector('.result-display');
+        if (resultDisplay) {
+            resultDisplay.style.display = 'none';
+        }
     }
 
-    // Réinitialiser pour une nouvelle question
+    // Dans reset(), ajouter :
     reset() {
         this.clearTimers();
         this.currentPhase = 1;
@@ -153,15 +197,27 @@ class PhaseManager {
         // Réinitialiser l'UI
         this.overlay.style.backgroundColor = 'rgba(15, 12, 41, 1)';
         this.overlay.classList.remove('transparent');
+        
+        // Réafficher les éléments standards
+        this.overlayIcon.style.opacity = '1';
+        this.phaseInfo.style.opacity = '1';
+        this.phaseTimerEl.style.opacity = '1';
         this.overlayIcon.classList.remove('hidden');
         this.phaseInfo.classList.remove('hidden');
         this.phaseTimerEl.classList.remove('hidden');
-        this.overlayIcon.style.opacity = 1;
-        this.phaseInfo.style.opacity = 1;
-        this.phaseTimerEl.style.opacity = 1;
-        this.phaseInfo.style.fontSize = ''; // Réinitialiser la taille
-        this.phaseInfo.style.fontWeight = ''; // Réinitialiser le poids
+        
+        // Réinitialiser les infos
+        this.overlayIcon.textContent = '🎧';
+        this.phaseInfo.textContent = 'Écoutez la musique (20 secondes)';
+        this.phaseInfo.style.fontSize = '';
+        this.phaseInfo.style.fontWeight = '';
         
         this.phaseTimerEl.textContent = this.phaseTimer;
+        
+        // Cacher l'affichage du résultat
+        const resultDisplay = this.overlay.querySelector('.result-display');
+        if (resultDisplay) {
+            resultDisplay.style.display = 'none';
+        }
     }
 }
