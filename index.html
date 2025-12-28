@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Jeux Vidéos - Écoute et Devine</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Nos fichiers CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="stylesheet" href="styles/quiz.css">
+</head>
+<body>
+    <!-- ÉCRAN D'ACCUEIL -->
+    <div id="home-screen" class="screen active">
+        <div class="home-content">
+            <div class="logo">
+                <i class="fas fa-gamepad"></i>
+                <h1>QUIZ JEUX VIDÉOS</h1>
+            </div>
+            
+            <div class="rules">
+                <div class="rule">
+                    <i class="fas fa-volume-up"></i>
+                    <p><strong>1. Écoutez</strong><br>15 secondes de gameplay</p>
+                </div>
+                <div class="rule">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>2. Devinez</strong><br>4 propositions</p>
+                </div>
+                <div class="rule">
+                    <i class="fas fa-check-circle"></i>
+                    <p><strong>3. Découvrez</strong><br>La bonne réponse</p>
+                </div>
+            </div>
+            
+            <button id="start-btn" class="btn-primary">
+                <i class="fas fa-play"></i>
+                COMMENCER LE QUIZ
+            </button>
+            
+            <p class="hint">
+                <i class="fas fa-info-circle"></i>
+                Cliquez pour autoriser l'audio
+            </p>
+        </div>
+    </div>
+
+    <!-- ÉCRAN DU QUIZ -->
+    <div id="quiz-screen" class="screen">
+        <div class="header">
+            <div class="title">
+                <i class="fas fa-gamepad"></i>
+                QUIZ JEUX VIDÉOS
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <i class="fas fa-question"></i>
+                    Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="video-section">
+            <div id="player-container"></div>
+            
+            <!-- LAYER POUR LES PHASES -->
+            <div class="video-overlay" id="video-overlay">
+                <div class="overlay-icon" id="overlay-icon">🎧</div>
+                <div class="phase-info" id="phase-info">Écoutez le gameplay</div>
+                <div class="phase-timer" id="phase-timer">15</div>
+                <div class="progress-container">
+                    <!-- BARRE FIXE À 3 SEGMENTS -->
+                    <div class="phase-progress">
+                        <div class="phase-segment segment-1"></div>
+                        <div class="phase-segment segment-2"></div>
+                        <div class="phase-segment segment-3"></div>
+                    </div>
+                    <div class="phase-label">
+                        <span>Audio (15s)</span>
+                        <span>Vidéo (5s)</span>
+                        <span>Réponse (5s)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Overlay pour cacher l'UI YouTube -->
+            <div class="youtube-mask">
+                <div class="mask-top"></div>
+                <div class="mask-bottom"></div>
+            </div>
+        </div>
+        
+        <div class="answers-section">
+            <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+            <div class="answers-grid" id="answers-grid">
+                <!-- Les réponses seront ajoutées ici -->
+            </div>
+        </div>
+        
+        <div class="result" id="result"></div>
+        
+        <button id="next-btn" class="btn-next" style="display: none;">
+            <i class="fas fa-forward"></i>
+            QUESTION SUIVANTE
+        </button>
+    </div>
+
+    <!-- YouTube API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <!-- Nos fichiers JavaScript -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/games.js"></script>
+    <script src="scripts/YouTubePlayer.js"></script>
+    <script src="scripts/PhaseManager.js"></script>
+    <script src="scripts/QuestionManager.js"></script>
+    <script src="scripts/GameManager.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
