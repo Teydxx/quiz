@@ -122,18 +122,28 @@ class YouTubePlayer {
     loadVideo(videoId, startTime) {
         console.log(`🎬 Chargement vidéo: ${videoId} à ${startTime}s`);
         
-        // COMME L'ANCIEN CODE : On charge sans vérifier le retour
-        // YouTube gère lui-même les erreurs
+        if (!this.player) {
+            console.error('❌ Player non initialisé');
+            if (this.onErrorCallback) this.onErrorCallback('Player non initialisé');
+            return;
+        }
+        
         try {
-            this.player.loadVideoById({
-                videoId: videoId,
-                startSeconds: startTime,
-                suggestedQuality: 'medium'
-            });
-            // Pas de return, comme avant
+            // Vérifier si le player est prêt
+            if (this.player.loadVideoById) {
+                this.player.loadVideoById({
+                    videoId: videoId,
+                    startSeconds: startTime,
+                    suggestedQuality: 'medium'
+                });
+                console.log(`✅ Vidéo ${videoId} chargée à ${startTime}s`);
+            } else {
+                console.warn('⚠️ loadVideoById non disponible, tentative dans 500ms');
+                setTimeout(() => this.loadVideo(videoId, startTime), 500);
+            }
         } catch (error) {
-            console.error('❌ Erreur technique loadVideoById:', error);
-            // L'erreur sera gérée par onError callback
+            console.error('❌ Erreur loadVideoById:', error);
+            if (this.onErrorCallback) this.onErrorCallback(error);
         }
     }
 

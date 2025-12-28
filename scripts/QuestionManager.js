@@ -12,6 +12,33 @@ class QuestionManager {
         this.nextBtn = document.getElementById('next-btn');
     }
 
+        hasUserAnswered() {
+            return this.userAnswered;
+        }
+
+        // S'assurer que autoRevealAnswer() retourne bien l'objet :
+        autoRevealAnswer() {
+            if (this.userAnswered || !this.currentGame) return null;
+            
+            this.userAnswered = true;
+            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.dataset.correct === 'true') {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            this.showResult(false);
+            
+            return {
+                isCorrect: false,
+                gameName: this.currentGame.name,
+                userAnswered: false
+            };
+        }
+
     // Initialiser
     init(totalQuestions) {
         this.totalQuestions = totalQuestions;

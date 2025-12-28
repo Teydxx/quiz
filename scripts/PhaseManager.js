@@ -14,6 +14,21 @@ class PhaseManager {
         this.phaseTimerEl = document.getElementById('phase-timer');
     }
 
+    triggerAutoReveal() {
+    // Appeler autoRevealAnswer si l'utilisateur n'a pas répondu
+    if (window.gameManager && 
+        window.gameManager.questionManager && 
+        !window.gameManager.questionManager.hasUserAnswered()) {
+        
+        const result = window.gameManager.questionManager.autoRevealAnswer();
+        
+        // Configurer la phase 3 avec le résultat
+        if (result) {
+            this.setupPhase3(result.gameName, result.isCorrect, result.userAnswered);
+        }
+    }
+    }
+
     // Démarrer une phase spécifique
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
@@ -47,13 +62,26 @@ class PhaseManager {
             case 3:
                 this.phaseTimer = CONFIG.PHASE3_TIME;
                 
+                // AUTO-RÉVÉLATION SI PAS DE RÉPONSE
+                if (!window.gameManager.questionManager.hasUserAnswered()) {
+                    this.triggerAutoReveal();
+                }
+                
                 // Rétablir l'opacité à 100%
                 this.layerOpacity = 1;
                 this.overlay.style.backgroundColor = 'rgba(15, 12, 41, 1)';
                 this.overlay.classList.remove('transparent');
-                this.overlayIcon.textContent = '✅';
                 
-                this.phaseInfo.textContent = 'Révélation de la réponse';
+                // Mettre à jour l'icône et le texte
+                if (window.gameManager.questionManager.hasUserAnswered()) {
+                    const isCorrect = window.gameManager.questionManager.resultEl.classList.contains('correct');
+                    this.overlayIcon.textContent = isCorrect ? '🎉' : '❌';
+                    this.phaseInfo.textContent = isCorrect ? 'Bonne réponse !' : 'Mauvaise réponse';
+                } else {
+                    this.overlayIcon.textContent = '🔍';
+                    const currentGame = window.gameManager.questionManager.getCurrentGame();
+                    this.phaseInfo.textContent = currentGame ? `Réponse: ${currentGame.name}` : 'Réponse';
+                }
                 break;
         }
         

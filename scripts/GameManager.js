@@ -93,23 +93,16 @@ class GameManager {
     startGame() {
         console.log('🚀 Démarrage du jeu');
         
-        // DEBUG
-        console.log('Home avant:', this.homeScreen.style.display);
-        console.log('Quiz avant:', this.quizScreen.style.display);
-        
-        // Changer d'écran (méthode plus agressive)
-        this.homeScreen.style.display = 'none';
-        this.quizScreen.style.display = 'block';
-        
-        // Assurer les classes aussi
+        // Changer d'écran proprement
         this.homeScreen.classList.remove('active');
+        this.homeScreen.classList.add('hidden');
+        this.quizScreen.classList.remove('hidden');
         this.quizScreen.classList.add('active');
         
-        console.log('Home après:', this.homeScreen.style.display);
-        console.log('Quiz après:', this.quizScreen.style.display);
+        console.log('✅ Écrans switchés');
         
         // Démarrer la première question
-        this.startQuestion();
+        setTimeout(() => this.startQuestion(), 100);
     }
 
     // Démarrer une question
