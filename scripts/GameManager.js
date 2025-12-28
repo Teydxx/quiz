@@ -164,13 +164,13 @@ class GameManager {
         // Réinitialiser les phases
         this.phaseManager.reset();
         
-        // Masquer le bouton suivant
+        // Masquer le résultat et réinitialiser les réponses
         this.questionManager.hideResult();
         this.nextBtn.style.display = 'none';
         
         // Démarrer la question suivante
         setTimeout(() => this.startQuestion(), 1000);
-    }
+        }
 
     // Afficher une erreur
     showError(message) {
