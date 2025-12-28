@@ -10,46 +10,23 @@ class QuestionManager {
         this.totalQuestionsEl = document.getElementById('total-questions');
         this.resultEl = document.getElementById('result');
         this.nextBtn = document.getElementById('next-btn');
+        
+        console.log('❓ [DEBUG] QuestionManager créé');
     }
-
-        hasUserAnswered() {
-            return this.userAnswered;
-        }
-
-        // S'assurer que autoRevealAnswer() retourne bien l'objet :
-        autoRevealAnswer() {
-            if (this.userAnswered || !this.currentGame) return null;
-            
-            this.userAnswered = true;
-            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
-            
-            buttons.forEach(btn => {
-                btn.disabled = true;
-                if (btn.dataset.correct === 'true') {
-                    btn.classList.add('correct');
-                }
-            });
-            
-            this.showResult(false);
-            
-            return {
-                isCorrect: false,
-                gameName: this.currentGame.name,
-                userAnswered: false
-            };
-        }
 
     // Initialiser
     init(totalQuestions) {
         this.totalQuestions = totalQuestions;
         this.totalQuestionsEl.textContent = totalQuestions;
         shuffleArray(this.remainingGames);
+        console.log(`❓ [DEBUG] QuestionManager initialisé avec ${totalQuestions} questions`);
     }
 
     // Préparer une nouvelle question
     prepareQuestion(questionNumber) {
         if (this.remainingGames.length === 0) {
-            return false; // Plus de jeux disponibles
+            console.log('❌ [DEBUG] Plus de jeux disponibles');
+            return false;
         }
 
         this.reset();
@@ -59,6 +36,8 @@ class QuestionManager {
         const randomIndex = Math.floor(Math.random() * this.remainingGames.length);
         this.currentGame = this.remainingGames[randomIndex];
         this.remainingGames.splice(randomIndex, 1);
+        
+        console.log(`🎮 [DEBUG] Jeu sélectionné: ${this.currentGame.name}`);
         
         // Préparer les réponses
         this.prepareAnswers();
@@ -87,10 +66,13 @@ class QuestionManager {
         });
         
         this.userAnswered = false;
+        console.log(`📋 [DEBUG] 4 réponses préparées (correcte: ${correctAnswer})`);
     }
 
     // Vérifier la réponse
     checkAnswer(clickedButton) {
+        console.log('🖱️ [DEBUG] Bouton réponse cliqué');
+        
         if (this.userAnswered || !this.currentGame) return;
         
         this.userAnswered = true;
@@ -112,6 +94,8 @@ class QuestionManager {
         // Afficher le résultat
         this.showResult(isCorrect);
         
+        console.log(`✅ [DEBUG] Réponse ${isCorrect ? 'correcte' : 'incorrecte'}`);
+        
         return {
             isCorrect: isCorrect,
             gameName: this.currentGame.name,
@@ -121,7 +105,9 @@ class QuestionManager {
 
     // Réponse automatique (temps écoulé)
     autoRevealAnswer() {
-        if (this.userAnswered || !this.currentGame) return;
+        console.log('⏰ [DEBUG] autoRevealAnswer() - temps écoulé');
+        
+        if (this.userAnswered || !this.currentGame) return null;
         
         this.userAnswered = true;
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
@@ -134,6 +120,8 @@ class QuestionManager {
         });
         
         this.showResult(false);
+        
+        console.log(`🔍 [DEBUG] Réponse révélée automatiquement: ${this.currentGame.name}`);
         
         return {
             isCorrect: false,
@@ -149,13 +137,19 @@ class QuestionManager {
             : `❌ <strong>Incorrect</strong><br><small>La réponse était: ${this.currentGame.name}</small>`;
         
         this.resultEl.className = `result active ${isCorrect ? 'correct' : 'incorrect'}`;
-        this.nextBtn.style.display = 'flex';
+        
+        // Afficher le bouton suivant
+        if (window.gameManager && window.gameManager.nextBtn) {
+            window.gameManager.nextBtn.style.display = 'flex';
+        }
+        
+        console.log(`🏆 [DEBUG] Résultat affiché: ${isCorrect ? 'Correct' : 'Incorrect'}`);
     }
 
     // Masquer le résultat
     hideResult() {
         this.resultEl.className = 'result';
-        this.nextBtn.style.display = 'none';
+        console.log('🎭 [DEBUG] Résultat masqué');
     }
 
     // Réinitialiser pour nouvelle question
@@ -163,6 +157,7 @@ class QuestionManager {
         this.userAnswered = false;
         this.hideResult();
         this.answersGrid.innerHTML = '';
+        console.log('🔄 [DEBUG] QuestionManager réinitialisé');
     }
 
     // Vérifier si l'utilisateur a répondu
