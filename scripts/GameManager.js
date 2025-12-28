@@ -151,6 +151,7 @@ class GameManager {
         
         this.youtubePlayer.loadVideo(currentGame.videoId, this.startTime);
         this.youtubePlayer.unmute();
+        console.log(`✅ Vidéo ${currentGame.name} demandée`);
     }
 
     // Passer à la question suivante

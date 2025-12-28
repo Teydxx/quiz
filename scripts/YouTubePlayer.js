@@ -120,23 +120,20 @@ class YouTubePlayer {
 
     // Charger et jouer une vidéo
     loadVideo(videoId, startTime) {
-        if (!this.isReady) {
-            console.warn('⚠️ Player YouTube non prêt, attente...');
-            return false;
-        }
-
         console.log(`🎬 Chargement vidéo: ${videoId} à ${startTime}s`);
         
+        // COMME L'ANCIEN CODE : On charge sans vérifier le retour
+        // YouTube gère lui-même les erreurs
         try {
             this.player.loadVideoById({
                 videoId: videoId,
                 startSeconds: startTime,
                 suggestedQuality: 'medium'
             });
-            return true;
+            // Pas de return, comme avant
         } catch (error) {
-            console.error('❌ Erreur lors du chargement de la vidéo:', error);
-            return false;
+            console.error('❌ Erreur technique loadVideoById:', error);
+            // L'erreur sera gérée par onError callback
         }
     }
 
@@ -177,6 +174,7 @@ class YouTubePlayer {
 
     // Vérifier si le player est prêt
     isPlayerReady() {
-        return this.isReady;
+        // Retourne vrai si l'API YouTube existe, pas besoin d'attendre onReady
+        return !!(window.YT && window.YT.Player);
     }
 }
