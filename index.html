@@ -68,23 +68,29 @@
             <div id="player-container"></div>
             
             <!-- LAYER POUR LES PHASES -->
-            <div class="video-overlay" id="video-overlay">
-                <div class="overlay-icon" id="overlay-icon">🎧</div>
-                <div class="phase-info" id="phase-info">Écoutez le gameplay</div>
-                <div class="phase-timer" id="phase-timer">15</div>
-                <!-- Dans la section video-overlay, remplacer le progress-container -->
-            <div class="progress-container">
-                <!-- BARRE À 2 SEGMENTS (20s + 10s) -->
-                <div class="phase-progress">
-                    <div class="phase-segment segment-1"></div>
-                    <div class="phase-segment segment-2"></div>
-                </div>
-                <div class="phase-label">
-                    <span>Écoute (20s)</span>
-                    <span>Révélation (10s)</span>
-                </div>
-            </div>
-            </div>
+            <!-- Remplacer le contenu actuel par : -->
+<div class="video-overlay" id="video-overlay">
+    <!-- Éléments pour Phase 1 (écoute) -->
+    <div class="phase-1-elements">
+        <div class="overlay-icon" id="overlay-icon">🎧</div>
+        <div class="phase-info" id="phase-info">Écoutez la musique</div>
+        <div class="phase-timer" id="phase-timer">20</div>
+    </div>
+    
+    <!-- Barre de progression FIXE (toujours visible) -->
+    <div class="progress-container">
+        <div class="phase-progress">
+            <div class="phase-segment segment-1"></div>
+            <div class="phase-segment segment-2"></div>
+        </div>
+        <div class="phase-label">
+            <span>Écoute (20s)</span>
+            <span>Révélation (10s)</span>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay de résultat sera ajouté dynamiquement par PhaseManager -->
             
             <!-- Overlay pour cacher l'UI YouTube -->
             <div class="youtube-mask">
