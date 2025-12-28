@@ -1,36 +1,22 @@
-// games.js - Liste des jeux vidéo avec leurs OST YouTube
+// games.js - Liste des jeux vidéo avec leurs IDs YouTube
 
-// OST iconiques de jeux vidéos
+// Configuration des jeux
 const GAMES = [
-    // Classiques retro
-    { name: "Super Mario Bros", videoId: "5s8YrH3Y8vM" },
-    { name: "The Legend of Zelda", videoId: "U_SnVh-5RUA" },
-    { name: "Sonic the Hedgehog", videoId: "6T7DqfvP1Eg" },
-    { name: "Castlevania", videoId: "ESUTZ1ESP-o" },
-    { name: "Street Fighter II", videoId: "7L-mrLQ2sWg" },
-    { name: "Chrono Trigger", videoId: "im3T593uHuk" },
-    { name: "Metal Gear Solid", videoId: "LbObf_a8TBk" },
-    
-    // RPG épiques
-    { name: "The Elder Scrolls V: Skyrim", videoId: "PTFwQP86BRs" },
-    { name: "Final Fantasy VII", videoId: "VVqe6Tt-bgM" },
-    { name: "Persona 5", videoId: "YoQk-_eA5dM" },
-    
-    // FPS/action
-    { name: "Halo", videoId: "Uw8EgTjYMgE" },
-    { name: "Silent Hill 2", videoId: "pvJQe9pzDkQ" },
-    
-    // Indé modernes
-    { name: "Undertale", videoId: "0FO1cTlT4Ok" },
-    { name: "Minecraft", videoId: "s7tN4Yl13b8" },
-    { name: "Celeste", videoId: "IOEAVVq8KEo" },
-    
-    // Ajouts bonus
-    { name: "Kingdom Hearts", videoId: "t0kupq-UU2Q" },
-    { name: "The Witcher 3: Wild Hunt", videoId: "UwPpV3AxJxU" },
-    { name: "Dark Souls", videoId: "rGfqy9Xo9Pw" },
-    { name: "Mass Effect", videoId: "OcL8G86stc8" },
-    { name: "BioShock Infinite", videoId: "mhh71u0r6WY" }
+    { name: "The Legend of Zelda: Breath of the Wild", videoId: "zw47_q9wbBE" },
+    { name: "Super Mario Odyssey", videoId: "5kcdRBHM7kM" },
+    { name: "God of War (2018)", videoId: "K0u_kAWLJOA" },
+    { name: "Red Dead Redemption 2", videoId: "eaW0tYpxyp0" },
+    { name: "The Witcher 3: Wild Hunt", videoId: "c0i88t0Kacs" },
+    { name: "Elden Ring", videoId: "AKXiKBnzpBQ" },
+    { name: "Grand Theft Auto V", videoId: "QkkoHAzjnUs" },
+    { name: "Minecraft", videoId: "MmB9b5njVbA" },
+    { name: "Fortnite", videoId: "6I_r7qJzXjA" },
+    { name: "Cyberpunk 2077", videoId: "8X2kIfS6fb8" },
+    { name: "Hollow Knight", videoId: "UAO2urG23S4" },
+    { name: "Portal 2", videoId: "TluRVBhmf8w" },
+    { name: "Dark Souls III", videoId: "c7wC8l6s8Uc" },
+    { name: "Overwatch 2", videoId: "GKXS_YA9s7E" },
+    { name: "The Last of Us Part II", videoId: "lDC4X8Dgxr4" }
 ];
 
 // Fonction pour mélanger un tableau
