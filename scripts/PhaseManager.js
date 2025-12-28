@@ -3,10 +3,10 @@ class PhaseManager {
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         this.phaseInterval = null;
-        this.fadeInterval = null; // IMPORTANT: initialiser ici
+        this.fadeInterval = null;
         this.layerOpacity = 1;
         this.onPhaseComplete = null;
-        this.resultOverlay = null; // AJOUT: initialiser
+        this.resultOverlay = null;
         
         // Éléments DOM
         this.overlay = document.getElementById('video-overlay');
@@ -18,7 +18,7 @@ class PhaseManager {
         this.createResultOverlay();
     }
     
-    // NOUVELLE MÉTHODE : Créer l'overlay de résultat
+    // Créer l'overlay de résultat
     createResultOverlay() {
         this.resultOverlay = document.createElement('div');
         this.resultOverlay.className = 'result-overlay';
@@ -40,19 +40,29 @@ class PhaseManager {
     // Démarrer une phase spécifique
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
-        this.clearTimers(); // IMPORTANT: arrêter tous les timers d'abord
+        this.clearTimers();
         
-        // CACHER IMMÉDIATEMENT l'overlay principal
-        this.overlayIcon.style.opacity = '0';
-        this.phaseInfo.style.opacity = '0';
-        this.phaseTimerEl.style.opacity = '0';
-        
-        // Masquer complètement les éléments après un court délai
-        setTimeout(() => {
-            this.overlayIcon.classList.add('hidden');
-            this.phaseInfo.classList.add('hidden');
-            this.phaseTimerEl.classList.add('hidden');
-        }, 50);
+        // Gérer la visibilité selon la phase
+        if (phaseNumber === 2) {
+            // Phase 2 : cacher l'UI d'écoute
+            this.overlayIcon.style.opacity = '0';
+            this.phaseInfo.style.opacity = '0';
+            this.phaseTimerEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                this.overlayIcon.classList.add('hidden');
+                this.phaseInfo.classList.add('hidden');
+                this.phaseTimerEl.classList.add('hidden');
+            }, 50);
+        } else {
+            // Phase 1 : tout montrer
+            this.overlayIcon.style.opacity = '1';
+            this.phaseInfo.style.opacity = '1';
+            this.phaseTimerEl.style.opacity = '1';
+            this.overlayIcon.classList.remove('hidden');
+            this.phaseInfo.classList.remove('hidden');
+            this.phaseTimerEl.classList.remove('hidden');
+        }
 
         // Gérer les classes CSS pour les phases
         this.overlay.classList.remove('phase-1', 'phase-2');
@@ -60,18 +70,11 @@ class PhaseManager {
         
         switch(phaseNumber) {
             case 1:
-                // Phase 1 : réafficher tout
+                // Phase 1 : Écoute (20 secondes)
                 this.phaseTimer = CONFIG.PHASE1_TIME;
                 this.overlayIcon.textContent = '🎧';
                 this.phaseInfo.textContent = 'Écoutez la musique (20 secondes)';
-                
-                // Montrer les éléments
-                this.overlayIcon.style.opacity = '1';
-                this.phaseInfo.style.opacity = '1';
-                this.phaseTimerEl.style.opacity = '1';
-                this.overlayIcon.classList.remove('hidden');
-                this.phaseInfo.classList.remove('hidden');
-                this.phaseTimerEl.classList.remove('hidden');
+                this.phaseTimerEl.textContent = this.phaseTimer;
                 
                 // Cacher l'overlay de résultat
                 if (this.resultOverlay) {
@@ -80,6 +83,7 @@ class PhaseManager {
                 break;
                 
             case 2:
+                // Phase 2 : Révélation (10 secondes)
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
                 // DÉTERMINER LE RÉSULTAT
@@ -106,6 +110,12 @@ class PhaseManager {
                                 statusText = 'INCORRECT';
                             }
                         }
+                        
+                        // FINALISER LA RÉPONSE (verrouiller et révéler)
+                        qm.finalizeAnswer();
+                        
+                        // Révéler les réponses correctes
+                        qm.revealAnswers();
                     }
                 }
                 
@@ -128,20 +138,12 @@ class PhaseManager {
                     }, 10);
                 }
                 
-                // CACHER LES RÉPONSES
-                if (window.gameManager && window.gameManager.questionManager) {
-                    window.gameManager.questionManager.hideAnswersForReveal();
-                }
-                
                 // DÉMARRER L'ANIMATION (sans timer visible)
                 this.startRevealAnimation();
                 break;
         }
         
-        // Démarrer le timer interne (mais pas affiché pour phase 2)
-        if (phaseNumber === 1) {
-            this.phaseTimerEl.textContent = this.phaseTimer;
-        }
+        // Démarrer le timer interne
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
@@ -197,14 +199,13 @@ class PhaseManager {
         }
     }
     
-    // Arrêter tous les timers - CORRIGÉ
+    // Arrêter tous les timers
     clearTimers() {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
             this.phaseInterval = null;
         }
         
-        // AJOUT: arrêter aussi le fadeInterval
         if (this.fadeInterval) {
             clearInterval(this.fadeInterval);
             this.fadeInterval = null;

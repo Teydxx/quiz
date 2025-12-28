@@ -107,3 +107,25 @@ body::before {
     opacity: 1;
     display: block;
 }
+
+/* Dans quiz.css, modifier .answer-btn.user-selected */
+.answer-btn.user-selected {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    border: 2px solid #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+}
+
+/* Pour la réponse correcte finale (phase 2) */
+.answer-btn.correct-answer {
+    border: 2px solid #2ed573;
+    background: rgba(46, 213, 115, 0.15);
+    color: #2ed573;
+    animation: pulseCorrect 0.5s ease;
+}
+
+@keyframes pulseCorrect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
