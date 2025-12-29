@@ -113,12 +113,12 @@ class QuestionManager {
     }
 
     // Révéler les réponses (appelé pendant la phase 2)
+    // Dans QuestionManager.js, modifier revealAnswers() pour ajouter le bouton SUIVANT plus tôt
     revealAnswers() {
         console.log('🔍 Révélation des réponses (phase 2)');
         
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
         
-        // Maintenant on montre la réponse correcte
         buttons.forEach(btn => {
             if (btn.dataset.correct === 'true') {
                 btn.classList.add('correct-answer');
@@ -126,8 +126,10 @@ class QuestionManager {
             }
         });
         
-        // Afficher le bouton suivant
-        this.showNextButton();
+        // Afficher le bouton suivant APRÈS 7 secondes (quand le fade in commence)
+        setTimeout(() => {
+            this.showNextButton();
+        }, 7000);
     }
 
     // Réponse automatique (temps écoulé sans réponse)

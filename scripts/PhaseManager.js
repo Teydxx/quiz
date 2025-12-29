@@ -1,22 +1,16 @@
 class PhaseManager {
     constructor() {
-        console.log('🎯 PhaseManager constructor appelé');
-        
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         this.phaseInterval = null;
         this.onPhaseComplete = null;
         
         // Éléments DOM
-        this.videoOverlay = document.getElementById('video-overlay');
-        this.resultOverlay = document.getElementById('result-overlay');
-        this.timerOverlay = document.getElementById('timer-overlay');
+        this.blackOverlay = document.getElementById('black-overlay');
+        this.resultBox = document.getElementById('result-box');
+        this.timerBox = document.getElementById('timer-box');
         this.timerCount = document.querySelector('.timer-count');
-        
-        console.log('🎯 Éléments trouvés:');
-        console.log('- video-overlay:', this.videoOverlay ? '✅' : '❌');
-        console.log('- result-overlay:', this.resultOverlay ? '✅' : '❌');
-        console.log('- timer-overlay:', this.timerOverlay ? '✅' : '❌');
+        this.answersSection = document.getElementById('answers-section');
         
         // Éléments résultat
         this.resultIcon = document.querySelector('.result-icon');
@@ -26,52 +20,46 @@ class PhaseManager {
     
     // Démarrer une phase
     startPhase(phaseNumber) {
-        console.log(`🚀 START PHASE ${phaseNumber} appelé`);
-        
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
         switch(phaseNumber) {
             case 1:
-                console.log('🎯 Phase 1: Écoute (20s)');
+                // Phase 1 : Écoute (20s)
                 this.phaseTimer = CONFIG.PHASE1_TIME;
                 
-                // Overlay vidéo 100% noir, résultat caché
-                if (this.videoOverlay) {
-                    this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-                    console.log('🎨 video-overlay: rgba(0,0,0,1)');
-                }
-                if (this.resultOverlay) {
-                    this.resultOverlay.classList.remove('active');
-                }
+                // 1. Overlay noir à 100%
+                this.setBlackOverlayOpacity(1);
                 
-                // Afficher timer
-                if (this.timerOverlay) {
-                    this.timerOverlay.classList.remove('hidden');
-                }
-                if (this.timerCount) {
-                    this.timerCount.textContent = this.phaseTimer;
-                }
+                // 2. Montrer timer, cacher résultat
+                this.timerBox.classList.remove('hidden');
+                this.timerCount.textContent = this.phaseTimer;
+                this.resultBox.classList.remove('active');
+                
+                // 3. Montrer les réponses
+                this.answersSection.classList.remove('hidden');
+                
                 break;
                 
             case 2:
-                console.log('🎯 Phase 2: Révélation (10s) - DÉBUT');
+                // Phase 2 : Révélation (10s)
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
-                // Cacher timer
-                if (this.timerOverlay) {
-                    this.timerOverlay.classList.add('hidden');
-                }
+                // 1. Cacher timer
+                this.timerBox.classList.add('hidden');
                 
-                // Afficher résultat
+                // 2. Cacher les réponses
+                this.answersSection.classList.add('hidden');
+                
+                // 3. Afficher résultat
                 this.showResult();
                 
-                // FADE OUT progressif sur 3 secondes
-                this.startFadeOut();
+                // 4. Animation overlay : 100% → 0% en 3s
+                this.fadeOutBlackOverlay();
                 
-                // Après 7 secondes, FADE IN progressif
+                // 5. Après 7s, animation overlay : 0% → 100% en 3s
                 setTimeout(() => {
-                    this.startFadeIn();
+                    this.fadeInBlackOverlay();
                 }, 7000);
                 
                 break;
@@ -81,84 +69,73 @@ class PhaseManager {
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // FADE OUT progressif - CORRIGÉ
-    startFadeOut() {
-        console.log('🎬 FADE OUT: 100% → 0% en 3s');
-        
-        if (!this.videoOverlay) return;
+    // FADE OUT : 100% → 0% en 3 secondes
+    fadeOutBlackOverlay() {
+        if (!this.blackOverlay) return;
         
         let opacity = 1;
-        const duration = 3000; // 3 secondes
-        const steps = 60; // 60 images
+        const duration = 3000;
+        const steps = 30;
         const stepDuration = duration / steps;
         const decrement = 1 / steps;
         
         let step = 0;
         const fade = () => {
-            // Baisser l'opacité du SEUL video-overlay
             opacity -= decrement;
-            this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${Math.max(0, opacity)})`;
+            this.setBlackOverlayOpacity(Math.max(0, opacity));
             
             step++;
-            
             if (step < steps) {
                 setTimeout(fade, stepDuration);
             } else {
-                // Forcer à 0%
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-                console.log('✅ FADE OUT terminé (vidéo visible)');
+                this.setBlackOverlayOpacity(0);
             }
         };
         
-        // Démarrer l'animation
         setTimeout(fade, stepDuration);
     }
     
-    // FADE IN progressif - CORRIGÉ
-    startFadeIn() {
-        console.log('🎬 FADE IN: 0% → 100% en 3s');
-        
-        if (!this.videoOverlay) return;
+    // FADE IN : 0% → 100% en 3 secondes
+    fadeInBlackOverlay() {
+        if (!this.blackOverlay) return;
         
         let opacity = 0;
-        const duration = 3000; // 3 secondes
-        const steps = 60; // 60 images
+        const duration = 3000;
+        const steps = 30;
         const stepDuration = duration / steps;
         const increment = 1 / steps;
         
         let step = 0;
         const fade = () => {
-            // Augmenter l'opacité du SEUL video-overlay
             opacity += increment;
-            this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${Math.min(1, opacity)})`;
+            this.setBlackOverlayOpacity(Math.min(1, opacity));
             
             step++;
-            
             if (step < steps) {
                 setTimeout(fade, stepDuration);
             } else {
-                // Forcer à 100%
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-                console.log('✅ FADE IN terminé (vidéo cachée)');
+                this.setBlackOverlayOpacity(1);
             }
         };
         
-        // Démarrer l'animation
         setTimeout(fade, stepDuration);
+    }
+    
+    // Définir l'opacité de l'overlay noir
+    setBlackOverlayOpacity(opacity) {
+        if (this.blackOverlay) {
+            this.blackOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
+        }
     }
     
     // Afficher le résultat
     showResult() {
-        console.log('📊 showResult() appelé');
-        
         if (!window.gameManager || !window.gameManager.questionManager) return;
         
         const qm = window.gameManager.questionManager;
         const currentGame = qm.getCurrentGame();
         
         if (!currentGame) return;
-        
-        console.log('🎮 Jeu courant:', currentGame.name);
         
         // Finaliser la réponse
         qm.finalizeAnswer();
@@ -181,42 +158,29 @@ class PhaseManager {
             }
         }
         
-        console.log('📊 Résultat:', statusText);
-        
         // Mettre à jour DOM
-        if (this.resultIcon) this.resultIcon.textContent = resultIcon;
-        if (this.resultGameName) this.resultGameName.textContent = currentGame.name;
-        if (this.resultStatus) this.resultStatus.textContent = statusText;
+        this.resultIcon.textContent = resultIcon;
+        this.resultGameName.textContent = currentGame.name;
+        this.resultStatus.textContent = statusText;
         
         // Appliquer classe résultat
-        if (this.resultOverlay) {
-            this.resultOverlay.className = `result-overlay ${resultClass}`;
-            
-            // IMPORTANT: NE PAS toucher à l'opacité CSS ! On veut qu'il reste visible
-            this.resultOverlay.style.opacity = ''; // Réinitialiser
-            this.resultOverlay.style.backgroundColor = ''; // Réinitialiser
-            
-            // Afficher
-            setTimeout(() => {
-                this.resultOverlay.classList.add('active');
-                console.log('📊 Overlay résultat affiché');
-            }, 100);
-        }
+        this.resultBox.className = `result-box ${resultClass}`;
+        
+        // Afficher
+        setTimeout(() => {
+            this.resultBox.classList.add('active');
+        }, 100);
     }
     
     // Mettre à jour timer
     updatePhaseTimer() {
         this.phaseTimer--;
         
-        console.log(`⏱️ Timer phase ${this.currentPhase}: ${this.phaseTimer}s`);
-        
-        if (this.currentPhase === 1 && this.timerCount) {
+        if (this.currentPhase === 1) {
             this.timerCount.textContent = this.phaseTimer;
         }
         
         if (this.phaseTimer <= 0) {
-            console.log(`⏱️ Timer ${this.currentPhase} terminé`);
-            
             if (this.currentPhase < 2) {
                 this.startPhase(2);
             } else {
@@ -228,27 +192,20 @@ class PhaseManager {
     
     // Fin de phase
     endPhase() {
-        console.log('🏁 endPhase() appelé');
         this.clearTimers();
         
-        // S'assurer que l'overlay vidéo est à 100%
-        if (this.videoOverlay) {
-            this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-        }
-        
         // Cacher résultat
-        if (this.resultOverlay) {
-            this.resultOverlay.classList.remove('active');
-            // NE PAS réinitialiser l'opacité ici
-        }
+        this.resultBox.classList.remove('active');
+        
+        // S'assurer que l'overlay est à 100%
+        this.setBlackOverlayOpacity(1);
         
         // Appeler le callback
         setTimeout(() => {
-            console.log('🏁 Appel de onPhaseComplete');
             if (this.onPhaseComplete) {
                 this.onPhaseComplete();
             }
-        }, 500);
+        }, 300);
     }
     
     // Arrêter timer
@@ -261,30 +218,19 @@ class PhaseManager {
     
     // Réinitialiser
     reset() {
-        console.log('🔄 reset() appelé');
         this.clearTimers();
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         
-        // Réinitialiser overlays
-        if (this.videoOverlay) {
-            this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-        }
+        // Réinitialiser tout
+        this.setBlackOverlayOpacity(1);
         
-        if (this.timerOverlay) {
-            this.timerOverlay.classList.remove('hidden');
-        }
+        this.timerBox.classList.remove('hidden');
+        this.timerCount.textContent = this.phaseTimer;
         
-        if (this.timerCount) {
-            this.timerCount.textContent = this.phaseTimer;
-        }
+        this.resultBox.classList.remove('active');
+        this.resultBox.className = 'result-box';
         
-        if (this.resultOverlay) {
-            this.resultOverlay.classList.remove('active');
-            this.resultOverlay.className = 'result-overlay';
-            // IMPORTANT: Réinitialiser tous les styles
-            this.resultOverlay.style.opacity = '';
-            this.resultOverlay.style.backgroundColor = '';
-        }
+        this.answersSection.classList.remove('hidden');
     }
 }
