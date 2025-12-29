@@ -64,35 +64,35 @@
             </div>
         </div>
         
-<!-- Dans la section video-section, remplacer le contenu par : -->
-<div class="video-section">
-    <div id="player-container"></div>
-    
-    <!-- OVERLAY VIDÉO (contrôle la visibilité) -->
-    <div class="video-overlay" id="video-overlay"></div>
-    
-    <!-- OVERLAY RÉVÉLATION (nom du jeu + résultat) -->
-    <div class="reveal-overlay" id="reveal-overlay">
-        <div class="reveal-content">
-            <div class="reveal-icon">🎮</div>
-            <div class="reveal-game-name"></div>
-            <div class="reveal-status"></div>
+        <div class="video-section">
+            <!-- COUCHE 1 : Vidéo YouTube -->
+            <div id="player-container"></div>
+            
+            <!-- COUCHE 2 : Overlay vidéo (contrôle la visibilité) -->
+            <div class="video-overlay" id="video-overlay"></div>
+            
+            <!-- COUCHE 3 : Overlay résultat (nom du jeu) -->
+            <div class="result-overlay" id="result-overlay">
+                <div class="result-content">
+                    <div class="result-icon"></div>
+                    <div class="result-game-name"></div>
+                    <div class="result-status"></div>
+                </div>
+            </div>
+            
+            <!-- COUCHE 4 : Timer (uniquement phase 1) -->
+            <div class="timer-overlay" id="timer-overlay">
+                <div class="timer-icon">🎵</div>
+                <div class="timer-text">Écoutez la musique</div>
+                <div class="timer-count">20</div>
+            </div>
+            
+            <!-- Masque YouTube (toujours au-dessus) -->
+            <div class="youtube-mask">
+                <div class="mask-top"></div>
+                <div class="mask-bottom"></div>
+            </div>
         </div>
-    </div>
-    
-    <!-- TIMER (uniquement phase 1) -->
-    <div class="timer-overlay" id="timer-overlay">
-        <div class="timer-icon">🎵</div>
-        <div class="timer-text">Écoutez la musique</div>
-        <div class="timer-count">20</div>
-    </div>
-    
-    <!-- Masque YouTube -->
-    <div class="youtube-mask">
-        <div class="mask-top"></div>
-        <div class="mask-bottom"></div>
-    </div>
-</div>
         
         <div class="answers-section">
             <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
