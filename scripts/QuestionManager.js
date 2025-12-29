@@ -10,8 +10,8 @@ class QuestionManager {
         this.answersGrid = document.getElementById('answers-grid');
         this.questionCountEl = document.getElementById('question-count');
         this.totalQuestionsEl = document.getElementById('total-questions');
-        this.resultEl = document.getElementById('result');
         this.nextBtn = document.getElementById('next-btn');
+        this.answersSection = document.getElementById('answers-section'); // AJOUTÉ
     }
 
     // Initialiser
@@ -113,12 +113,12 @@ class QuestionManager {
     }
 
     // Révéler les réponses (appelé pendant la phase 2)
-    // Dans QuestionManager.js, modifier revealAnswers() pour ajouter le bouton SUIVANT plus tôt
     revealAnswers() {
         console.log('🔍 Révélation des réponses (phase 2)');
         
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
         
+        // Maintenant on montre la réponse correcte
         buttons.forEach(btn => {
             if (btn.dataset.correct === 'true') {
                 btn.classList.add('correct-answer');
@@ -160,14 +160,14 @@ class QuestionManager {
         }
     }
 
-    // Masquer le résultat
-    hideResult() {
-        this.resultEl.className = 'result';
-    }
+    // Masquer le résultat (supprimé car non utilisé)
+    // hideResult() {
+    //     // Supprimé - cette fonction n'est plus nécessaire
+    // }
 
     // Cacher les réponses pour révélation
     hideAnswersForReveal() {
-        console.log('🎭 Cacher les réponses pour révélation');
+        console.log('🎮 Cacher les réponses pour révélation');
         
         // Animation de disparition
         this.answersGrid.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -192,9 +192,6 @@ class QuestionManager {
         this.answersGrid.style.transform = 'translateY(0)';
         this.answersGrid.style.transition = '';
         this.answersGrid.innerHTML = '';
-        
-        // Cacher le résultat
-        this.hideResult();
         
         // Cacher le bouton suivant
         if (this.nextBtn) {

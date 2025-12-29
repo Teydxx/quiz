@@ -167,6 +167,7 @@ class GameManager {
     }
 
     // Passer à la question suivante
+
     nextQuestion() {
         console.log('🔄 Question suivante');
         
@@ -178,16 +179,16 @@ class GameManager {
         // Arrêter la vidéo
         this.youtubePlayer.stop();
         
-        // Réinitialiser les phases
+        // RÉINITIALISER LES PHASES AVANT de masquer quoi que ce soit
         this.phaseManager.reset();
         
-        // Masquer le résultat et réinitialiser les réponses
-        this.questionManager.hideResult();
+        // Masquer le rÉsultat et rÉinitialiser les rÉponses
+        this.questionManager.hideResult && this.questionManager.hideResult(); // VÉrifier si la fonction existe
         this.nextBtn.style.display = 'none';
         
-        // Démarrer la question suivante
+        // DÉmarrer la question suivante
         setTimeout(() => this.startQuestion(), 1000);
-        }
+    }
 
     // Afficher une erreur
     showError(message) {
