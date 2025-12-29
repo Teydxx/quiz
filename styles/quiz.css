@@ -197,22 +197,20 @@
     text-align: right;
 }
 
-/* OVERLAY RÉVÉLATION (nom du jeu) */
 .reveal-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 12, 41, 0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 12, 41, 0.95); /* Très opaque, pas besoin de blur */
     z-index: 3;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.3s ease;
 }
 
 .reveal-overlay.active {
@@ -223,12 +221,35 @@
 .reveal-content {
     text-align: center;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1); /* Un peu plus opaque pour le contraste */
     border-radius: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     min-width: 300px;
     max-width: 600px;
     animation: fadeInScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Ajouter une légère ombre portée pour donner de la profondeur */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Pour le rendu sur mobile */
+@media (max-width: 768px) {
+    .reveal-content {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .reveal-icon {
+        font-size: 3.5rem;
+    }
+    
+    .reveal-game-name {
+        font-size: 2.2rem;
+    }
+    
+    .reveal-status {
+        font-size: 1.5rem;
+    }
 }
 
 /* TIMER (phase 1 seulement) */
