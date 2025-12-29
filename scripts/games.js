@@ -212,12 +212,421 @@ const GAMES = [
     {
         name: "Horizon Zero Dawn",
         videoId: "eQFjZkVQK2A"
+    },
+    {
+        name: "Legend of Kyrandia",
+        videoId: "ymTioBu2_Hk"
+    },
+    {
+        name: "Elder scrolls V: Skyrim",
+        videoId: "UsnRQJxanVM"
+    },
+    {
+        name: "Rayman 2",
+        videoId: "tTu9DmjRNlc"
+    },
+    {
+        name: "Shovel Knight",
+        videoId: "wqAYMZSOQao"
+    },
+    {
+        name: "The Last Ninja",
+        videoId: "hiLvoMpLQFA"
+    },
+    {
+        name: "Streets of Rage 2",
+        videoId: "X56G72teZhk"
+    },
+    {
+        name: "The Secret of Monkey Island",
+        videoId: "JeBJIl_naY8"
+    },
+    {
+        name: "Kirby's Adventure",
+        videoId: "iKyuKamPsEE"
+    },
+    {
+        name: "Ori & the Blind Forest",
+        videoId: "E8sjk57G-s8"
+    },
+    {
+        name: "Super Mario Bros",
+        videoId: "L4PxvY2gjP0"
+    },
+        {
+        name: "Fez",
+        videoId: "76GnOwHorn0"
+    },
+    {
+        name: "Final Fantasy X",
+        videoId: "6fp81GzKarQ"
+    },
+    {
+        name: "Legend of Zelda: Link's Awakening",
+        videoId: "1dDucoisuDE"
+    },
+    {
+        name: "Clair Obscur: Expedition 33",
+        videoId: "iqizXvvWnmM"
+    },
+    {
+        name: "Beyond Good & Evil",
+        videoId: "14H2d13ycYg"
+    },
+    {
+        name: "Silent Hill 2",
+        videoId: "6LB7LZZGpkw"
+    },
+    {
+        name: "Rayman Origins",
+        videoId: "KIGY62fZgN8"
+    },
+    {
+        name: "Donkey Kong Country",
+        videoId: "gkCcvoJ09gU"
+    },
+    {
+        name: "Super Mario World",
+        videoId: "QtZEMltv2zY"
+    },
+    {
+        name: "Scott Pilgrim VS the world",
+        videoId: "Jz41ys4_z_c"
+    },
+    {
+        name: "Castlevania",
+        videoId: "btgi3TPL3AE"
+    },
+    {
+        name: "Trine 2",
+        videoId: "uXKPEeJbJSs"
+    },
+    {
+        name: "Legend of Zelda: Link to the past",
+        videoId: "bK-ttWxl4CI"
+    },
+    {
+        name: "Final Fantasy VIII",
+        videoId: "sv2EIdmwggI"
+    },
+    {
+        name: "Bravely Default",
+        videoId: "NgpWhd80ldQ"
+    },
+    {
+        name: "Wild Arms",
+        videoId: "gRV_A5ZDXyo"
+    },
+    {
+        name: "The Last of us",
+        videoId: "cwDkutphzmU"
+    },
+    {
+        name: "Super Smash Bros Melee",
+        videoId: "31zTIWd7boY"
+    },
+    {
+        name: "Donkey Kong Country 2",
+        videoId: "mdPlcKg-qFs"
+    },
+    {
+        name: "Dune",
+        videoId: "dRJIO6a5lDQ"
+    },
+        {
+        name: "Castlevania III",
+        videoId: "ptgaCJSF7j8"
+    },
+    {
+        name: "F-Zero GX",
+        videoId: "6la7tTLrlkQ"
+    },
+    {
+        name: "Ico",
+        videoId: "XWVij6r4QBw"
+    },
+    {
+        name: "Diablo",
+        videoId: "Q2evIg-aYw8"
+    },
+    {
+        name: "Secret of Mana",
+        videoId: "tO82WNqJF7Q"
+    },
+    {
+        name: "Red Dead Redemption",
+        videoId: "0cXsoRRYf5A"
+    },
+    {
+        name: "Rayman Legends",
+        videoId: "delftvs5Gdo"
+    },
+    {
+        name: "Starfox",
+        videoId: "oBD3FO6ozXc"
+    },
+    {
+        name: "Shatter",
+        videoId: "ldBKPWjD1os"
+    },
+    {
+        name: "Shadow of the Beast",
+        videoId: "XlP_FBa9naM"
+    },
+        {
+        name: "Megaman III",
+        videoId: "U2kTeh7FNl0"
+    },
+    {
+        name: "Yoshi's island",
+        videoId: "FkMz1VhPOF0"
+    },
+    {
+        name: "Shenmue",
+        videoId: "Lw6w0iF94ew"
+    },
+    {
+        name: "Thunderforce IV",
+        videoId: "rYPcte3BlPw"
+    },
+    {
+        name: "Sonic the Hedgehog",
+        videoId: "G-i8HYi1QH0"
+    },
+    {
+        name: "New Super Mario Bros",
+        videoId: "6rvMRbcqTfk"
+    },
+    {
+        name: "Tetris",
+        videoId: "S098e4mSLDY"
+    },
+    {
+        name: "Super Mario Kart",
+        videoId: "edxsLbWPytQ"
+    },
+    {
+        name: "Final Fantasy IX",
+        videoId: "aZMLpUTram0"
+    },
+    {
+        name: "Journey",
+        videoId: "rkRAAiJnXCE"
+    },
+        {
+        name: "Legend of Zelda: Links Awakening",
+        videoId: "Nz91gGUbCog"
+    },
+    {
+        name: "Chrono Trigger",
+        videoId: "eDZ2W0GpP_E"
+    },
+    {
+        name: "International Karate",
+        videoId: "dvmSpZWW45k"
+    },
+    {
+        name: "Silent Hill",
+        videoId: "EYs0kLMuXDE"
+    },
+    {
+        name: "Final Fantasy VI",
+        videoId: "OU1W7b4B2tY"
+    },
+    {
+        name: "Street Fighter 2",
+        videoId: "e9fhrU7YYcQ"
+    },
+    {
+        name: "Double Dragon Neon",
+        videoId: "oQa9S8t42lE"
+    },
+    {
+        name: "Uncharted",
+        videoId: "kgcq_ZtqbO0"
+    },
+    {
+        name: "Jets 'n' Guns",
+        videoId: "AzghtkL11rY"
+    },
+    {
+        name: "Rayman",
+        videoId: "nVlYqIpUKno"
+    },
+        {
+        name: "Ducktales",
+        videoId: "G_80PQ543rM"
+    },
+    {
+        name: "Ecco the dolphin",
+        videoId: "tCiLK-9pgJs"
+    },
+    {
+        name: "Outrun",
+        videoId: "ZdSDIw8uTxo"
+    },
+    {
+        name: "Super Mario Land",
+        videoId: "hfDjwG_-ThA"
+    },
+    {
+        name: "Final Fantasy VII",
+        videoId: "fbOqcR-BORo"
+    },
+    {
+        name: "Turrican II",
+        videoId: "xdtCSybIErE"
+    },
+    {
+        name: "Aqua Kitty DX",
+        videoId: "sBInz7xUxPQ"
+    },
+    {
+        name: "Legend of Zelda: Ocarina of Time",
+        videoId: "agR5aaQL2PY"
+    },
+    {
+        name: "Shantae: Pirate's curse",
+        videoId: "wB6oy6sH4lg"
+    },
+    {
+        name: "DNA Warrior",
+        videoId: "m_J-qIX7PTE"
+    },
+        {
+        name: "Bioshock",
+        videoId: "jCfwJ6C1eN8"
+    },
+    {
+        name: "Minecraft",
+        videoId: "atgjKEgSqSU"
+    },
+    {
+        name: "Super Mario RPG",
+        videoId: "lbRJ733xiF4"
+    },
+    {
+        name: "Silent Hill 4: The Room",
+        videoId: "4rAC6-UhJzw"
+    },
+    {
+        name: "Jazz Jack Rabbit",
+        videoId: "TPM5I2u8ZWQ"
+    },
+    {
+        name: "Super Mario Galaxy",
+        videoId: "aKTkDsRMw7Y"
+    },
+    {
+        name: "Arkanoid",
+        videoId: "z8kyhQC5XL8"
+    },
+    {
+        name: "Ridge Racer 4",
+        videoId: "vVIj0nIM7fk"
+    },
+    {
+        name: "Angry Birds",
+        videoId: "clnb7jiIvQM"
+    },
+        {
+        name: "Led Storm",
+        videoId: "9b9XjxK2RJc"
+    },
+    {
+        name: "Squids",
+        videoId: "Fq9Lgn2lpjE"
+    },
+    {
+        name: "Skies of Arcadia",
+        videoId: "fDcjC0g3rSw"
+    },
+    {
+        name: "Day of the Tentacle",
+        videoId: "4vJioAZ1oIY"
+    },
+    {
+        name: "Need For Speed: Underground",
+        videoId: "DKoY1fw7yCo"
+    },
+    {
+        name: "Final Fantasy XII",
+        videoId: "YvW9KQ5vu8Y"
+    },
+    {
+        name: "Warhawk",
+        videoId: "I874sVIXx74"
+    },
+    {
+        name: "One Must Fall 2097",
+        videoId: "i0FNUDLdT4A"
+    },
+    {
+        name: "Sonic the Hedgehog 3 & Knuckles",
+        videoId: "mukkXiZTlc4"
+    },
+    {
+        name: "Lotus Turbo Chalenge 2",
+        videoId: "LQSsq7HCNHw"
+    },
+        {
+        name: "Chrono Cross",
+        videoId: "J46RY4PU8a8"
+    },
+    {
+        name: "Bomberman",
+        videoId: "clUy8G9HuZk"
+    },
+    {
+        name: "Super Mario Bros. 3",
+        videoId: "5wApmRF5gyM"
+    },
+    {
+        name: "Genso Suikoden IV",
+        videoId: "Zr7Fp8exy3Y"
+    },
+    {
+        name: "To the moon",
+        videoId: "zqSzB_xBmtM"
+    },
+    {
+        name: "Panzer Dragoon",
+        videoId: "k4oTU0srt2I"
+    },
+    {
+        name: "Speedball 2",
+        videoId: "sxomGCQRgFc"
+    },
+    {
+        name: "Child of Light",
+        videoId: "J34P7M0O5WE"
+    },
+    {
+        name: "F-Zero",
+        videoId: "REdRAlPysSU"
+    },
+    {
+        name: "Portal",
+        videoId: "Y6ljFaKRTrI"
+    } ,   {
+        name: "Fury of the Furries",
+        videoId: "eLADL2UwRKk"
+    },
+    {
+        name: "Super Stardust HD",
+        videoId: "nZ4hUtBD3hc"
+    },
+    {
+        name: "The Great Giana Sisters",
+        videoId: "MlSMoNI03r4"
+    },
+    {
+        name: "Project X",
+        videoId: "Dmk59bpyarQ"
+    },
+    {
+        name: "Full Throttle",
+        videoId: "doP8gF2rais"
     }
-];
 
-// Note: J'ai supprimé les doublons suivants :
-// - "Fire Emblem Awakening" (apparaissait 2 fois)
-// - "Red Dead Redemption 2" (déjà dans une liste précédente avec ID différent)
-// - "Portal 2" (ID différent mais jeu déjà présent)
-// - "Super Metroid" (ID dupliqué avec Banjo-Kazooie)
-// - "Mario Kart 8" (ID invalide "dQw4w9WgXcQ" = Rickroll)
+];
