@@ -1,30 +1,22 @@
 class PhaseManager {
     constructor() {
+        console.log('🎯 PhaseManager constructor appelé');
+        
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         this.phaseInterval = null;
-        this.fadeInterval = null;
         this.onPhaseComplete = null;
         
-        // Éléments DOM - vérifier qu'ils existent
+        // Éléments DOM
         this.videoOverlay = document.getElementById('video-overlay');
-        console.log('🎯 video-overlay trouvé:', !!this.videoOverlay);
-        
-        if (this.videoOverlay) {
-            // TEST IMMÉDIAT : rendre l'overlay ROUGE pour vérifier
-            this.videoOverlay.style.backgroundColor = 'rgba(255, 0, 0, 1)';
-            console.log('🔴 TEST: Overlay mis en ROUGE');
-            
-            // Après 1 seconde, remettre en noir
-            setTimeout(() => {
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-                console.log('⚫ TEST: Overlay remis en NOIR');
-            }, 1000);
-        }
-        
         this.resultOverlay = document.getElementById('result-overlay');
         this.timerOverlay = document.getElementById('timer-overlay');
         this.timerCount = document.querySelector('.timer-count');
+        
+        console.log('🎯 Éléments trouvés:');
+        console.log('- video-overlay:', this.videoOverlay ? '✅' : '❌');
+        console.log('- result-overlay:', this.resultOverlay ? '✅' : '❌');
+        console.log('- timer-overlay:', this.timerOverlay ? '✅' : '❌');
         
         // Éléments résultat
         this.resultIcon = document.querySelector('.result-icon');
@@ -34,47 +26,50 @@ class PhaseManager {
     
     // Démarrer une phase
     startPhase(phaseNumber) {
+        console.log(`🚀 START PHASE ${phaseNumber} appelé`);
+        
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
-        // S'assurer qu'on a l'élément
-        if (!this.videoOverlay) {
-            this.videoOverlay = document.getElementById('video-overlay');
-            if (!this.videoOverlay) {
-                console.error('❌ video-overlay introuvable !');
-                return;
-            }
-        }
-        
         switch(phaseNumber) {
             case 1:
-                // Phase 1 : Écoute (20s) - Overlay 100% noir
+                console.log('🎯 Phase 1: Écoute (20s)');
                 this.phaseTimer = CONFIG.PHASE1_TIME;
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+                
+                // Overlay 100% noir
+                if (this.videoOverlay) {
+                    this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+                    console.log('🎨 Overlay mis à: rgba(0,0,0,1)');
+                }
                 
                 // Afficher timer, cacher résultat
-                this.timerOverlay.classList.remove('hidden');
-                this.timerCount.textContent = this.phaseTimer;
-                this.resultOverlay.classList.remove('active');
+                if (this.timerOverlay) {
+                    this.timerOverlay.classList.remove('hidden');
+                }
+                if (this.timerCount) {
+                    this.timerCount.textContent = this.phaseTimer;
+                }
+                if (this.resultOverlay) {
+                    this.resultOverlay.classList.remove('active');
+                }
                 break;
                 
             case 2:
-                // Phase 2 : Révélation (10s)
+                console.log('🎯 Phase 2: Révélation (10s) - DÉBUT');
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
                 // Cacher timer
-                this.timerOverlay.classList.add('hidden');
+                if (this.timerOverlay) {
+                    this.timerOverlay.classList.add('hidden');
+                }
                 
                 // Afficher résultat
                 this.showResult();
                 
-                // FADE OUT : 100% → 0% en 3 secondes
-                this.startFadeOut();
+                console.log('🎬 Appel de startFadeOut()');
                 
-                // Après 7 secondes, FADE IN : 0% → 100%
-                setTimeout(() => {
-                    this.startFadeIn();
-                }, 7000);
+                // FADE OUT IMMÉDIAT et SIMPLE
+                this.startSimpleFadeOut();
                 
                 break;
         }
@@ -83,76 +78,67 @@ class PhaseManager {
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // FADE OUT simple et efficace
-    startFadeOut() {
-        console.log('🎬 Fade out: 100% → 0% en 3s');
+    // FADE OUT ULTRA SIMPLE - ça DOIT marcher
+    startSimpleFadeOut() {
+        console.log('🎬 FADE OUT DÉBUT');
         
-        let opacity = 1;
-        const duration = 3000; // 3 secondes
-        const startTime = Date.now();
+        if (!this.videoOverlay) {
+            console.error('❌ video-overlay introuvable dans startSimpleFadeOut()');
+            return;
+        }
         
-        const fade = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            opacity = 1 - progress;
-            
-            // Appliquer l'opacité
-            this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
-            
-            if (progress < 1) {
-                // Continuer l'animation
-                requestAnimationFrame(fade);
-            } else {
-                // Forcer à 0% pour être sûr
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-                console.log('✅ Fade out terminé (0%)');
-            }
-        };
+        // TEST: Rendre l'overlay ROUGE d'abord pour vérifier
+        console.log('🔴 TEST: Mise en rouge pour vérification');
+        this.videoOverlay.style.backgroundColor = 'rgba(255, 0, 0, 1)';
         
-        // Démarrer l'animation
-        requestAnimationFrame(fade);
+        // Après 500ms, commencer le fade vers transparent
+        setTimeout(() => {
+            console.log('🎬 Début fade vers transparent');
+            
+            // Méthode SIMPLE: juste changer la couleur directement
+            this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            console.log('✅ Overlay mis à: rgba(0,0,0,0) - VIDÉO DEVRAIT APPARAÎTRE');
+            
+            // Programmer le fade in après 4 secondes
+            setTimeout(() => {
+                this.startSimpleFadeIn();
+            }, 4000);
+            
+        }, 500);
     }
     
-    // FADE IN simple et efficace
-    startFadeIn() {
-        console.log('🎬 Fade in: 0% → 100% en 3s');
+    // FADE IN ULTRA SIMPLE
+    startSimpleFadeIn() {
+        console.log('🎬 FADE IN DÉBUT');
         
-        let opacity = 0;
-        const duration = 3000; // 3 secondes
-        const startTime = Date.now();
+        if (!this.videoOverlay) {
+            console.error('❌ video-overlay introuvable dans startSimpleFadeIn()');
+            return;
+        }
         
-        const fade = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            opacity = progress;
-            
-            // Appliquer l'opacité
-            this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
-            
-            if (progress < 1) {
-                // Continuer l'animation
-                requestAnimationFrame(fade);
-            } else {
-                // Forcer à 100% pour être sûr
-                this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-                console.log('✅ Fade in terminé (100%)');
-            }
-        };
-        
-        // Démarrer l'animation
-        requestAnimationFrame(fade);
+        // Méthode SIMPLE: juste changer la couleur directement
+        this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+        console.log('✅ Overlay mis à: rgba(0,0,0,1) - VIDÉO DEVRAIT DISPARAÎTRE');
     }
     
-    // Afficher le résultat (inchangé)
+    // Afficher le résultat
     showResult() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
+        console.log('📊 showResult() appelé');
+        
+        if (!window.gameManager || !window.gameManager.questionManager) {
+            console.warn('⚠️ gameManager ou questionManager non disponible');
+            return;
+        }
         
         const qm = window.gameManager.questionManager;
         const currentGame = qm.getCurrentGame();
         
-        if (!currentGame) return;
+        if (!currentGame) {
+            console.warn('⚠️ currentGame non disponible');
+            return;
+        }
+        
+        console.log('🎮 Jeu courant:', currentGame.name);
         
         // Finaliser la réponse
         qm.finalizeAnswer();
@@ -175,29 +161,38 @@ class PhaseManager {
             }
         }
         
+        console.log('📊 Résultat:', statusText);
+        
         // Mettre à jour DOM
-        this.resultIcon.textContent = resultIcon;
-        this.resultGameName.textContent = currentGame.name;
-        this.resultStatus.textContent = statusText;
+        if (this.resultIcon) this.resultIcon.textContent = resultIcon;
+        if (this.resultGameName) this.resultGameName.textContent = currentGame.name;
+        if (this.resultStatus) this.resultStatus.textContent = statusText;
         
         // Appliquer classe résultat
-        this.resultOverlay.className = `result-overlay ${resultClass}`;
-        
-        // Afficher
-        setTimeout(() => {
-            this.resultOverlay.classList.add('active');
-        }, 100);
+        if (this.resultOverlay) {
+            this.resultOverlay.className = `result-overlay ${resultClass}`;
+            
+            // Afficher
+            setTimeout(() => {
+                this.resultOverlay.classList.add('active');
+                console.log('📊 Overlay résultat affiché');
+            }, 100);
+        }
     }
     
     // Mettre à jour timer
     updatePhaseTimer() {
         this.phaseTimer--;
         
-        if (this.currentPhase === 1) {
+        console.log(`⏱️ Timer phase ${this.currentPhase}: ${this.phaseTimer}s`);
+        
+        if (this.currentPhase === 1 && this.timerCount) {
             this.timerCount.textContent = this.phaseTimer;
         }
         
         if (this.phaseTimer <= 0) {
+            console.log(`⏱️ Timer ${this.currentPhase} terminé`);
+            
             if (this.currentPhase < 2) {
                 this.startPhase(2);
             } else {
@@ -209,6 +204,7 @@ class PhaseManager {
     
     // Fin de phase
     endPhase() {
+        console.log('🏁 endPhase() appelé');
         this.clearTimers();
         
         // S'assurer que l'overlay est à 100%
@@ -223,13 +219,14 @@ class PhaseManager {
         
         // Appeler le callback
         setTimeout(() => {
+            console.log('🏁 Appel de onPhaseComplete');
             if (this.onPhaseComplete) {
                 this.onPhaseComplete();
             }
         }, 500);
     }
     
-    // Arrêter tous les timers
+    // Arrêter timer
     clearTimers() {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
@@ -237,8 +234,9 @@ class PhaseManager {
         }
     }
     
-    // Réinitialiser pour nouvelle question
+    // Réinitialiser
     reset() {
+        console.log('🔄 reset() appelé');
         this.clearTimers();
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
@@ -250,16 +248,15 @@ class PhaseManager {
         
         if (this.timerOverlay) {
             this.timerOverlay.classList.remove('hidden');
-            if (this.timerCount) {
-                this.timerCount.textContent = this.phaseTimer;
-            }
+        }
+        
+        if (this.timerCount) {
+            this.timerCount.textContent = this.phaseTimer;
         }
         
         if (this.resultOverlay) {
             this.resultOverlay.classList.remove('active');
             this.resultOverlay.className = 'result-overlay';
         }
-        
-        console.log('🔄 PhaseManager réinitialisé');
     }
 }
