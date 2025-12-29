@@ -483,3 +483,13 @@
         font-size: 1.5rem;
     }
 }
+
+/* Transparence pour le carré de résultat */
+.result-overlay {
+    background: rgba(15, 12, 41, 0.85) !important; /* 85% d'opacité */
+}
+
+.result-content {
+    background: rgba(255, 255, 255, 0.08) !important; /* Légère transparence */
+    backdrop-filter: blur(12px); /* Un peu plus de blur */
+}

@@ -149,34 +149,37 @@ class PhaseManager {
     
     // Animation pour la phase 2
     startRevealAnimation() {
-        console.log('🎨 Début animation révélation (10s)');
+    console.log('🎨 Début animation révélation (10s)');
+    
+    const totalTime = CONFIG.PHASE2_TIME * 1000; // 10 secondes
+    const fadeOutDuration = 3000; // 3 secondes pour fade out
+    const fadeInDuration = 3000; // 3 secondes pour fade in
+    const visibleDuration = 4000; // 4 secondes full visible
+    
+    let startTime = Date.now();
+    
+    this.fadeInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
         
-        const totalTime = CONFIG.PHASE2_TIME * 1000;
-        const fadeDuration = CONFIG.FADE_DURATION * 1000;
+        if (elapsed < fadeOutDuration) {
+            // Premières 3s : fade out (100% → 0%)
+            this.layerOpacity = 1 - (elapsed / fadeOutDuration);
+        } else if (elapsed < fadeOutDuration + visibleDuration) {
+            // 4s suivantes : complètement visible (0%)
+            this.layerOpacity = 0;
+        } else if (elapsed < totalTime) {
+            // 3 dernières secondes : fade in (0% → 100%)
+            const timeInFadeIn = elapsed - (fadeOutDuration + visibleDuration);
+            this.layerOpacity = timeInFadeIn / fadeInDuration;
+        } else {
+            // Fin : complètement opaque (100%)
+            this.layerOpacity = 1;
+        }
         
-        let startTime = Date.now();
-        
-        this.fadeInterval = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const progress = elapsed / totalTime;
-            
-            // Animation du fond de l'overlay principal
-            if (progress < fadeDuration / totalTime) {
-                // Fade out (100% → 0%)
-                this.layerOpacity = 1 - (elapsed / fadeDuration);
-            } else if (progress > 1 - (fadeDuration / totalTime)) {
-                // Fade in (0% → 100%)
-                const timeInFadeIn = elapsed - (totalTime - fadeDuration);
-                this.layerOpacity = timeInFadeIn / fadeDuration;
-            } else {
-                // Transparent au milieu
-                this.layerOpacity = 0;
-            }
-            
-            // Appliquer au fond principal seulement
-            this.overlay.style.backgroundColor = `rgba(15, 12, 41, ${this.layerOpacity})`;
-        }, 50);
-    }
+        // Appliquer l'opacité
+        this.overlay.style.backgroundColor = `rgba(15, 12, 41, ${this.layerOpacity})`;
+    }, 50);
+}
     
     // Mettre à jour le timer de phase
     updatePhaseTimer() {
