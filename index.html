@@ -49,65 +49,74 @@
         </div>
     </div>
 
-    <!-- ÉCRAN DU QUIZ -->
-    <div id="quiz-screen" class="screen">
-        <div class="header">
-            <div class="title">
-                <i class="fas fa-gamepad"></i>
-                QUIZ JEUX VIDÉOS
-            </div>
-            <div class="stats">
-                <div class="stat">
-                    <i class="fas fa-question"></i>
-                    Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
-                </div>
+<!-- ÉCRAN DU QUIZ -->
+<div id="quiz-screen" class="screen">
+    <div class="header">
+        <div class="title">
+            <i class="fas fa-gamepad"></i>
+            QUIZ JEUX VIDÉOS
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <i class="fas fa-question"></i>
+                Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
             </div>
         </div>
-        
-        <div class="video-section">
-            <!-- VIDÉO YOUTUBE -->
-            <div id="player-container"></div>
-            
-            <!-- OVERLAY NOIR (cache la vidéo) -->
-            <div class="black-overlay" id="black-overlay"></div>
-            
-            <!-- BOX RÉSULTAT (petite, au centre) -->
-            <div class="result-box" id="result-box">
-                <div class="result-content">
-                    <div class="result-icon"></div>
-                    <div class="result-game-name"></div>
-                    <div class="result-status"></div>
-                </div>
-            </div>
-            
-            <!-- TIMER (uniquement phase 1) -->
-            <div class="timer-box" id="timer-box">
-                <div class="timer-icon">🎵</div>
-                <div class="timer-text">Écoutez la musique</div>
-                <div class="timer-count">20</div>
-            </div>
-            
-            <!-- Masque YouTube -->
-            <div class="youtube-mask">
-                <div class="mask-top"></div>
-                <div class="mask-bottom"></div>
-            </div>
-        </div>
-        
-        <!-- RÉPONSES (disparaissent en phase 2) -->
-        <div class="answers-section" id="answers-section">
-            <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
-            <div class="answers-grid" id="answers-grid">
-                <!-- Les réponses seront ajoutées ici -->
-            </div>
-        </div>
-        
-        <!-- BOUTON SUIVANT -->
-        <button id="next-btn" class="btn-next" style="display: none;">
-            <i class="fas fa-forward"></i>
-            QUESTION SUIVANTE
-        </button>
     </div>
+    
+    <!-- CONTENU PRINCIPAL EN LARGEUR -->
+    <div class="main-content">
+        <!-- COLONNE VIDÉO (à gauche) -->
+        <div class="video-column">
+            <div class="video-section">
+                <!-- VIDÉO YOUTUBE -->
+                <div id="player-container"></div>
+                
+                <!-- OVERLAY NOIR (cache la vidéo) -->
+                <div class="black-overlay" id="black-overlay"></div>
+                
+                <!-- BOX RÉSULTAT (petite, au centre) -->
+                <div class="result-box" id="result-box">
+                    <div class="result-content">
+                        <div class="result-icon"></div>
+                        <div class="result-game-name"></div>
+                        <div class="result-status"></div>
+                    </div>
+                </div>
+                
+                <!-- TIMER (uniquement phase 1) -->
+                <div class="timer-box" id="timer-box">
+                    <div class="timer-icon">🎵</div>
+                    <div class="timer-text">Écoutez la musique</div>
+                    <div class="timer-count">20</div>
+                </div>
+                
+                <!-- Masque YouTube -->
+                <div class="youtube-mask">
+                    <div class="mask-top"></div>
+                    <div class="mask-bottom"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- COLONNE RÉPONSES (à droite) -->
+        <div class="answers-column">
+            <!-- RÉPONSES (disparaissent en phase 2) -->
+            <div class="answers-section" id="answers-section">
+                <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+                <div class="answers-grid" id="answers-grid">
+                    <!-- Les réponses seront ajoutées ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOUTON SUIVANT (en bas) -->
+    <button id="next-btn" class="btn-next" style="display: none;">
+        <i class="fas fa-forward"></i>
+        QUESTION SUIVANTE
+    </button>
+</div>
 
     <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
