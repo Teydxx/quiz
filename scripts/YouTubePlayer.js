@@ -1,4 +1,3 @@
-// YouTubePlayer.js
 class YouTubePlayer {
     constructor(playerContainerId, onReadyCallback, onErrorCallback) {
         this.playerContainerId = playerContainerId;
@@ -7,8 +6,10 @@ class YouTubePlayer {
         this.player = null;
         this.isReady = false;
         this.apiReady = false;
-        this.loadAttempts = 0; // AJOUT: Compteur de tentatives
-        this.MAX_LOAD_ATTEMPTS = 5; // AJOUT: Maximum de tentatives
+        this.loadAttempts = 0;
+        this.MAX_LOAD_ATTEMPTS = 5;
+        
+        this.videoQueue = []; // File d'attente pour les vidéos
         
         console.log('🎬 Initialisation YouTubePlayer');
     }
@@ -24,7 +25,21 @@ class YouTubePlayer {
             this.createPlayer();
         } else {
             console.log('⏳ API YouTube en cours de chargement...');
+            // Attendre que l'API soit chargée
+            this.waitForYouTubeAPI();
         }
+    }
+
+    // Attendre que l'API YouTube soit disponible
+    waitForYouTubeAPI() {
+        const checkInterval = setInterval(() => {
+            if (window.YT && window.YT.Player) {
+                clearInterval(checkInterval);
+                this.apiReady = true;
+                this.createPlayer();
+                console.log('✅ API YouTube maintenant disponible');
+            }
+        }, 500);
     }
 
     // Charger l'API YouTube
@@ -34,6 +49,7 @@ class YouTubePlayer {
         // Vérifier si le script est déjà en cours de chargement
         if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
             console.log('⚠️ API YouTube déjà en cours de chargement');
+            this.waitForYouTubeAPI();
             return;
         }
         
@@ -41,15 +57,10 @@ class YouTubePlayer {
         tag.src = "https://www.youtube.com/iframe_api";
         tag.async = true;
         
-        // S'assurer qu'on a une référence au callback
-        const originalCallback = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
+            console.log('✅ API YouTube chargée');
             this.apiReady = true;
             this.createPlayer();
-            // Appeler aussi l'original si existant
-            if (typeof originalCallback === 'function') {
-                originalCallback();
-            }
         };
         
         const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -62,6 +73,7 @@ class YouTubePlayer {
         
         if (!window.YT || !window.YT.Player) {
             console.error('❌ API YouTube non disponible');
+            setTimeout(() => this.createPlayer(), 1000);
             return;
         }
         
@@ -77,14 +89,22 @@ class YouTubePlayer {
                     'iv_load_policy': 3,
                     'disablekb': 1,
                     'fs': 0,
-                    'playsinline': 1,
-                    'autoplay': 1,
-                    'mute': 0
+                    'playsinline': 1
                 },
                 events: {
                     'onReady': (event) => {
                         console.log('✅ YouTube Player prêt');
                         this.isReady = true;
+                        
+                        // Traiter la file d'attente s'il y a des vidéos en attente
+                        if (this.videoQueue.length > 0) {
+                            console.log(`📋 Traitement de ${this.videoQueue.length} vidéo(s) en attente`);
+                            this.videoQueue.forEach(video => {
+                                this.loadVideo(video.videoId, video.startTime);
+                            });
+                            this.videoQueue = [];
+                        }
+                        
                         if (this.onReadyCallback) this.onReadyCallback(event);
                     },
                     'onStateChange': this.onPlayerStateChange.bind(this),
@@ -96,7 +116,7 @@ class YouTubePlayer {
             });
         } catch (error) {
             console.error('❌ Erreur lors de la création du player:', error);
-            if (this.onErrorCallback) this.onErrorCallback(error);
+            setTimeout(() => this.createPlayer(), 2000);
         }
     }
 
@@ -110,21 +130,22 @@ class YouTubePlayer {
         }
     }
 
-    // Charger et jouer une vidéo - CORRIGÉ avec limite
+    // Charger et jouer une vidéo
     loadVideo(videoId, startTime) {
-        console.log(`🎬 Chargement vidéo: ${videoId} à ${startTime}s`);
+        console.log(`🎬 Demande de chargement: ${videoId} à ${startTime}s`);
         
-        // AJOUT: Vérifier le nombre de tentatives
-        this.loadAttempts++;
-        if (this.loadAttempts > this.MAX_LOAD_ATTEMPTS) {
-            console.error(`❌ Trop de tentatives (${this.loadAttempts}), arrêt`);
-            if (this.onErrorCallback) this.onErrorCallback('Trop de tentatives');
+        // Si le player n'est pas prêt, mettre en file d'attente
+        if (!this.isReady || !this.player) {
+            console.log('⏳ Player non prêt, mise en file d\'attente...');
+            this.videoQueue.push({ videoId, startTime });
             return;
         }
         
-        if (!this.player) {
-            console.warn(`⚠️ Player non initialisé (tentative ${this.loadAttempts}), attente...`);
-            setTimeout(() => this.loadVideo(videoId, startTime), 1000);
+        this.loadAttempts++;
+        
+        if (this.loadAttempts > this.MAX_LOAD_ATTEMPTS) {
+            console.error(`❌ Trop de tentatives (${this.loadAttempts}), arrêt`);
+            if (this.onErrorCallback) this.onErrorCallback('Trop de tentatives');
             return;
         }
         
@@ -135,7 +156,7 @@ class YouTubePlayer {
                 suggestedQuality: 'medium'
             });
             console.log(`✅ Vidéo ${videoId} chargée à ${startTime}s`);
-            this.loadAttempts = 0; // Réinitialiser après succès
+            this.loadAttempts = 0;
         } catch (error) {
             console.error('❌ Erreur loadVideoById:', error);
             if (this.onErrorCallback) this.onErrorCallback(error);
@@ -177,9 +198,10 @@ class YouTubePlayer {
         }
     }
 
-    // AJOUT: Réinitialiser le compteur
+    // Réinitialiser le compteur
     resetLoadAttempts() {
         this.loadAttempts = 0;
+        this.videoQueue = []; // Vider aussi la file d'attente
         console.log('🔄 Compteur de tentatives réinitialisé');
     }
 }
