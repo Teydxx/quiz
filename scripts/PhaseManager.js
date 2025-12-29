@@ -81,7 +81,7 @@ class PhaseManager {
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // FADE OUT progressif
+    // FADE OUT progressif - CORRIGÉ
     startFadeOut() {
         console.log('🎬 FADE OUT: 100% → 0% en 3s');
         
@@ -95,16 +95,9 @@ class PhaseManager {
         
         let step = 0;
         const fade = () => {
-            // Baisser l'opacité
+            // Baisser l'opacité du SEUL video-overlay
             opacity -= decrement;
-            
-            // Appliquer AUX DEUX OVERLAYS
             this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${Math.max(0, opacity)})`;
-            
-            // AUSSI rendre le result-overlay plus transparent pendant le fade
-            if (this.resultOverlay && opacity < 0.5) {
-                this.resultOverlay.style.opacity = `${opacity * 2}`; // Fade out plus rapide
-            }
             
             step++;
             
@@ -121,7 +114,7 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    // FADE IN progressif
+    // FADE IN progressif - CORRIGÉ
     startFadeIn() {
         console.log('🎬 FADE IN: 0% → 100% en 3s');
         
@@ -135,16 +128,9 @@ class PhaseManager {
         
         let step = 0;
         const fade = () => {
-            // Augmenter l'opacité
+            // Augmenter l'opacité du SEUL video-overlay
             opacity += increment;
-            
-            // Appliquer AUX DEUX OVERLAYS
             this.videoOverlay.style.backgroundColor = `rgba(0, 0, 0, ${Math.min(1, opacity)})`;
-            
-            // AUSSI rendre le result-overlay moins transparent pendant le fade
-            if (this.resultOverlay && opacity > 0.5) {
-                this.resultOverlay.style.opacity = '1'; // Revenir à opaque
-            }
             
             step++;
             
@@ -206,8 +192,9 @@ class PhaseManager {
         if (this.resultOverlay) {
             this.resultOverlay.className = `result-overlay ${resultClass}`;
             
-            // IMPORTANT: S'assurer qu'il a une opacité de 1 au début
-            this.resultOverlay.style.opacity = '1';
+            // IMPORTANT: NE PAS toucher à l'opacité CSS ! On veut qu'il reste visible
+            this.resultOverlay.style.opacity = ''; // Réinitialiser
+            this.resultOverlay.style.backgroundColor = ''; // Réinitialiser
             
             // Afficher
             setTimeout(() => {
@@ -249,10 +236,10 @@ class PhaseManager {
             this.videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
         }
         
-        // Cacher résultat et remettre son opacité à 1
+        // Cacher résultat
         if (this.resultOverlay) {
             this.resultOverlay.classList.remove('active');
-            this.resultOverlay.style.opacity = '1';
+            // NE PAS réinitialiser l'opacité ici
         }
         
         // Appeler le callback
@@ -295,7 +282,9 @@ class PhaseManager {
         if (this.resultOverlay) {
             this.resultOverlay.classList.remove('active');
             this.resultOverlay.className = 'result-overlay';
-            this.resultOverlay.style.opacity = '1'; // Important !
+            // IMPORTANT: Réinitialiser tous les styles
+            this.resultOverlay.style.opacity = '';
+            this.resultOverlay.style.backgroundColor = '';
         }
     }
 }
