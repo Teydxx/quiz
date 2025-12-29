@@ -70,6 +70,19 @@
     z-index: 1;
 }
 
+/* TEST VISUEL - à enlever après */
+.debug-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 12px;
+}
+
 /* COUCHE 2 : Overlay vidéo (NOIR) */
 .video-overlay {
     position: absolute;
