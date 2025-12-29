@@ -64,40 +64,35 @@
             </div>
         </div>
         
-        <div class="video-section">
-            <div id="player-container"></div>
-            
-            <!-- LAYER POUR LES PHASES -->
-            <!-- Remplacer le contenu actuel par : -->
-<div class="video-overlay" id="video-overlay">
-    <!-- Éléments pour Phase 1 (écoute) -->
-    <div class="phase-1-elements">
-        <div class="overlay-icon" id="overlay-icon">🎧</div>
-        <div class="phase-info" id="phase-info">Écoutez la musique</div>
-        <div class="phase-timer" id="phase-timer">20</div>
+<!-- Dans la section video-section, remplacer le contenu par : -->
+<div class="video-section">
+    <div id="player-container"></div>
+    
+    <!-- OVERLAY VIDÉO (contrôle la visibilité) -->
+    <div class="video-overlay" id="video-overlay"></div>
+    
+    <!-- OVERLAY RÉVÉLATION (nom du jeu + résultat) -->
+    <div class="reveal-overlay" id="reveal-overlay">
+        <div class="reveal-content">
+            <div class="reveal-icon">🎮</div>
+            <div class="reveal-game-name"></div>
+            <div class="reveal-status"></div>
+        </div>
     </div>
     
-    <!-- Barre de progression FIXE (toujours visible) -->
-    <div class="progress-container">
-        <div class="phase-progress">
-            <div class="phase-segment segment-1"></div>
-            <div class="phase-segment segment-2"></div>
-        </div>
-        <div class="phase-label">
-            <span>Écoute (20s)</span>
-            <span>Révélation (10s)</span>
-        </div>
+    <!-- TIMER (uniquement phase 1) -->
+    <div class="timer-overlay" id="timer-overlay">
+        <div class="timer-icon">🎵</div>
+        <div class="timer-text">Écoutez la musique</div>
+        <div class="timer-count">20</div>
+    </div>
+    
+    <!-- Masque YouTube -->
+    <div class="youtube-mask">
+        <div class="mask-top"></div>
+        <div class="mask-bottom"></div>
     </div>
 </div>
-
-<!-- Overlay de résultat sera ajouté dynamiquement par PhaseManager -->
-            
-            <!-- Overlay pour cacher l'UI YouTube -->
-            <div class="youtube-mask">
-                <div class="mask-top"></div>
-                <div class="mask-bottom"></div>
-            </div>
-        </div>
         
         <div class="answers-section">
             <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>

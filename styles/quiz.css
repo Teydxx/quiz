@@ -47,7 +47,6 @@
     color: #ff4757;
 }
 
-/* Video Section */
 .video-section {
     position: relative;
     width: 100%;
@@ -66,25 +65,19 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
-/* Video Overlay */
+/* OVERLAY VIDÉO (noir) */
 .video-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 12, 41, 1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    text-align: center;
-    padding: 40px;
-    transition: background-color 1s linear;
-    padding-bottom: 120px;
+    background: rgba(15, 12, 41, 1); /* 100% opaque au départ */
+    z-index: 2;
+    transition: background-color 0.3s linear; /* Transition fluide */
 }
 
 .video-overlay.transparent {
@@ -204,6 +197,81 @@
     text-align: right;
 }
 
+/* OVERLAY RÉVÉLATION (nom du jeu) */
+.reveal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 12, 41, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.reveal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reveal-content {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    min-width: 300px;
+    max-width: 600px;
+    animation: fadeInScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* TIMER (phase 1 seulement) */
+.timer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none; /* Ne bloque pas les clics */
+    transition: opacity 0.3s ease;
+}
+
+.timer-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.timer-icon {
+    font-size: 4rem;
+    color: #ff4757;
+    margin-bottom: 20px;
+}
+
+.timer-text {
+    font-size: 1.5rem;
+    color: #a4b0be;
+    margin-bottom: 10px;
+}
+
+.timer-count {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #ff4757;
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+}
+
 /* YouTube Mask */
 .youtube-mask {
     position: absolute;
@@ -212,7 +280,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 10;
+    z-index: 10; /* Toujours au-dessus de tout */
 }
 
 .mask-top {
@@ -492,4 +560,49 @@
 .result-content {
     background: rgba(255, 255, 255, 0.08) !important; /* Légère transparence */
     backdrop-filter: blur(12px); /* Un peu plus de blur */
+}
+
+/* Classes de résultat pour l'overlay de révélation */
+.reveal-overlay.correct .reveal-game-name,
+.reveal-overlay.correct .reveal-status {
+    color: #2ed573;
+    text-shadow: 0 0 20px rgba(46, 213, 115, 0.4);
+}
+
+.reveal-overlay.incorrect .reveal-game-name,
+.reveal-overlay.incorrect .reveal-status {
+    color: #ff4757;
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+}
+
+.reveal-overlay.no-answer .reveal-game-name,
+.reveal-overlay.no-answer .reveal-status {
+    color: #747d8c;
+    text-shadow: 0 0 20px rgba(116, 125, 140, 0.4);
+}
+
+/* Animation pour l'icône de révélation */
+.reveal-icon {
+    font-size: 4.5rem;
+    margin-bottom: 25px;
+    animation: pulse 1.5s infinite;
+}
+
+.reveal-game-name {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.reveal-status {
+    font-size: 1.8rem;
+    opacity: 0.9;
+    margin-top: 10px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
