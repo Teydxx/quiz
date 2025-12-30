@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Jeux Vidéos - Session</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Nos fichiers CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/quiz.css">
+</head>
+<body>
+    <!-- ÉCRAN DU QUIZ (uniquement) -->
+    <div id="quiz-screen" class="screen active">
+        <div class="header">
+            <div class="title">
+                <i class="fas fa-gamepad"></i>
+                QUIZ JEUX VIDÉOS
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <i class="fas fa-question"></i>
+                    Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
+                </div>
+                <!-- BOUTON SUPPRIMER -->
+                <button id="delete-video-btn" class="stat delete-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    Supprimer cette vidéo
+                </button>
+                <a href="deleted-videos.html" class="stat" style="text-decoration: none; color: white;">
+                    <i class="fas fa-trash-alt"></i>
+                    Vidéos supprimées
+                </a>
+            </div>
+        </div>
+        
+        <!-- CONTENU EN LARGEUR -->
+        <div class="quiz-content">
+            <!-- VIDÉO À GAUCHE -->
+            <div class="video-column">
+                <div class="video-section">
+                    <!-- VIDÉO YOUTUBE -->
+                    <div id="player-container"></div>
+                    
+                    <!-- OVERLAY NOIR (cache la vidéo) -->
+                    <div class="black-overlay" id="black-overlay"></div>
+                    
+                    <!-- BOX RÉSULTAT (petite, au centre) -->
+                    <div class="result-box" id="result-box">
+                        <div class="result-content">
+                            <div class="result-icon"></div>
+                            <div class="result-game-name"></div>
+                            <div class="result-status"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- TIMER (uniquement phase 1) -->
+                    <div class="timer-box" id="timer-box">
+                        <div class="timer-icon">🎵</div>
+                        <div class="timer-text">Écoutez la musique</div>
+                        <div class="timer-count">20</div>
+                    </div>
+                    
+                    <!-- Masque YouTube -->
+                    <div class="youtube-mask">
+                        <div class="mask-top"></div>
+                        <div class="mask-bottom"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RÉPONSES À DROITE -->
+            <div class="answers-column">
+                <div class="answers-section" id="answers-section">
+                    <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+                    <div class="answers-grid" id="answers-grid">
+                        <!-- Les réponses seront ajoutées ici -->
+                    </div>
+                </div>
+                
+                <!-- BOUTON SUIVANT -->
+                <button id="next-btn" class="btn-next" style="display: none;">
+                    <i class="fas fa-forward"></i>
+                    QUESTION SUIVANTE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <!-- Nos fichiers JavaScript -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/deletedGames.js"></script>
+    <script src="scripts/games.js"></script>
+    <script src="scripts/YouTubePlayer.js"></script>
+    <script src="scripts/PhaseManager.js"></script>
+    <script src="scripts/QuestionManager.js"></script>
+    <script src="scripts/GameManager.js"></script>
+    <script src="scripts/SessionManager.js"></script>
+    
+    <script>
+        // Initialiser quand le DOM est chargé
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎮 Quiz Session - Chargement...');
+            
+            // Vérifier la session dans l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+            
+            if (!sessionId) {
+                console.error('❌ Pas de session ID dans l\'URL');
+                // Rediriger après 2 secondes
+                setTimeout(() => {
+                    window.location.href = 'lobby.html';
+                }, 2000);
+                return;
+            }
+            
+            console.log(`✅ Session détectée: ${sessionId}`);
+            
+            // Créer et initialiser le gestionnaire
+            window.gameManager = new GameManager();
+            window.gameManager.init();
+            
+            console.log('🎮 Quiz prêt à démarrer');
+            
+            // Démarrer le quiz immédiatement (pas d'écran d'accueil)
+            // Petit délai pour laisser YouTube se charger
+            setTimeout(() => {
+                if (window.gameManager && window.gameManager.startGame) {
+                    window.gameManager.startGame();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
