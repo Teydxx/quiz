@@ -214,3 +214,71 @@ class QuestionManager {
         return this.remainingGames.length > 0;
     }
 }
+// scripts/QuestionManager.js - AJOUTER CES MÉTHODES
+
+class QuestionManager {
+    constructor() {
+        // ... code existant ...
+        
+        // AJOUTER:
+        this.correctAnswersCount = 0;
+        this.resultsDetails = [];
+    }
+    
+    // Initialiser avec des jeux spécifiques (pour session)
+    initWithGames(games) {
+        this.remainingGames = [...games];
+        this.currentGame = null;
+        this.userAnswered = false;
+        this.userAnswerCorrect = false;
+        this.selectedButton = null;
+        this.correctAnswersCount = 0;
+        this.resultsDetails = [];
+        
+        // Mélanger les jeux
+        shuffleArray(this.remainingGames);
+        
+        console.log(`ðŸ“‹ QuestionManager initialisé avec ${games.length} jeux de session`);
+    }
+    
+    // ... reste du code existant ...
+    
+    // AJOUTER À LA FIN DE selectAnswer():
+    selectAnswer(clickedButton) {
+        // ... code existant ...
+        
+        // Enregistrer pour statistiques
+        this.recordAnswer(clickedButton.textContent, this.userAnswerCorrect);
+    }
+    
+    // Enregistrer une réponse
+    recordAnswer(answer, isCorrect) {
+        this.resultsDetails.push({
+            question: this.currentQuestionNumber || 1,
+            game: this.currentGame ? this.currentGame.name : 'Inconnu',
+            userAnswer: answer,
+            isCorrect: isCorrect,
+            timestamp: new Date().toISOString()
+        });
+        
+        if (isCorrect) {
+            this.correctAnswersCount++;
+        }
+    }
+    
+    // Obtenir le nombre de bonnes réponses
+    getCorrectCount() {
+        return this.correctAnswersCount;
+    }
+    
+    // Obtenir les détails des résultats
+    getResultsDetails() {
+        return this.resultsDetails;
+    }
+    
+    // Réinitialiser les statistiques
+    resetStats() {
+        this.correctAnswersCount = 0;
+        this.resultsDetails = [];
+    }
+}
