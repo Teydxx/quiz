@@ -12,14 +12,81 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/home.css">
     <link rel="stylesheet" href="styles/quiz.css">
+    
+    <style>
+        /* Ajout pour la nouvelle home */
+        .home-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .home-btn {
+            padding: 20px 40px;
+            border-radius: 15px;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            min-width: 250px;
+            justify-content: center;
+        }
+        
+        .home-btn-primary {
+            background: linear-gradient(135deg, #ff4757, #3742fa);
+            color: white;
+        }
+        
+        .home-btn-secondary {
+            background: linear-gradient(135deg, #3742fa, #7158e2);
+            color: white;
+        }
+        
+        .home-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .version-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px solid rgba(255, 71, 87, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .home-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .home-btn {
+                min-width: 200px;
+                padding: 18px 30px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- ÉCRAN D'ACCUEIL -->
+    <!-- ÉCRAN D'ACCUEIL AVEC CHOIX -->
     <div id="home-screen" class="screen active">
         <div class="home-content">
             <div class="logo">
                 <i class="fas fa-gamepad"></i>
                 <h1>QUIZ JEUX VIDÉOS</h1>
+                <div class="version-badge">v2.0</div>
             </div>
             
             <div class="rules">
@@ -37,7 +104,25 @@
                 </div>
             </div>
             
-            <button id="start-btn" class="btn-primary">
+            <!-- NOUVEAU : CHOIX DU MODE -->
+            <div class="home-buttons">
+                <button id="classic-btn" class="home-btn home-btn-primary">
+                    <i class="fas fa-play-circle"></i>
+                    MODE CLASSIQUE
+                    <br>
+                    <span style="font-size: 0.9rem; opacity: 0.9;">10 questions aléatoires</span>
+                </button>
+                
+                <button id="lobby-btn" class="home-btn home-btn-secondary">
+                    <i class="fas fa-users"></i>
+                    MODE LOBBY
+                    <br>
+                    <span style="font-size: 0.9rem; opacity: 0.9;">Créez ou rejoignez une session</span>
+                </button>
+            </div>
+            
+            <!-- Bouton original (gardé pour compatibilité) -->
+            <button id="start-btn" class="btn-primary" style="display: none;">
                 <i class="fas fa-play"></i>
                 COMMENCER LE QUIZ
             </button>
@@ -46,11 +131,21 @@
                 <i class="fas fa-info-circle"></i>
                 Cliquez pour autoriser l'audio
             </p>
+            
+            <!-- Lien vers la gestion des vidéos -->
+            <div style="margin-top: 40px; text-align: center;">
+                <a href="deleted-videos.html" style="color: #a4b0be; text-decoration: none; font-size: 0.9rem;">
+                    <i class="fas fa-trash-alt"></i>
+                    Gérer les vidéos supprimées
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- ÉCRAN DU QUIZ -->
+    <!-- ÉCRAN DU QUIZ (inchangé) -->
     <div id="quiz-screen" class="screen">
+        <!-- ... ton code existant COMPLET ... -->
+        <!-- Je garde tout ton code quiz existant ici -->
         <div class="header">
             <div class="title">
                 <i class="fas fa-gamepad"></i>
@@ -61,7 +156,6 @@
                     <i class="fas fa-question"></i>
                     Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
                 </div>
-                <!-- BOUTON SUPPRIMER -->
                 <button id="delete-video-btn" class="stat delete-btn">
                     <i class="fas fa-trash-alt"></i>
                     Supprimer cette vidéo
@@ -73,18 +167,11 @@
             </div>
         </div>
         
-        <!-- CONTENU EN LARGEUR -->
         <div class="quiz-content">
-            <!-- VIDÉO À GAUCHE -->
             <div class="video-column">
                 <div class="video-section">
-                    <!-- VIDÉO YOUTUBE -->
                     <div id="player-container"></div>
-                    
-                    <!-- OVERLAY NOIR (cache la vidéo) -->
                     <div class="black-overlay" id="black-overlay"></div>
-                    
-                    <!-- BOX RÉSULTAT (petite, au centre) -->
                     <div class="result-box" id="result-box">
                         <div class="result-content">
                             <div class="result-icon"></div>
@@ -92,15 +179,11 @@
                             <div class="result-status"></div>
                         </div>
                     </div>
-                    
-                    <!-- TIMER (uniquement phase 1) -->
                     <div class="timer-box" id="timer-box">
                         <div class="timer-icon">🎵</div>
                         <div class="timer-text">Écoutez la musique</div>
                         <div class="timer-count">20</div>
                     </div>
-                    
-                    <!-- Masque YouTube -->
                     <div class="youtube-mask">
                         <div class="mask-top"></div>
                         <div class="mask-bottom"></div>
@@ -108,16 +191,11 @@
                 </div>
             </div>
             
-            <!-- RÉPONSES À DROITE -->
             <div class="answers-column">
                 <div class="answers-section" id="answers-section">
                     <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
-                    <div class="answers-grid" id="answers-grid">
-                        <!-- Les réponses seront ajoutées ici -->
-                    </div>
+                    <div class="answers-grid" id="answers-grid"></div>
                 </div>
-                
-                <!-- BOUTON SUIVANT -->
                 <button id="next-btn" class="btn-next" style="display: none;">
                     <i class="fas fa-forward"></i>
                     QUESTION SUIVANTE
@@ -138,5 +216,55 @@
     <script src="scripts/QuestionManager.js"></script>
     <script src="scripts/GameManager.js"></script>
     <script src="scripts/main.js"></script>
+    
+    <!-- Script de choix de mode -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const classicBtn = document.getElementById('classic-btn');
+            const lobbyBtn = document.getElementById('lobby-btn');
+            const startBtn = document.getElementById('start-btn');
+            
+            // Mode Classique (ton ancien système)
+            classicBtn.addEventListener('click', () => {
+                console.log('🎮 Mode Classique sélectionné');
+                
+                // Afficher le bouton de démarrage original
+                classicBtn.style.display = 'none';
+                lobbyBtn.style.display = 'none';
+                startBtn.style.display = 'inline-flex';
+                
+                // Initialiser le GameManager en mode classique
+                window.gameManager = new GameManager();
+                window.gameManager.init();
+            });
+            
+            // Mode Lobby (nouveau système)
+            lobbyBtn.addEventListener('click', () => {
+                console.log('🎮 Mode Lobby sélectionné');
+                window.location.href = 'lobby.html';
+            });
+            
+            // Vérifier si on vient d'un lobby (session dans l'URL)
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+            
+            if (sessionId) {
+                console.log(`🎮 Session détectée dans l'URL: ${sessionId}`);
+                
+                // Cacher les boutons de choix
+                classicBtn.style.display = 'none';
+                lobbyBtn.style.display = 'none';
+                
+                // Initialiser en mode session
+                window.gameManager = new GameManager();
+                window.gameManager.init();
+                
+                // Démarrer directement le quiz
+                setTimeout(() => {
+                    window.gameManager.startGame();
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>
