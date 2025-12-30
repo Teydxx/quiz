@@ -15,7 +15,13 @@ class GameManager {
         this.quizScreen = document.getElementById('quiz-screen');
         this.startBtn = document.getElementById('start-btn');
         this.nextBtn = document.getElementById('next-btn');
-        this.deleteBtn = null; // Bouton de suppression
+        
+        // Bouton de suppression
+        this.deleteBtn = document.createElement('button');
+        this.deleteBtn.id = 'delete-video-btn';
+        this.deleteBtn.className = 'btn-delete';
+        this.deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Supprimer cette vidéo';
+        this.deleteBtn.style.display = 'none';
     }
 
     // Initialiser le jeu
@@ -35,8 +41,8 @@ class GameManager {
         // Initialiser le lecteur YouTube
         this.initYouTubePlayer();
         
-        // Créer le bouton de suppression
-        this.createDeleteButton();
+        // Ajouter le bouton de suppression au DOM
+        this.setupDeleteButton();
         
         // Événements
         this.startBtn.addEventListener('click', () => this.startGame());
@@ -48,25 +54,21 @@ class GameManager {
         console.log('✅ Jeu initialisé');
     }
 
-    // Créer le bouton de suppression
-    createDeleteButton() {
-        const btn = document.createElement('button');
-        btn.id = 'delete-video-btn';
-        btn.className = 'btn-delete';
-        btn.innerHTML = '<i class="fas fa-trash-alt"></i> Supprimer cette vidéo';
-        btn.style.display = 'none';
-        
-        btn.addEventListener('click', () => {
+    // Configurer le bouton de suppression
+    setupDeleteButton() {
+        // Ajouter l'événement click
+        this.deleteBtn.addEventListener('click', () => {
             this.deleteCurrentVideo();
         });
         
+        // Ajouter au DOM (dans la section vidéo)
         const videoSection = document.querySelector('.video-section');
         if (videoSection) {
-            videoSection.appendChild(btn);
+            videoSection.appendChild(this.deleteBtn);
+            console.log('✅ Bouton suppression ajouté au DOM');
+        } else {
+            console.error('❌ Section vidéo non trouvée');
         }
-        
-        this.deleteBtn = btn;
-        return btn;
     }
 
     // Supprimer la vidéo courante
@@ -179,7 +181,8 @@ class GameManager {
         
         // AFFICHER le bouton de suppression
         if (this.deleteBtn) {
-            this.deleteBtn.style.display = 'block';
+            this.deleteBtn.style.display = 'flex';
+            console.log('🔼 Bouton suppression affiché');
         }
         
         // Préparer la question
@@ -219,6 +222,7 @@ class GameManager {
         // CACHER le bouton de suppression
         if (this.deleteBtn) {
             this.deleteBtn.style.display = 'none';
+            console.log('🔽 Bouton suppression caché');
         }
         
         // Réinitialiser les tentatives YouTube
