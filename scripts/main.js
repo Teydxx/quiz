@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameManager = new GameManager();
     gameManager.init();
     
-    // Exposer gameManager globalement pour le débogage (optionnel)
+    // Exposer gameManager globalement pour le débogage
     window.gameManager = gameManager;
     
     console.log('🎮 Application prête !');

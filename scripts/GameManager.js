@@ -15,6 +15,7 @@ class GameManager {
         this.quizScreen = document.getElementById('quiz-screen');
         this.startBtn = document.getElementById('start-btn');
         this.nextBtn = document.getElementById('next-btn');
+        this.deleteBtn = null; // Bouton de suppression
     }
 
     // Initialiser le jeu
@@ -27,12 +28,15 @@ class GameManager {
         
         this.phaseManager = new PhaseManager();
         this.phaseManager.onPhaseComplete = () => {
-            console.log('🔔 Phase terminée, passage question suivante');
+            console.log('🔄 Phase terminée, passage question suivante');
             setTimeout(() => this.nextQuestion(), 500);
         };
         
         // Initialiser le lecteur YouTube
         this.initYouTubePlayer();
+        
+        // Créer le bouton de suppression
+        this.createDeleteButton();
         
         // Événements
         this.startBtn.addEventListener('click', () => this.startGame());
@@ -42,6 +46,55 @@ class GameManager {
         this.setupAudioInteraction();
         
         console.log('✅ Jeu initialisé');
+    }
+
+    // Créer le bouton de suppression
+    createDeleteButton() {
+        const btn = document.createElement('button');
+        btn.id = 'delete-video-btn';
+        btn.className = 'btn-delete';
+        btn.innerHTML = '<i class="fas fa-trash-alt"></i> Supprimer cette vidéo';
+        btn.style.display = 'none';
+        
+        btn.addEventListener('click', () => {
+            this.deleteCurrentVideo();
+        });
+        
+        const videoSection = document.querySelector('.video-section');
+        if (videoSection) {
+            videoSection.appendChild(btn);
+        }
+        
+        this.deleteBtn = btn;
+        return btn;
+    }
+
+    // Supprimer la vidéo courante
+    deleteCurrentVideo() {
+        if (!confirm('Supprimer cette vidéo du quiz et passer à la suivante ?')) {
+            return;
+        }
+        
+        const currentGame = this.questionManager.getCurrentGame();
+        if (!currentGame) return;
+        
+        console.log(`🗑️ Suppression manuelle: ${currentGame.name}`);
+        
+        // 1. Ajouter aux vidéos supprimées
+        DeletedGamesStorage.add(currentGame);
+        
+        // 2. Retirer du tableau GAMES pour éviter qu'elle réapparaisse
+        const gameIndex = GAMES.findIndex(g => 
+            g.name === currentGame.name && g.videoId === currentGame.videoId
+        );
+        
+        if (gameIndex !== -1) {
+            GAMES.splice(gameIndex, 1);
+            console.log(`✅ ${currentGame.name} retiré de la liste des jeux`);
+        }
+        
+        // 3. Passer à la question suivante
+        this.nextQuestion();
     }
 
     // Initialiser le lecteur YouTube
@@ -56,9 +109,7 @@ class GameManager {
     }
 
     // Débloquer l'audio
-    // Remplacer setupAudioInteraction() par :
     setupAudioInteraction() {
-        // Créer un context audio dès le début
         let audioContext = null;
         
         const unlockAudio = () => {
@@ -67,16 +118,12 @@ class GameManager {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // Créer un buffer sonore très court
                 const buffer = audioContext.createBuffer(1, 1, 22050);
                 const source = audioContext.createBufferSource();
                 source.buffer = buffer;
                 source.connect(audioContext.destination);
-                
-                // Démarrer immédiatement
                 source.start(0);
                 
-                // Resumer le context (peut être suspendu par défaut)
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
@@ -89,10 +136,7 @@ class GameManager {
             }
         };
         
-        // Débloquer au premier clic SUR TOUTE LA PAGE
         document.addEventListener('click', unlockAudio, { once: true });
-        
-        // Également débloquer au clic sur le bouton start
         this.startBtn.addEventListener('click', unlockAudio, { once: true });
     }
 
@@ -112,7 +156,6 @@ class GameManager {
     startGame() {
         console.log('🚀 Démarrage du jeu');
         
-        // Changer d'écran
         this.homeScreen.classList.remove('active');
         this.homeScreen.classList.add('hidden');
         this.quizScreen.classList.remove('hidden');
@@ -120,7 +163,6 @@ class GameManager {
         
         console.log('✅ Écrans switchés');
         
-        // Démarrer la première question
         setTimeout(() => this.startQuestion(), 100);
     }
 
@@ -134,6 +176,11 @@ class GameManager {
 
         this.currentQuestion++;
         this.isPlaying = true;
+        
+        // AFFICHER le bouton de suppression
+        if (this.deleteBtn) {
+            this.deleteBtn.style.display = 'block';
+        }
         
         // Préparer la question
         const questionReady = this.questionManager.prepareQuestion(this.currentQuestion);
@@ -154,7 +201,6 @@ class GameManager {
         const currentGame = this.questionManager.getCurrentGame();
         if (!currentGame) return;
         
-        // Temps de départ aléatoire
         this.startTime = Math.floor(
             Math.random() * (CONFIG.MAX_START_TIME - CONFIG.MIN_START_TIME)
         ) + CONFIG.MIN_START_TIME;
@@ -167,9 +213,13 @@ class GameManager {
     }
 
     // Passer à la question suivante
-
     nextQuestion() {
-        console.log('🔄 Question suivante');
+        console.log('➡️ Question suivante');
+        
+        // CACHER le bouton de suppression
+        if (this.deleteBtn) {
+            this.deleteBtn.style.display = 'none';
+        }
         
         // Réinitialiser les tentatives YouTube
         if (this.youtubePlayer.resetLoadAttempts) {
@@ -179,14 +229,13 @@ class GameManager {
         // Arrêter la vidéo
         this.youtubePlayer.stop();
         
-        // RÉINITIALISER LES PHASES AVANT de masquer quoi que ce soit
+        // RÉINITIALISER LES PHASES
         this.phaseManager.reset();
         
-        // Masquer le rÉsultat et rÉinitialiser les rÉponses
-        this.questionManager.hideResult && this.questionManager.hideResult(); // VÉrifier si la fonction existe
+        // Masquer le résultat et réinitialiser les réponses
         this.nextBtn.style.display = 'none';
         
-        // DÉmarrer la question suivante
+        // Démarrer la question suivante
         setTimeout(() => this.startQuestion(), 1000);
     }
 
@@ -204,6 +253,11 @@ class GameManager {
         // Arrêter tout
         this.youtubePlayer.stop();
         this.phaseManager.clearTimers();
+        
+        // Cacher bouton suppression
+        if (this.deleteBtn) {
+            this.deleteBtn.style.display = 'none';
+        }
         
         // Masquer les sections
         document.querySelector('.answers-section').style.display = 'none';

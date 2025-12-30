@@ -474,17 +474,38 @@
 .answers-grid::-webkit-scrollbar {
     width: 8px;
 }
-
-.answers-grid::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+/* Bouton Supprimer */
+.btn-delete {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    background: rgba(255, 71, 87, 0.9);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
 }
 
-.answers-grid::-webkit-scrollbar-thumb {
-    background: rgba(255, 71, 87, 0.5);
-    border-radius: 4px;
+.btn-delete:hover {
+    background: #ff4757;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.6);
 }
 
-.answers-grid::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 71, 87, 0.7);
+/* Cacher pendant la phase de résultat */
+.result-box.active ~ .btn-delete {
+    display: none !important;
+}
+
+/* Cacher au démarrage */
+.btn-delete {
+    display: none !important;
 }
