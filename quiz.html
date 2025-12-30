@@ -3,20 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz - Jeux Vidéos</title>
+    <title>Quiz Jeux Vidéos</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/quiz.css">
+    
     <style>
+        /* CORRECTION DU LAYOUT */
         body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
         }
         
         #quiz-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* S'assurer que tout est visible */
+        .header, .quiz-content, .video-section, .answers-section {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Correction largeur */
+        .quiz-content {
+            display: flex;
+            width: 100%;
+            height: calc(100% - 80px);
+            gap: 30px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .video-column {
+            flex: 3;
+            min-width: 0;
+        }
+        
+        .answers-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .video-section {
+            height: 100%;
+            padding-bottom: 0;
+            position: relative;
+        }
+        
+        #player-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -26,6 +71,7 @@
     </style>
 </head>
 <body>
+    <!-- ÉCRAN QUIZ SEULEMENT -->
     <div id="quiz-screen" class="screen active">
         <div class="header">
             <div class="title">
@@ -94,14 +140,14 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🎮 Quiz - Chargement...');
+            console.log('🎮 Quiz - Initialisation...');
             
-            // Initialiser gameManager
+            // Initialiser
             const gameManager = new GameManager();
             window.gameManager = gameManager;
             gameManager.init();
             
-            // Démarrer directement
+            // Démarrer
             setTimeout(() => {
                 if (gameManager.startGame) {
                     gameManager.startGame();
@@ -115,7 +161,7 @@
                 }
             });
             
-            // Détecter session
+            // Titre selon session
             const urlParams = new URLSearchParams(window.location.search);
             const sessionId = urlParams.get('session');
             if (sessionId) {

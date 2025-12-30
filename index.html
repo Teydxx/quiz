@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Jeux Vidéos - Écoute et Devine</title>
+    <title>Quiz Jeux Vidéos</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/home.css">
+    
     <style>
-        .home-buttons {
+        .mode-buttons {
             display: flex;
             gap: 30px;
             justify-content: center;
@@ -17,64 +18,54 @@
             flex-wrap: wrap;
         }
         
-        .mode-btn {
+        .mode-button {
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 71, 87, 0.3);
+            border: 2px solid;
             border-radius: 15px;
             padding: 30px;
-            width: 300px;
+            width: 280px;
             cursor: pointer;
             transition: all 0.3s;
-            color: white;
             text-align: center;
+            color: white;
         }
         
-        .mode-btn:hover {
+        .mode-button:hover {
             transform: translateY(-10px);
-            border-color: #ff4757;
-            background: rgba(255, 71, 87, 0.1);
         }
         
-        .mode-btn i {
+        .mode-button i {
             font-size: 3rem;
             margin-bottom: 20px;
             display: block;
         }
         
-        .mode-btn h3 {
+        .mode-button h3 {
             font-size: 1.8rem;
             margin-bottom: 10px;
-            color: #ff4757;
         }
         
-        .mode-btn p {
-            color: #a4b0be;
-            font-size: 1rem;
-        }
-        
-        .solo-btn {
+        .solo-mode {
             border-color: #3742fa;
         }
         
-        .solo-btn:hover {
-            border-color: #3742fa;
+        .solo-mode:hover {
             background: rgba(55, 66, 250, 0.1);
         }
         
-        .solo-btn h3 {
+        .solo-mode h3 {
             color: #3742fa;
         }
         
-        .session-btn {
+        .session-mode {
             border-color: #2ed573;
         }
         
-        .session-btn:hover {
-            border-color: #2ed573;
+        .session-mode:hover {
             background: rgba(46, 213, 115, 0.1);
         }
         
-        .session-btn h3 {
+        .session-mode h3 {
             color: #2ed573;
         }
     </style>
@@ -102,19 +93,17 @@
                 </div>
             </div>
             
-            <div class="home-buttons">
-                <div class="mode-btn solo-btn" onclick="window.location.href='quiz.html?mode=solo'">
+            <div class="mode-buttons">
+                <div class="mode-button solo-mode" onclick="window.location.href='quiz.html?mode=solo'">
                     <i class="fas fa-user"></i>
                     <h3>MODE SOLO</h3>
                     <p>10 questions aléatoires</p>
-                    <p><small>L'expérience classique</small></p>
                 </div>
                 
-                <div class="mode-btn session-btn" onclick="window.location.href='lobby.html'">
+                <div class="mode-button session-mode" onclick="window.location.href='lobby.html'">
                     <i class="fas fa-users"></i>
                     <h3>MODE SESSION</h3>
-                    <p>Créez ou rejoignez</p>
-                    <p><small>Paramètres personnalisés</small></p>
+                    <p>Créer ou rejoindre</p>
                 </div>
             </div>
             
@@ -124,24 +113,23 @@
             </p>
             
             <div style="margin-top: 40px; text-align: center;">
-                <a href="deleted-videos.html" style="color: #a4b0be; text-decoration: none; font-size: 0.9rem;">
+                <a href="deleted-videos.html" style="color: #a4b0be; text-decoration: none;">
                     <i class="fas fa-trash-alt"></i> Gérer les vidéos supprimées
                 </a>
             </div>
         </div>
     </div>
-
+    
     <script>
-        // Détecter si on vient d'un lobby avec session
+        // Détection session
         const urlParams = new URLSearchParams(window.location.search);
         const sessionCode = urlParams.get('session');
         
         if (sessionCode) {
-            // Rediriger directement vers le quiz avec la session
             window.location.href = `quiz.html?session=${sessionCode}`;
         }
         
-        // Audio interaction
+        // Audio
         document.addEventListener('click', () => {
             console.log('Audio débloqué');
         }, { once: true });

@@ -3,427 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vidéos Supprimées - Quiz Jeux Vidéos</title>
+    <title>Lobby - Quiz Jeux Vidéos</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles/main.css">
+    
     <style>
-        .container {
+        /* STYLES LOBBY */
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+        
+        .lobby-container {
             max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-            min-height: calc(100vh - 80px);
-            display: flex;
-            flex-direction: column;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
         }
         
-        .header {
+        .lobby-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
+            padding-top: 40px;
         }
         
-        .header h1 {
+        .lobby-header h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #ff4757, #3742fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .lobby-header p {
+            color: #a4b0be;
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .lobby-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .lobby-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid rgba(255, 71, 87, 0.3);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .lobby-card:hover {
+            transform: translateY(-10px);
+            border-color: #ff4757;
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+        }
+        
+        .lobby-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
             color: #ff4757;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .controls {
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: transform 0.3s;
+            gap: 15px;
         }
         
-        .btn:hover {
-            transform: translateY(-3px);
+        .lobby-card h2 i {
+            font-size: 2rem;
         }
         
-        .btn-primary {
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a4b0be;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .btn-lobby {
+            width: 100%;
+            padding: 15px;
             background: linear-gradient(135deg, #ff4757, #3742fa);
             color: white;
-        }
-        
-        .btn-danger {
-            background: #ff4757;
-            color: white;
-        }
-        
-        .btn-success {
-            background: #2ed573;
-            color: white;
-        }
-        
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            flex: 1;
-        }
-        
-        .game-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 71, 87, 0.3);
-            border-radius: 12px;
-            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
             transition: transform 0.3s;
         }
         
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: #ff4757;
+        .btn-lobby:hover {
+            transform: scale(1.05);
         }
         
-        .game-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 10px;
-            word-break: break-word;
+        .btn-secondary {
+            background: linear-gradient(135deg, #3742fa, #7158e2);
         }
         
-        .game-info {
-            color: #a4b0be;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        
-        .video-id {
-            font-family: monospace;
+        .session-code-display {
+            text-align: center;
+            padding: 20px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px dashed rgba(255, 71, 87, 0.5);
         }
         
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+        .session-code {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            color: #2ed573;
+            font-weight: bold;
+            margin: 10px 0;
         }
         
-        .action-btn {
-            flex: 1;
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
             padding: 8px 15px;
             border-radius: 6px;
-            border: none;
             cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 50px;
-            color: #a4b0be;
-            font-size: 1.2rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .test-link {
-            color: #3742fa;
-            text-decoration: none;
-            margin-left: 10px;
-        }
-        
-        .test-link:hover {
-            text-decoration: underline;
-        }
-        
-        .youtube-test {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .youtube-test iframe {
-            width: 100%;
-            height: 200px;
-            border-radius: 8px;
             margin-top: 10px;
         }
         
-        .info-banner {
-            background: rgba(255, 193, 7, 0.2);
-            border: 1px solid rgba(255, 193, 7, 0.5);
-            border-radius: 8px;
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: rgba(255, 255, 255, 0.03);
             padding: 15px;
-            margin-bottom: 30px;
-            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3742fa;
         }
         
-        .info-banner i {
-            color: #ffc107;
-            margin-right: 10px;
-        }
-        
-        .footer-buttons {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        .footer-links {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .footer-btn {
-            padding: 15px 30px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            display: inline-flex;
+        .footer-link {
+            color: #a4b0be;
+            text-decoration: none;
+            display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.3s;
-            min-width: 200px;
-            justify-content: center;
             font-size: 1.1rem;
         }
         
-        .footer-btn:hover {
-            transform: translateY(-3px);
+        .footer-link:hover {
+            color: #ff4757;
         }
         
-        .btn-back {
-            background: linear-gradient(135deg, #3742fa, #7158e2);
-            color: white;
-        }
-        
-        .btn-reload {
-            background: linear-gradient(135deg, #2ed573, #1dd1a1);
-            color: white;
-        }
-        
-        .content-wrapper {
-            flex: 1;
+        @media (max-width: 768px) {
+            .lobby-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .lobby-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-trash-alt"></i> Vidéos Supprimées</h1>
-            <p>Liste des vidéos retirées du quiz pour vérification manuelle</p>
+    <div class="lobby-container">
+        <div class="lobby-header">
+            <h1><i class="fas fa-gamepad"></i> LOBBY QUIZ</h1>
+            <p>Créez ou rejoignez des sessions de quiz personnalisées</p>
         </div>
         
-        <div class="info-banner">
-            <i class="fas fa-info-circle"></i>
-            <strong>Deux options :</strong> 
-            1. <span style="color: #2ed573">"Corriger et remettre"</span> pour changer l'ID YouTube et réintégrer la vidéo dans le quiz.
-            2. <span style="color: #ff4757">"Supprimer définitivement"</span> pour éliminer complètement la vidéo du système.
-        </div>
-        
-        <div class="controls">
-            <button class="btn btn-primary" onclick="loadDeletedGames()">
-                <i class="fas fa-sync-alt"></i> Actualiser
-            </button>
-            <button class="btn btn-danger" onclick="clearAllDeleted()">
-                <i class="fas fa-trash"></i> Tout supprimer
-            </button>
-            <a href="index.html" class="btn btn-success">
-                <i class="fas fa-arrow-left"></i> Retour à l'accueil
-            </a>
-        </div>
-        
-        <div class="content-wrapper">
-            <div id="games-container">
-                <!-- Les jeux supprimés apparaîtront ici -->
+        <div class="lobby-sections">
+            <!-- CRÉATION DE SESSION -->
+            <div class="lobby-card">
+                <h2><i class="fas fa-plus-circle"></i> Créer une Session</h2>
+                
+                <div class="form-group">
+                    <label for="playerName">Votre pseudo</label>
+                    <input type="text" id="playerName" class="form-control" value="Joueur" placeholder="Votre nom">
+                </div>
+                
+                <div class="form-group">
+                    <label for="questionCount">Nombre de questions</label>
+                    <select id="questionCount" class="form-control">
+                        <option value="5">5 questions</option>
+                        <option value="10" selected>10 questions</option>
+                        <option value="15">15 questions</option>
+                        <option value="20">20 questions</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phase1Time">Temps d'écoute (secondes)</label>
+                    <select id="phase1Time" class="form-control">
+                        <option value="15">15 secondes</option>
+                        <option value="20" selected>20 secondes</option>
+                        <option value="25">25 secondes</option>
+                        <option value="30">30 secondes</option>
+                    </select>
+                </div>
+                
+                <button class="btn-lobby" onclick="createSession()">
+                    <i class="fas fa-rocket"></i> CRÉER LA SESSION
+                </button>
+                
+                <div class="session-code-display" id="sessionCodeDisplay" style="display: none;">
+                    <h3>Code de session :</h3>
+                    <div class="session-code" id="sessionCode">ABC123</div>
+                    <button class="copy-btn" onclick="copySessionCode()">
+                        <i class="far fa-copy"></i> Copier le code
+                    </button>
+                </div>
+            </div>
+            
+            <!-- REJOINDRE SESSION -->
+            <div class="lobby-card">
+                <h2><i class="fas fa-sign-in-alt"></i> Rejoindre une Session</h2>
+                
+                <div class="form-group">
+                    <label for="joinPlayerName">Votre pseudo</label>
+                    <input type="text" id="joinPlayerName" class="form-control" value="Invité" placeholder="Votre nom">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sessionCodeInput">Code de session</label>
+                    <input type="text" id="sessionCodeInput" class="form-control" placeholder="Ex: ABC123">
+                </div>
+                
+                <button class="btn-lobby btn-secondary" onclick="joinSession()">
+                    <i class="fas fa-play-circle"></i> REJOINDRE LA SESSION
+                </button>
+            </div>
+            
+            <!-- INFOS -->
+            <div class="lobby-card">
+                <h2><i class="fas fa-info-circle"></i> Comment ça marche ?</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2ed573; margin-bottom: 10px;">📱 Créer une session</h3>
+                    <p>Choisissez vos paramètres et obtenez un code unique à partager.</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #3742fa; margin-bottom: 10px;">👥 Inviter des amis</h3>
+                    <p>Partagez le code avec vos amis pour qu'ils rejoignent.</p>
+                </div>
+                
+                <div>
+                    <h3 style="color: #ff4757; margin-bottom: 10px;">🎮 Jouer ensemble</h3>
+                    <p>Tous les joueurs voient les mêmes questions en même temps.</p>
+                </div>
             </div>
         </div>
         
-        <!-- BOUTONS EN BAS DE PAGE -->
-        <div class="footer-buttons">
-            <button class="footer-btn btn-back" onclick="window.location.href='index.html'">
-                <i class="fas fa-home"></i> Retour à l'accueil
-            </button>
-            <button class="footer-btn btn-reload" onclick="location.reload()">
-                <i class="fas fa-redo"></i> Recharger la page
-            </button>
+        <div class="footer-links">
+            <a href="index.html" class="footer-link">
+                <i class="fas fa-arrow-left"></i> Retour à l'accueil
+            </a>
+            <a href="quiz.html?mode=solo" class="footer-link">
+                <i class="fas fa-user"></i> Jouer en solo
+            </a>
+            <a href="deleted-videos.html" class="footer-link">
+                <i class="fas fa-trash-alt"></i> Vidéos supprimées
+            </a>
         </div>
     </div>
     
-    <script src="scripts/deletedGames.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/games.js"></script>
+    <script src="scripts/SessionManager.js"></script>
+    
     <script>
-        // Charger et afficher les jeux supprimés
-        function loadDeletedGames() {
-            const container = document.getElementById('games-container');
-            const deletedGames = DeletedGamesStorage.get();
+        // FONCTIONS LOBBY
+        function createSession() {
+            const playerName = document.getElementById('playerName').value.trim() || 'Joueur';
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+            const phase1Time = parseInt(document.getElementById('phase1Time').value);
             
-            if (deletedGames.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>
-                        <h3>Aucune vidéo supprimée</h3>
-                        <p>Toutes les vidéos fonctionnent correctement !</p>
-                        <a href="index.html" style="margin-top: 20px; text-decoration: none;">
-                            <button class="btn btn-success" style="margin-top: 20px;">
-                                <i class="fas fa-arrow-left"></i> Retourner à l'accueil
-                            </button>
-                        </a>
-                    </div>
-                `;
+            const sessionManager = new SessionManager();
+            const session = sessionManager.createSession({
+                playerName: playerName,
+                totalQuestions: questionCount,
+                phase1Time: phase1Time,
+                phase2Time: 10 // Fixe pour l'instant
+            });
+            
+            // Afficher le code
+            document.getElementById('sessionCode').textContent = session.id;
+            document.getElementById('sessionCodeDisplay').style.display = 'block';
+            
+            // Rediriger vers le quiz après 3s
+            setTimeout(() => {
+                window.location.href = `quiz.html?session=${session.id}`;
+            }, 3000);
+            
+            alert(`✅ Session créée !\nCode: ${session.id}\n\nRedirection dans 3 secondes...`);
+        }
+        
+        function joinSession() {
+            const playerName = document.getElementById('joinPlayerName').value.trim() || 'Invité';
+            const sessionCode = document.getElementById('sessionCodeInput').value.trim().toUpperCase();
+            
+            if (!sessionCode) {
+                alert('❌ Veuillez entrer un code de session');
                 return;
             }
             
-            let html = `<div class="games-grid">`;
+            const sessionManager = new SessionManager();
+            const session = sessionManager.joinSession(sessionCode, playerName);
             
-            deletedGames.forEach((game) => {
-                html += `
-                    <div class="game-card">
-                        <div class="game-name">${game.name}</div>
-                        <div class="game-info">
-                            <div><i class="far fa-calendar"></i> Supprimée le: ${game.date}</div>
-                            <div><i class="fas fa-info-circle"></i> Raison: ${game.reason || 'Manuelle'}</div>
-                        </div>
-                        
-                        <div class="video-id">
-                            <span>ID YouTube: <strong>${game.videoId}</strong></span>
-                            <button onclick="copyToClipboard('${game.videoId}')" 
-                                    class="action-btn" 
-                                    style="padding: 5px 10px; font-size: 0.8rem;">
-                                <i class="far fa-copy"></i> Copier
-                            </button>
-                        </div>
-                        
-                        <div class="youtube-test">
-                            <div style="margin-bottom: 10px;">
-                                <a href="https://www.youtube.com/watch?v=${game.videoId}" 
-                                   target="_blank" 
-                                   class="test-link">
-                                   <i class="fab fa-youtube"></i> Tester sur YouTube
-                                </a>
-                            </div>
-                            <iframe 
-                                src="https://www.youtube.com/embed/${game.videoId}?modestbranding=1&rel=0"
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                            </iframe>
-                        </div>
-                        
-                        <div class="actions">
-                            <button class="action-btn" style="background: #2ed573; color: white;"
-                                    onclick="reintegrateGame('${game.name}', '${game.videoId}')">
-                                <i class="fas fa-undo"></i> Corriger et remettre
-                            </button>
-                            <button class="action-btn" style="background: #ff4757; color: white;"
-                                    onclick="permanentlyDelete('${game.name}')">
-                                <i class="fas fa-trash"></i> Supprimer définitivement
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-            container.innerHTML = html;
-        }
-        
-        // Corriger l'ID et remettre dans le quiz
-        function reintegrateGame(gameName, currentVideoId) {
-            const newVideoId = prompt(
-                `Corriger "${gameName}" :\n\n` +
-                `ID actuel: ${currentVideoId}\n\n` +
-                `Entrez le NOUVEL ID YouTube :\n` +
-                `(Exemple: "dQw4w9WgXcQ")\n\n` +
-                `La vidéo sera remise dans le quiz avec ce nouvel ID.`
-            );
-            
-            if (newVideoId && newVideoId.trim() !== '') {
-                const cleanedId = newVideoId.trim();
-                
-                // 1. Ajouter aux jeux corrigés
-                const correctedGames = JSON.parse(localStorage.getItem('correctedGames') || '[]');
-                
-                // Vérifier si déjà corrigé
-                const existingIndex = correctedGames.findIndex(g => g.name === gameName);
-                if (existingIndex !== -1) {
-                    correctedGames[existingIndex].videoId = cleanedId;
-                    correctedGames[existingIndex].date = new Date().toLocaleString();
-                } else {
-                    correctedGames.push({
-                        name: gameName,
-                        videoId: cleanedId,
-                        date: new Date().toLocaleString(),
-                        originalId: currentVideoId
-                    });
-                }
-                
-                localStorage.setItem('correctedGames', JSON.stringify(correctedGames));
-                
-                // 2. Retirer des supprimés
-                const deleted = DeletedGamesStorage.get();
-                const updatedDeleted = deleted.filter(g => g.name !== gameName);
-                localStorage.setItem('deletedGames', JSON.stringify(updatedDeleted));
-                
-                alert(`✅ "${gameName}" a été corrigé !\n\n` +
-                      `Nouvel ID: ${cleanedId}\n\n` +
-                      `Redémarrez le quiz pour que les changements prennent effet.`);
-                
-                loadDeletedGames();
+            if (session) {
+                window.location.href = `quiz.html?session=${sessionCode}`;
+            } else {
+                alert('❌ Session non trouvée. Vérifiez le code.');
             }
         }
         
-        // Supprimer définitivement
-        function permanentlyDelete(gameName) {
-            if (!confirm(`SUPPRESSION DÉFINITIVE\n\n` +
-                        `Êtes-vous sûr de vouloir supprimer "${gameName}" ?\n\n` +
-                        `⚠️ Cette action est irréversible !\n` +
-                        `La vidéo ne pourra pas être récupérée.`)) {
-                return;
-            }
-            
-            const deleted = DeletedGamesStorage.get();
-            const updatedDeleted = deleted.filter(g => g.name !== gameName);
-            localStorage.setItem('deletedGames', JSON.stringify(updatedDeleted));
-            
-            alert(`🗑️ "${gameName}" a été supprimé définitivement.`);
-            loadDeletedGames();
-        }
-        
-        // Tout supprimer
-        function clearAllDeleted() {
-            if (!confirm('Supprimer TOUTES les vidéos de la liste ?\n\nCette action est irréversible !')) return;
-            
-            DeletedGamesStorage.clear();
-            loadDeletedGames();
-        }
-        
-        // Copier l'ID dans le presse-papier
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('ID copié dans le presse-papier !');
+        function copySessionCode() {
+            const code = document.getElementById('sessionCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Code copié !');
             });
         }
         
-        // Charger au démarrage
-        loadDeletedGames();
+        // Vérifier si on a un code dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeFromUrl = urlParams.get('code');
+        if (codeFromUrl) {
+            document.getElementById('sessionCodeInput').value = codeFromUrl;
+        }
     </script>
 </body>
 </html>
