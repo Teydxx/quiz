@@ -1,4 +1,85 @@
-// Fonction pour mélanger un tableau
+// ===== SYSTÈME DE CORRECTION DES VIDÉOS =====
+
+// Charger les jeux corrigés depuis localStorage
+function loadCorrectedGames() {
+    const correctedGames = JSON.parse(localStorage.getItem('correctedGames') || '[]');
+    
+    console.log(`🔄 Chargement de ${correctedGames.length} vidéo(s) corrigée(s)`);
+    
+    correctedGames.forEach(correctedGame => {
+        // Chercher si le jeu existe déjà dans GAMES
+        const existingIndex = GAMES.findIndex(g => g.name === correctedGame.name);
+        
+        if (existingIndex !== -1) {
+            // Mettre à jour l'ID
+            GAMES[existingIndex].videoId = correctedGame.videoId;
+            console.log(`🔄 "${correctedGame.name}" mis à jour avec ID: ${correctedGame.videoId}`);
+        } else {
+            // Ajouter comme nouveau jeu
+            GAMES.push({
+                name: correctedGame.name,
+                videoId: correctedGame.videoId
+            });
+            console.log(`➕ "${correctedGame.name}" ajouté avec ID: ${correctedGame.videoId}`);
+        }
+    });
+}
+
+// Charger les jeux définitivement supprimés
+function loadPermanentlyDeletedGames() {
+    const permanentlyDeleted = JSON.parse(localStorage.getItem('permanentlyDeleted') || '[]');
+    
+    permanentlyDeleted.forEach(deletedGame => {
+        // Retirer de GAMES si présent
+        const index = GAMES.findIndex(g => g.name === deletedGame.name);
+        if (index !== -1) {
+            GAMES.splice(index, 1);
+            console.log(`🗑️ "${deletedGame.name}" retiré définitivement`);
+        }
+    });
+}
+
+// Initialiser au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    loadCorrectedGames();
+    loadPermanentlyDeletedGames();
+});
+
+// ===== FONCTIONS DE GESTION =====
+
+// Ajouter aux supprimés définitivement
+function addToPermanentlyDeleted(game) {
+    const permanentlyDeleted = JSON.parse(localStorage.getItem('permanentlyDeleted') || '[]');
+    
+    // Vérifier si déjà dans la liste
+    const exists = permanentlyDeleted.some(g => g.name === game.name);
+    if (!exists) {
+        permanentlyDeleted.push({
+            name: game.name,
+            videoId: game.videoId,
+            date: new Date().toLocaleString()
+        });
+        localStorage.setItem('permanentlyDeleted', JSON.stringify(permanentlyDeleted));
+        console.log(`🗑️ "${game.name}" ajouté aux supprimés définitifs`);
+    }
+}
+
+// ===== FONCTIONS POUR LA PAGE DELETED-VIDEOS.HTML =====
+// (Ces fonctions sont utilisées par la page deleted-videos.html)
+
+// Réintégrer un jeu (appelé depuis deleted-videos.html)
+window.reintegrateGame = function(gameName, currentVideoId) {
+    // Cette fonction est définie dans deleted-videos.html
+    console.log(`Tentative de réintégration: ${gameName}`);
+};
+
+// Supprimer définitivement (appelé depuis deleted-videos.html)  
+window.permanentlyDelete = function(gameName) {
+    // Cette fonction est définie dans deleted-videos.html
+    console.log(`Tentative de suppression définitive: ${gameName}`);
+};
+
+// ===== FONCTION ORIGINALE DE MÉLANGE =====
 function shuffleArray(array) {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -8,9 +89,8 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-// Liste de 50 jeux vidéo avec OST uniques
+// ===== LISTE DES JEUX (LA SUITE DU FICHIER RESTE IDENTIQUE) =====
 const GAMES = [
-    // Jeux existants vérifiés
     {
         name: "The Legend of Zelda: Breath of the Wild",
         videoId: "FYTFtTEulRI"

@@ -56,6 +56,8 @@ class GameManager {
             });
             this.deleteBtn.style.display = 'none'; // Caché au début
             console.log('✅ Bouton suppression configuré');
+        } else {
+            console.error('❌ Bouton suppression non trouvé');
         }
     }
 
@@ -70,7 +72,7 @@ class GameManager {
         
         console.log(`🗑️ Suppression manuelle: ${currentGame.name}`);
         
-        // 1. Ajouter aux vidéos supprimées
+        // 1. Ajouter aux vidéos supprimées (pour vérification manuelle)
         DeletedGamesStorage.add(currentGame);
         
         // 2. Retirer du tableau GAMES pour éviter qu'elle réapparaisse
@@ -83,7 +85,12 @@ class GameManager {
             console.log(`✅ ${currentGame.name} retiré de la liste des jeux`);
         }
         
-        // 3. Passer à la question suivante
+        // 3. Ajouter aux supprimés définitifs (pour tracking)
+        if (window.addToPermanentlyDeleted) {
+            window.addToPermanentlyDeleted(currentGame);
+        }
+        
+        // 4. Passer à la question suivante
         this.nextQuestion();
     }
 

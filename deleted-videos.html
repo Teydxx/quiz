@@ -157,6 +157,20 @@
             border-radius: 8px;
             margin-top: 10px;
         }
+        
+        .info-banner {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .info-banner i {
+            color: #ffc107;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -164,6 +178,13 @@
         <div class="header">
             <h1><i class="fas fa-trash-alt"></i> Vidéos Supprimées</h1>
             <p>Liste des vidéos retirées du quiz pour vérification manuelle</p>
+        </div>
+        
+        <div class="info-banner">
+            <i class="fas fa-info-circle"></i>
+            <strong>Deux options :</strong> 
+            1. <span style="color: #2ed573">"Corriger et remettre"</span> pour changer l'ID YouTube et réintégrer la vidéo dans le quiz.
+            2. <span style="color: #ff4757">"Supprimer définitivement"</span> pour éliminer complètement la vidéo du système.
         </div>
         
         <div class="controls">
@@ -185,6 +206,7 @@
     
     <script src="scripts/deletedGames.js"></script>
     <script>
+        // Charger et afficher les jeux supprimés
         function loadDeletedGames() {
             const container = document.getElementById('games-container');
             const deletedGames = DeletedGamesStorage.get();
@@ -238,8 +260,12 @@
                         
                         <div class="actions">
                             <button class="action-btn" style="background: #2ed573; color: white;"
-                                    onclick="removeGame('${game.name}')">
-                                <i class="fas fa-times"></i> Supprimer de la liste
+                                    onclick="reintegrateGame('${game.name}', '${game.videoId}')">
+                                <i class="fas fa-undo"></i> Corriger et remettre
+                            </button>
+                            <button class="action-btn" style="background: #ff4757; color: white;"
+                                    onclick="permanentlyDelete('${game.name}')">
+                                <i class="fas fa-trash"></i> Supprimer définitivement
                             </button>
                         </div>
                     </div>
@@ -250,29 +276,84 @@
             container.innerHTML = html;
         }
         
-        function removeGame(gameName) {
-            if (!confirm(`Supprimer "${gameName}" de la liste ?`)) return;
+        // Corriger l'ID et remettre dans le quiz
+        function reintegrateGame(gameName, currentVideoId) {
+            const newVideoId = prompt(
+                `Corriger "${gameName}" :\n\n` +
+                `ID actuel: ${currentVideoId}\n\n` +
+                `Entrez le NOUVEL ID YouTube :\n` +
+                `(Exemple: "dQw4w9WgXcQ")\n\n` +
+                `La vidéo sera remise dans le quiz avec ce nouvel ID.`
+            );
+            
+            if (newVideoId && newVideoId.trim() !== '') {
+                const cleanedId = newVideoId.trim();
+                
+                // 1. Ajouter aux jeux corrigés
+                const correctedGames = JSON.parse(localStorage.getItem('correctedGames') || '[]');
+                
+                // Vérifier si déjà corrigé
+                const existingIndex = correctedGames.findIndex(g => g.name === gameName);
+                if (existingIndex !== -1) {
+                    correctedGames[existingIndex].videoId = cleanedId;
+                    correctedGames[existingIndex].date = new Date().toLocaleString();
+                } else {
+                    correctedGames.push({
+                        name: gameName,
+                        videoId: cleanedId,
+                        date: new Date().toLocaleString(),
+                        originalId: currentVideoId
+                    });
+                }
+                
+                localStorage.setItem('correctedGames', JSON.stringify(correctedGames));
+                
+                // 2. Retirer des supprimés
+                const deleted = DeletedGamesStorage.get();
+                const updatedDeleted = deleted.filter(g => g.name !== gameName);
+                localStorage.setItem('deletedGames', JSON.stringify(updatedDeleted));
+                
+                alert(`✅ "${gameName}" a été corrigé !\n\n` +
+                      `Nouvel ID: ${cleanedId}\n\n` +
+                      `Redémarrez le quiz pour que les changements prennent effet.`);
+                
+                loadDeletedGames();
+            }
+        }
+        
+        // Supprimer définitivement
+        function permanentlyDelete(gameName) {
+            if (!confirm(`SUPPRESSION DÉFINITIVE\n\n` +
+                        `Êtes-vous sûr de vouloir supprimer "${gameName}" ?\n\n` +
+                        `⚠️ Cette action est irréversible !\n` +
+                        `La vidéo ne pourra pas être récupérée.`)) {
+                return;
+            }
             
             const deleted = DeletedGamesStorage.get();
             const updatedDeleted = deleted.filter(g => g.name !== gameName);
             localStorage.setItem('deletedGames', JSON.stringify(updatedDeleted));
             
+            alert(`🗑️ "${gameName}" a été supprimé définitivement.`);
             loadDeletedGames();
         }
         
+        // Tout supprimer
         function clearAllDeleted() {
-            if (!confirm('Supprimer toutes les vidéos de la liste ?')) return;
+            if (!confirm('Supprimer TOUTES les vidéos de la liste ?\n\nCette action est irréversible !')) return;
             
             DeletedGamesStorage.clear();
             loadDeletedGames();
         }
         
+        // Copier l'ID dans le presse-papier
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('ID copié dans le presse-papier !');
             });
         }
         
+        // Charger au démarrage
         loadDeletedGames();
     </script>
 </body>
