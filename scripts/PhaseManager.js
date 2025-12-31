@@ -1,9 +1,14 @@
+// scripts/PhaseManager.js - VERSION AVEC FADE OUT SYNCHRO
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         this.phaseInterval = null;
         this.onPhaseComplete = null;
+        
+        // Configuration fade out
+        this.fadeStartSeconds = 3; // Commencer 3s avant la fin
+        this.isFading = false;
         
         // Éléments DOM
         this.blackOverlay = document.getElementById('black-overlay');
@@ -16,48 +21,46 @@ class PhaseManager {
         this.resultIcon = document.querySelector('.result-icon');
         this.resultGameName = document.querySelector('.result-game-name');
         this.resultStatus = document.querySelector('.result-status');
+        
+        console.log(`⏱️ PhaseManager - Fade out: ${this.fadeStartSeconds}s avant la fin`);
     }
     
     // Démarrer une phase
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
         this.clearTimers();
+        this.isFading = false;
         
         switch(phaseNumber) {
             case 1:
-                // Phase 1 : Écoute (20s)
+                // Phase 1 : Écoute
                 this.phaseTimer = CONFIG.PHASE1_TIME;
                 
-                // 1. Overlay noir à 100%
-                this.setBlackOverlayOpacity(1);
+                // Réinitialiser le volume à 100%
+                this.resetAudioVolume();
                 
-                // 2. Montrer timer, cacher résultat
+                // Setup UI
+                this.setBlackOverlayOpacity(1);
                 this.timerBox.classList.remove('hidden');
                 this.timerCount.textContent = this.phaseTimer;
                 this.resultBox.classList.remove('active');
-                
-                // 3. Montrer les réponses
                 this.answersSection.classList.remove('hidden');
                 
                 break;
                 
             case 2:
-                // Phase 2 : Révélation (10s)
+                // Phase 2 : Révélation
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
-                // 1. Cacher timer
+                // Cacher timer et réponses
                 this.timerBox.classList.add('hidden');
-                
-                // 2. Cacher les réponses
                 this.answersSection.classList.add('hidden');
                 
-                // 3. Afficher résultat
+                // Afficher résultat
                 this.showResult();
                 
-                // 4. Animation overlay : 100% → 0% en 3s
+                // Animations overlay
                 this.fadeOutBlackOverlay();
-                
-                // 5. Après 7s, animation overlay : 0% → 100% en 3s
                 setTimeout(() => {
                     this.fadeInBlackOverlay();
                 }, 7000);
@@ -69,7 +72,69 @@ class PhaseManager {
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // FADE OUT : 100% → 0% en 3 secondes
+    // Mettre à jour timer avec fade out
+    updatePhaseTimer() {
+        this.phaseTimer--;
+        
+        if (this.currentPhase === 1) {
+            this.timerCount.textContent = this.phaseTimer;
+            
+            // GESTION FADE OUT AUDIO
+            this.handleAudioFade();
+        }
+        
+        if (this.phaseTimer <= 0) {
+            if (this.currentPhase < 2) {
+                this.startPhase(2);
+            } else {
+                this.clearTimers();
+                this.endPhase();
+            }
+        }
+    }
+    
+    // Gérer le fade out audio
+    handleAudioFade() {
+        if (!window.gameManager || !window.gameManager.youtubePlayer) return;
+        
+        const youtubePlayer = window.gameManager.youtubePlayer;
+        const timeLeft = this.phaseTimer;
+        
+        // Si on est dans la période de fade out
+        if (timeLeft <= this.fadeStartSeconds && timeLeft > 0) {
+            if (!this.isFading) {
+                this.isFading = true;
+                console.log(`🔉 Début fade out (${timeLeft}s restantes)`);
+            }
+            
+            // Calcul volume proportionnel
+            // Ex: 3s → 100%, 2s → 66%, 1s → 33%, 0s → 0%
+            const volumePercent = (timeLeft / this.fadeStartSeconds) * 100;
+            youtubePlayer.setVolume(volumePercent);
+            
+        } 
+        // Si le timer est à 0, couper le son
+        else if (timeLeft === 0) {
+            youtubePlayer.setVolume(0);
+            console.log('🔇 Son coupé (fin phase 1)');
+        }
+        // Si on sort de la période de fade (au cas où)
+        else if (this.isFading && timeLeft > this.fadeStartSeconds) {
+            this.isFading = false;
+            youtubePlayer.setVolume(100);
+        }
+    }
+    
+    // Réinitialiser le volume audio
+    resetAudioVolume() {
+        if (window.gameManager && window.gameManager.youtubePlayer) {
+            window.gameManager.youtubePlayer.resetVolume();
+            this.isFading = false;
+        }
+    }
+    
+    // === MÉTHODES EXISTANTES (inchangées) ===
+    
     fadeOutBlackOverlay() {
         if (!this.blackOverlay) return;
         
@@ -95,7 +160,6 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    // FADE IN : 0% → 100% en 3 secondes
     fadeInBlackOverlay() {
         if (!this.blackOverlay) return;
         
@@ -121,14 +185,12 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    // Définir l'opacité de l'overlay noir
     setBlackOverlayOpacity(opacity) {
         if (this.blackOverlay) {
             this.blackOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
         }
     }
     
-    // Afficher le résultat
     showResult() {
         if (!window.gameManager || !window.gameManager.questionManager) return;
         
@@ -137,11 +199,9 @@ class PhaseManager {
         
         if (!currentGame) return;
         
-        // Finaliser la réponse
         qm.finalizeAnswer();
         qm.revealAnswers();
         
-        // Préparer contenu
         let resultClass = 'no-answer';
         let resultIcon = '❌';
         let statusText = 'PAS DE RÉPONSE';
@@ -158,49 +218,22 @@ class PhaseManager {
             }
         }
         
-        // Mettre à jour DOM
         this.resultIcon.textContent = resultIcon;
         this.resultGameName.textContent = currentGame.name;
         this.resultStatus.textContent = statusText;
-        
-        // Appliquer classe résultat
         this.resultBox.className = `result-box ${resultClass}`;
         
-        // Afficher
         setTimeout(() => {
             this.resultBox.classList.add('active');
         }, 100);
     }
     
-    // Mettre à jour timer
-    updatePhaseTimer() {
-        this.phaseTimer--;
-        
-        if (this.currentPhase === 1) {
-            this.timerCount.textContent = this.phaseTimer;
-        }
-        
-        if (this.phaseTimer <= 0) {
-            if (this.currentPhase < 2) {
-                this.startPhase(2);
-            } else {
-                this.clearTimers();
-                this.endPhase();
-            }
-        }
-    }
-    
-    // Fin de phase
     endPhase() {
         this.clearTimers();
-        
-        // Cacher résultat
         this.resultBox.classList.remove('active');
-        
-        // S'assurer que l'overlay est à 100%
         this.setBlackOverlayOpacity(1);
+        this.resetAudioVolume();
         
-        // Appeler le callback
         setTimeout(() => {
             if (this.onPhaseComplete) {
                 this.onPhaseComplete();
@@ -208,7 +241,6 @@ class PhaseManager {
         }, 300);
     }
     
-    // Arrêter timer
     clearTimers() {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
@@ -216,14 +248,14 @@ class PhaseManager {
         }
     }
     
-    // Réinitialiser
     reset() {
         this.clearTimers();
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
+        this.isFading = false;
         
-        // Réinitialiser tout
         this.setBlackOverlayOpacity(1);
+        this.resetAudioVolume();
         
         this.timerBox.classList.remove('hidden');
         this.timerCount.textContent = this.phaseTimer;

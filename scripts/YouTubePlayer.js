@@ -204,4 +204,17 @@ class YouTubePlayer {
         this.videoQueue = []; // Vider aussi la file d'attente
         console.log('🔄 Compteur de tentatives réinitialisé');
     }
+    // Ajouter dans YouTubePlayer.js
+setVolume(percent) {
+    if (this.isReady && this.player) {
+        const clampedPercent = Math.max(0, Math.min(100, Math.round(percent)));
+        this.player.setVolume(clampedPercent);
+        this.currentVolume = clampedPercent;
+        
+        // Debug uniquement si changement significatif
+        if (clampedPercent % 25 === 0 || clampedPercent <= 10) {
+            console.log(`🔊 Volume: ${clampedPercent}%`);
+        }
+    }
+}
 }
