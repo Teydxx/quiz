@@ -11,22 +11,34 @@ body {
     color: white;
     min-height: 100vh;
     overflow-x: hidden;
-    position: relative;    /* AJOUTÉ */
-    margin: 0;            /* AJOUTÉ */
-    padding: 0;           /* AJOUTÉ */
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container pour toutes les pages */
+.page-container {
+    min-height: 100vh;
+    position: relative;
 }
 
 .screen {
     display: none;
-    position: absolute;    /* AJOUTÉ - position par rapport au body */
-    top: 0;               /* AJOUTÉ */
-    left: 0;              /* AJOUTÉ */
-    width: 100%;          /* MODIFIÉ - enlevé min-height */
-    height: 100%;         /* AJOUTÉ - prend toute la hauteur du body */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .screen.active {
     display: block;
+    opacity: 1;
+}
+
+.screen.hidden {
+    display: none;
 }
 
 /* Ajouter un container pour le fond */
@@ -41,6 +53,7 @@ body::before {
     z-index: -1;
 }
 
+/* ===== BOUTONS ===== */
 .btn-primary {
     background: linear-gradient(135deg, #ff4757 0%, #3742fa 100%);
     color: white;
@@ -53,11 +66,13 @@ body::before {
     align-items: center;
     gap: 15px;
     font-weight: bold;
-    transition: transform 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
 }
 
 .btn-primary:hover {
     transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
 }
 
 .btn-next {
@@ -73,11 +88,191 @@ body::before {
     align-items: center;
     gap: 10px;
     font-weight: bold;
-    transition: transform 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
 }
 
 .btn-next:hover {
     transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(46, 213, 115, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #3742fa, #7158e2);
+    box-shadow: 0 4px 15px rgba(55, 66, 250, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ff9f43, #ffaf60);
+    box-shadow: 0 4px 15px rgba(255, 159, 67, 0.3);
+}
+
+/* ===== NOTIFICATIONS ===== */
+
+/* Notification vidéo défaillante */
+.video-failed-notification {
+    animation: slideInRight 0.3s ease forwards;
+    pointer-events: auto;
+}
+
+.video-failed-notification .notification-content {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 5px 25px rgba(255, 71, 87, 0.4);
+    border-left: 5px solid #ffaf60;
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 5px 25px rgba(255, 71, 87, 0.4); }
+    50% { box-shadow: 0 5px 25px rgba(255, 71, 87, 0.7); }
+    100% { box-shadow: 0 5px 25px rgba(255, 71, 87, 0.4); }
+}
+
+.video-failed-notification h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.video-failed-notification p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+.video-failed-notification small {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    display: block;
+    margin-top: 3px;
+}
+
+.video-failed-notification .notification-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.video-failed-notification .notification-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+}
+
+.video-failed-notification .notification-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.video-failed-notification .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    padding: 5px;
+}
+
+.video-failed-notification .btn-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Badge pour les raisons */
+.reason-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.reason-badge.timeout {
+    background: rgba(255, 159, 67, 0.2);
+    color: #ff9f43;
+    border-color: rgba(255, 159, 67, 0.3);
+}
+
+.reason-badge.error {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border-color: rgba(255, 71, 87, 0.3);
+}
+
+.reason-badge.auto {
+    background: rgba(46, 213, 115, 0.2);
+    color: #2ed573;
+    border-color: rgba(46, 213, 115, 0.3);
+}
+
+.reason-badge.manual {
+    background: rgba(116, 125, 140, 0.2);
+    color: #747d8c;
+    border-color: rgba(116, 125, 140, 0.3);
+}
+
+/* ===== UTILITAIRES ===== */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-warning {
+    color: #ff9f43;
+}
+
+.text-danger {
+    color: #ff4757;
+}
+
+.text-success {
+    color: #2ed573;
+}
+
+.text-info {
+    color: #3742fa;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -86,46 +281,56 @@ body::before {
         padding: 15px 30px;
         font-size: 1.2rem;
     }
+    
+    .video-failed-notification .notification-content {
+        max-width: 90%;
+        right: 5%;
+        left: 5%;
+        top: 10px;
+    }
+    
+    .video-failed-notification h4 {
+        font-size: 1rem;
+    }
+    
+    .video-failed-notification p {
+        font-size: 0.85rem;
+    }
 }
 
-.hidden {
-    display: none !important;
-}
-
-.screen {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-}
-
-.screen.active {
-    opacity: 1;
-    display: block;
-}
-
-/* Dans quiz.css, modifier .answer-btn.user-selected */
-.answer-btn.user-selected {
-    transform: scale(1.02);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    border: 2px solid #ff4757;
-    background: rgba(255, 71, 87, 0.1);
-}
-
-/* Pour la réponse correcte finale (phase 2) */
-.answer-btn.correct-answer {
-    border: 2px solid #2ed573;
-    background: rgba(46, 213, 115, 0.15);
-    color: #2ed573;
-    animation: pulseCorrect 0.5s ease;
-}
-
+/* Animation pour les résultats */
 @keyframes pulseCorrect {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 71, 87, 0.5);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 71, 87, 0.7);
+}
+
+/* Sélection de texte */
+::selection {
+    background: rgba(255, 71, 87, 0.3);
+    color: white;
+}
+
+::-moz-selection {
+    background: rgba(255, 71, 87, 0.3);
+    color: white;
 }
