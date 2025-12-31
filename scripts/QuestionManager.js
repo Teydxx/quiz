@@ -121,67 +121,26 @@ class QuestionManager {
         return true;
     }
 
-    // CRÉE les 6 boutons de réponse
-    createAnswerButtons() {
-        console.log('🔧 Création des boutons de réponse...');
-        
-        if (!this.currentGame) {
-            console.error('❌ Pas de jeu courant pour créer les boutons');
-            return;
-        }
-        
-        // S'assurer que answersGrid existe
-        if (!this.answersGrid) {
-            console.error('❌ answers-grid non trouvé, tentative de récupération...');
-            this.answersGrid = document.getElementById('answers-grid');
-            
-            if (!this.answersGrid) {
-                console.error('❌ ÉCHEC: Impossible de trouver answers-grid');
-                return;
-            }
-        }
-        
-        const correctAnswer = this.currentGame.name;
-        const wrongGames = GAMES.filter(game => game.name !== correctAnswer);
-        
-        // Prendre 5 mauvaises réponses
-        const shuffledWrong = shuffleArray([...wrongGames]).slice(0, 5);
-        const wrongAnswers = shuffledWrong.map(game => game.name);
-        
-        // Mélanger les 6 réponses
-        const allAnswers = shuffleArray([correctAnswer, ...wrongAnswers]);
-        
-        // VIDER complètement la grille
-        this.answersGrid.innerHTML = '';
-        
-        console.log(`🔧 Création de ${allAnswers.length} boutons...`);
-        
-        // CRÉER CHAQUE BOUTON
-        allAnswers.forEach((answer, index) => {
-            const button = document.createElement('button');
-            button.className = 'answer-btn';
-            button.textContent = answer;
-            button.dataset.correct = (answer === correctAnswer).toString();
-            button.dataset.index = index;
-            
-            // ÉVÉNEMENT CLICK
-            button.addEventListener('click', (e) => {
-                console.log(`🎯 Clic sur: ${answer}`);
-                this.selectAnswer(button);
-            });
-            
-            this.answersGrid.appendChild(button);
+// Optionnel: Pour mobile, ajouter un bouton valider
+createAnswerButtons() {
+    // ... code existant ...
+    
+    // Pour mobile: Ajouter un bouton valider
+    if (window.innerWidth <= 768) {
+        const validateBtn = document.createElement('button');
+        validateBtn.className = 'validate-btn';
+        validateBtn.textContent = '✅ VALIDER MON CHOIX';
+        validateBtn.addEventListener('click', () => {
+            this.finalizeSelection();
+            // Désactiver les autres boutons
+            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            validateBtn.disabled = true;
         });
         
-        this.userAnswered = false;
-        this.userAnswerCorrect = false;
-        this.selectedButton = null;
-        
-        // FORCER l'affichage
-        this.forceShowButtons();
-        
-        console.log(`✅ ${allAnswers.length} boutons créés`);
+        this.answersGrid.parentNode.appendChild(validateBtn);
     }
+}
 
     // FORCER l'affichage des boutons
     forceShowButtons() {
@@ -216,34 +175,67 @@ class QuestionManager {
         }
     }
 
-    // SÉLECTIONNER une réponse
-    selectAnswer(clickedButton) {
-        if (!this.currentGame || this.userAnswered) {
-            console.log('⚠️ Déjà répondu ou pas de jeu');
-            return;
-        }
-        
-        console.log(`\n🎯 ========== SÉLECTION RÉPONSE ==========`);
-        console.log(`🎯 Choix: ${clickedButton.textContent}`);
-        console.log(`🎯 Correct: ${clickedButton.dataset.correct === 'true'}`);
-        
-        // Désélectionner précédent
-        if (this.selectedButton && this.selectedButton !== clickedButton) {
-            this.selectedButton.classList.remove('user-selected');
-        }
-        
-        // Sélectionner nouveau
-        this.selectedButton = clickedButton;
-        clickedButton.classList.add('user-selected');
-        
-        // Enregistrer
-        this.userAnswered = true;
-        this.userAnswerCorrect = clickedButton.dataset.correct === 'true';
-        
-        this.recordAnswer(clickedButton.textContent, this.userAnswerCorrect);
-        
-        console.log(`✅ Réponse enregistrée: ${this.userAnswerCorrect ? 'CORRECT' : 'INCORRECT'}`);
+// Dans QuestionManager.js - MODIFIER la méthode selectAnswer()
+selectAnswer(clickedButton) {
+    if (!this.currentGame || this.userAnswered) {
+        console.log('⚠️ Déjà répondu ou pas de jeu');
+        return;
     }
+    
+    console.log(`🎯 Clic sur: ${clickedButton.textContent}`);
+    
+    // Si on reclique sur le même bouton, on le désélectionne
+    if (this.selectedButton === clickedButton) {
+        console.log('↩️ Désélection du même bouton');
+        clickedButton.classList.remove('user-selected');
+        this.selectedButton = null;
+        this.userAnswer = null;
+        return;
+    }
+    
+    // Désélectionner précédent
+    if (this.selectedButton) {
+        this.selectedButton.classList.remove('user-selected');
+    }
+    
+    // Sélectionner nouveau
+    this.selectedButton = clickedButton;
+    clickedButton.classList.add('user-selected');
+    this.userAnswer = clickedButton.textContent;
+    
+    console.log(`✅ Bouton sélectionné: ${this.userAnswer}`);
+}
+
+// AJOUTER cette méthode pour finaliser le choix
+finalizeSelection() {
+    console.log('🔒 Finalisation du choix');
+    
+    if (!this.currentGame || !this.selectedButton) {
+        console.log('⚠️ Pas de sélection à finaliser');
+        this.userAnswered = false;
+        this.userAnswerCorrect = false;
+        return;
+    }
+    
+    this.userAnswered = true;
+    this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
+    
+    this.recordAnswer(this.userAnswer, this.userAnswerCorrect);
+    
+    console.log(`📊 Réponse finalisée: ${this.userAnswerCorrect ? 'CORRECT' : 'INCORRECT'}`);
+}
+
+// MODIFIER la méthode resetQuestionState()
+resetQuestionState() {
+    console.log('🔄 resetQuestionState()');
+    
+    this.userAnswered = false;
+    this.userAnswerCorrect = false;
+    this.selectedButton = null;
+    this.userAnswer = null;
+    
+    // Le reste du code reste le même...
+}
 
     // FINALISER la réponse
     finalizeAnswer() {

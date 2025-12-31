@@ -147,5 +147,36 @@
             document.body.appendChild(debugBtn);
         });
     </script>
+    // Dans quiz.html - AJOUTER ce script
+<script>
+    // Override pour garder le même numéro de question
+    const originalNextQuestion = window.GameManager.prototype.nextQuestion;
+    
+    window.GameManager.prototype.nextQuestion = function() {
+        console.log('⏭️ NextQuestion appelé');
+        
+        // Si c'est une erreur 150, on ne change pas le numéro
+        if (this.youtubeError150) {
+            console.log('⚠️ Erreur 150 détectée, on garde le même numéro');
+            this.youtubeError150 = false;
+            
+            // Juste nettoyer et relancer
+            this.youtubePlayer.stop();
+            this.phaseManager.reset();
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (nextBtn) nextBtn.style.display = 'none';
+            
+            setTimeout(() => {
+                this.startQuestion();
+            }, 500);
+            
+            return;
+        }
+        
+        // Sinon, comportement normal
+        return originalNextQuestion.call(this);
+    };
+</script>
 </body>
 </html>

@@ -18,82 +18,81 @@ class PhaseManager {
     }
     
     startPhase(phaseNumber) {
-        console.log(`\n▶️ ========== DÉMARRAGE PHASE ${phaseNumber} ==========`);
-        
-        this.currentPhase = phaseNumber;
-        this.clearTimers();
-        
-        // Récupérer config dynamique
-        let phase1Time = CONFIG.PHASE1_TIME;
-        let phase2Time = CONFIG.PHASE2_TIME;
-        
-        if (window.gameManager && window.gameManager.session && window.gameManager.session.settings) {
-            phase1Time = window.gameManager.session.settings.phase1Time || CONFIG.PHASE1_TIME;
-            phase2Time = window.gameManager.session.settings.phase2Time || CONFIG.PHASE2_TIME;
-        }
-        
-        console.log(`▶️ Durées: Phase1=${phase1Time}s, Phase2=${phase2Time}s`);
-        
-        switch(phaseNumber) {
-            case 1:
-                this.phaseTimer = phase1Time;
-                this.setBlackOverlayOpacity(1);
-                
-                // AFFICHER le timer
-                this.timerBox.classList.remove('hidden');
-                this.timerCount.textContent = this.phaseTimer;
-                
-                // CACHER le résultat
-                this.resultBox.classList.remove('active');
-                
-                // FORCER l'affichage de la grille de réponses
-                this.showAnswerButtons();
-                
-                break;
-                
-            case 2:
-                this.phaseTimer = phase2Time;
-                
-                // CACHER le timer
-                this.timerBox.classList.add('hidden');
-                
-                // CACHER les boutons
-                this.hideAnswerButtons();
-                
-                // Faire apparaître la vidéo
-                setTimeout(() => {
-                    this.fadeOutBlackOverlay(2000);
-                }, 500);
-                
-                // AFFICHER la réponse dans la colonne
-                setTimeout(() => {
-                    this.showAnswerInColumn();
-                }, 1500);
-                
-                break;
-        }
-        
-        this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
+    this.currentPhase = phaseNumber;
+    this.clearTimers();
+    
+    let phase1Time = CONFIG.PHASE1_TIME;
+    let phase2Time = CONFIG.PHASE2_TIME;
+    
+    if (window.gameManager && window.gameManager.session && window.gameManager.session.settings) {
+        phase1Time = window.gameManager.session.settings.phase1Time || CONFIG.PHASE1_TIME;
+        phase2Time = window.gameManager.session.settings.phase2Time || CONFIG.PHASE2_TIME;
     }
     
-    updatePhaseTimer() {
-        this.phaseTimer--;
-        
-        if (this.currentPhase === 1) {
+    switch(phaseNumber) {
+        case 1:
+            this.phaseTimer = phase1Time;
+            this.setBlackOverlayOpacity(1);
+            this.timerBox.classList.remove('hidden');
             this.timerCount.textContent = this.phaseTimer;
-        }
-        
-        if (this.phaseTimer <= 0) {
-            if (this.currentPhase < 2) {
-                console.log('⏱️ Phase 1 terminée -> passage à Phase 2');
-                this.startPhase(2);
-            } else {
-                console.log('⏱️ Phase 2 terminée');
-                this.clearTimers();
-                this.endPhase();
+            this.resultBox.classList.remove('active');
+            this.showAnswerButtons();
+            break;
+            
+        case 2:
+            this.phaseTimer = phase2Time;
+            this.timerBox.classList.add('hidden');
+            
+            // FINALISER la sélection si pas déjà fait
+            const qm = window.gameManager?.questionManager;
+            if (qm && !qm.userAnswered && qm.selectedButton) {
+                qm.finalizeSelection();
             }
+            
+            // Cacher les boutons
+            this.hideAnswerButtons();
+            
+            // Faire apparaître la vidéo
+            setTimeout(() => {
+                this.fadeOutBlackOverlay(2000);
+            }, 500);
+            
+            // Afficher la réponse
+            setTimeout(() => {
+                this.showAnswerInColumn();
+            }, 1500);
+            break;
+    }
+    
+    this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
+}
+    
+    updatePhaseTimer() {
+    this.phaseTimer--;
+    
+    if (this.currentPhase === 1) {
+        this.timerCount.textContent = this.phaseTimer;
+        
+        // Quand le timer arrive à 0, finaliser la sélection
+        if (this.phaseTimer <= 0) {
+            console.log('⏱️ Temps écoulé - Finalisation sélection');
+            
+            // Finaliser le choix si un bouton est sélectionné
+            const qm = window.gameManager?.questionManager;
+            if (qm && qm.selectedButton && !qm.userAnswered) {
+                qm.finalizeSelection();
+            }
+            
+            // Passer à la phase 2
+            this.startPhase(2);
+        }
+    } else if (this.currentPhase === 2) {
+        if (this.phaseTimer <= 0) {
+            this.clearTimers();
+            this.endPhase();
         }
     }
+}
     
     // Affiche la réponse dans la colonne
     showAnswerInColumn() {

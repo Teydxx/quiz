@@ -684,3 +684,47 @@ body.phase-2 .answers-grid {
     display: grid !important;
     opacity: 1 !important;
 }
+/* AJOUTER à la fin de quiz.css */
+
+/* Animations pour les notifications */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -100%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -100%);
+    }
+}
+
+/* Style de la notification d'erreur */
+.video-error-notification {
+    animation: slideDown 0.3s ease forwards !important;
+}
+
+/* Bouton pour tester une vidéo défaillante (debug) */
+.debug-test-error {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999;
+    font-size: 0.9rem;
+}

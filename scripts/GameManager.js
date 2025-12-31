@@ -159,34 +159,156 @@ class GameManager {
         this.youtubePlayer.init();
     }
 
-    // GESTION ERREUR VIDÉO YOUTUBE - VERSION SIMPLE
-    onYouTubeError(error) {
-        console.error('❌ Erreur YouTube:', error);
-        
-        const currentGame = this.questionManager?.getCurrentGame();
-        if (currentGame) {
-            console.log(`⚠️ Vidéo YouTube défaillante: ${currentGame.name} (${currentGame.videoId})`);
-            
-            // LOG seulement - pas d'ajout automatique
-            try {
-                const failedLog = JSON.parse(localStorage.getItem('youtube_errors_log') || '[]');
-                failedLog.push({
-                    name: currentGame.name,
-                    videoId: currentGame.videoId,
-                    error: error.toString(),
-                    timestamp: new Date().toISOString(),
-                    note: "LOG SEULEMENT - Pas ajoutée automatiquement"
-                });
-                localStorage.setItem('youtube_errors_log', JSON.stringify(failedLog));
-            } catch(e) {
-                console.warn('⚠️ Impossible de logger l\'erreur:', e);
-            }
+    // Dans GameManager.js - AJOUTER cette méthode
+handlePhaseTransition() {
+    console.log('🔄 Transition de phase');
+    
+    // Quand on passe de phase 1 à phase 2, finaliser la sélection
+    if (this.phaseManager.currentPhase === 2) {
+        const qm = this.questionManager;
+        if (qm && qm.selectedButton && !qm.userAnswered) {
+            qm.finalizeSelection();
         }
-        
-        // Message utilisateur et passage à la suivante
-        this.showError('Vidéo non disponible');
-        setTimeout(() => this.nextQuestion(), 2000);
     }
+}
+
+// Dans GameManager.js - MODIFIER onYouTubeError()
+onYouTubeError(error) {
+    console.log('❌ Erreur YouTube 150 détectée');
+    
+    const currentGame = this.questionManager?.getCurrentGame();
+    if (!currentGame) return;
+    
+    // 1. Ajouter automatiquement aux supprimés
+    if (window.DeletedGamesStorage && DeletedGamesStorage.add) {
+        DeletedGamesStorage.add({
+            name: currentGame.name,
+            videoId: currentGame.videoId,
+            reason: 'Erreur YouTube 150 (auto)'
+        });
+        console.log(`✅ "${currentGame.name}" ajouté aux supprimés`);
+    }
+    
+    // 2. NE PAS incrémenter le compteur de question
+    // On reste sur la même question numéro
+    
+    // 3. Passer à la question suivante IMMÉDIATEMENT
+    // sans changer this.currentQuestion
+    this.youtubePlayer.stop();
+    
+    // Court délai pour la transition
+    setTimeout(() => {
+        console.log('⏭️ Passage vidéo suivante (même numéro de question)');
+        this.startQuestion(); // Relance la MÊME question
+    }, 1000);
+}
+
+// AJOUTER ces méthodes à GameManager.js
+removeGameFromAvailableList(gameName, videoId) {
+    console.log(`🗑️ Tentative de retrait: ${gameName}`);
+    
+    // Méthode 1: Via QuestionManager
+    if (this.questionManager && this.questionManager.remainingGames) {
+        const initialCount = this.questionManager.remainingGames.length;
+        this.questionManager.remainingGames = this.questionManager.remainingGames.filter(
+            game => !(game.name === gameName && game.videoId === videoId)
+        );
+        const removed = initialCount - this.questionManager.remainingGames.length;
+        console.log(`✅ ${removed} jeu(s) retiré(s) de remainingGames`);
+    }
+    
+    // Méthode 2: Via liste globale GAMES (pour les prochaines parties)
+    try {
+        // Chercher dans GAMES (liste globale)
+        const gameIndex = GAMES.findIndex(g => 
+            g.name === gameName && g.videoId === videoId
+        );
+        
+        if (gameIndex !== -1) {
+            // Ne pas supprimer de GAMES, mais marquer comme problématique
+            console.log(`⚠️ "${gameName}" trouvé dans GAMES à l'index ${gameIndex}`);
+            
+            // Ajouter à une liste de jeux "problématiques" pour cette session
+            if (!this.problematicGames) this.problematicGames = [];
+            this.problematicGames.push({
+                name: gameName,
+                videoId: videoId,
+                originalIndex: gameIndex
+            });
+            
+            console.log(`✅ "${gameName}" marqué comme problématique pour cette session`);
+        }
+    } catch(e) {
+        console.error('❌ Erreur lors du marquage du jeu:', e);
+    }
+}
+
+showVideoErrorNotification(game, error) {
+    console.log(`📢 Notification erreur: ${game.name}`);
+    
+    // Créer une notification temporaire
+    const notification = document.createElement('div');
+    notification.className = 'video-error-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff4757, #ff3838);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        z-index: 10000;
+        box-shadow: 0 5px 25px rgba(255, 71, 87, 0.4);
+        border-left: 5px solid #ffaf60;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        animation: slideDown 0.3s ease;
+    `;
+    
+    const errorCode = error.data || 'Erreur inconnue';
+    const errorMessage = this.getYouTubeErrorMessage(errorCode);
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+            <h4 style="margin: 0; font-size: 1.1rem;">VIDÉO NON DISPONIBLE</h4>
+        </div>
+        <p style="margin: 5px 0; font-size: 0.9rem;">
+            "${game.name}" - Erreur ${errorCode}
+        </p>
+        <p style="margin: 5px 0; font-size: 0.85rem; opacity: 0.9;">
+            ${errorMessage}
+        </p>
+        <small style="font-size: 0.8rem; opacity: 0.8;">
+            La vidéo a été marquée comme défaillante
+        </small>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Supprimer après 5 secondes
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideUp 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+getYouTubeErrorMessage(errorCode) {
+    const errors = {
+        2: "La requête contient une valeur non valide",
+        5: "Le contenu n'est pas disponible",
+        100: "La vidéo n'existe pas ou a été supprimée",
+        101: "L'embedding n'est pas autorisé",
+        150: "L'embedding n'est pas autorisé pour cette vidéo",
+        101: "Le contenu n'est pas disponible dans votre pays"
+    };
+    
+    return errors[errorCode] || "Vidéo non disponible sur YouTube";
+}
 
     onYouTubeReady() {
         console.log('✅ YouTube Player prêt');
