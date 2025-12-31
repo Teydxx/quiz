@@ -96,126 +96,145 @@ class PhaseManager {
     
     // Affiche la réponse dans la colonne
     showAnswerInColumn() {
-        console.log('📋 Affichage réponse');
-        
-        const qm = window.gameManager?.questionManager;
-        if (!qm) return;
-        
-        const currentGame = qm.getCurrentGame();
-        if (!currentGame) return;
-        
-        // Finaliser l'affichage
-        if (typeof qm.finalizeAnswer === 'function') {
-            qm.finalizeAnswer();
-        }
-        
-        if (typeof qm.revealAnswers === 'function') {
-            qm.revealAnswers();
-        }
-        
-        // Nettoyer ancienne réponse
-        this.cleanAnswerDisplay();
-        
-        // Créer la nouvelle réponse
-        const answersSection = document.querySelector('.answers-section');
-        if (!answersSection) return;
-        
-        // Déterminer couleurs
-        let statusColor = '#747d8c';
-        let statusText = 'PAS DE RÉPONSE';
-        let statusIcon = '⏰';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                statusColor = '#2ed573';
-                statusText = 'CORRECT !';
-                statusIcon = '🎉';
-            } else {
-                statusColor = '#ff4757';
-                statusText = 'INCORRECT';
-                statusIcon = '❌';
-            }
-        }
-        
-        // Créer l'élément
-        const answerDiv = document.createElement('div');
-        answerDiv.id = 'current-answer-display';
-        answerDiv.className = 'answer-display';
-        answerDiv.style.cssText = `
-            border: 3px solid ${statusColor};
-            background: ${statusColor}15;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        `;
-        
-        // Contenu
-        let userChoiceHTML = '';
-        if (qm.hasUserAnswered()) {
-            const userAnswer = qm.selectedButton?.textContent || 'Aucune';
-            const choiceColor = qm.userAnswerCorrect ? '#2ed573' : '#ff4757';
-            userChoiceHTML = `
-                <div style="
-                    background: rgba(255,255,255,0.05);
-                    padding: 15px;
-                    border-radius: 8px;
-                    margin-top: 15px;
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #a4b0be;">Votre choix :</span>
-                        <span style="color: ${choiceColor}; font-weight: bold;">
-                            ${userAnswer}
-                        </span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        answerDiv.innerHTML = `
-            <div style="font-size: 3rem; margin-bottom: 15px; color: ${statusColor}">
-                ${statusIcon}
-            </div>
-            
-            <h3 style="color: ${statusColor}; margin-bottom: 25px; font-size: 1.8rem;">
-                ${statusText}
-            </h3>
-            
-            <div style="
-                background: rgba(0,0,0,0.2);
-                padding: 20px;
-                border-radius: 10px;
-                border-left: 5px solid ${statusColor};
-                margin: 15px 0;
-            ">
-                <div style="color: #a4b0be; font-size: 0.9rem; margin-bottom: 10px;">
-                    LA RÉPONSE ÉTAIT :
-                </div>
-                <div style="color: white; font-size: 2rem; font-weight: bold;">
-                    ${currentGame.name}
-                </div>
-            </div>
-            
-            ${userChoiceHTML}
-        `;
-        
-        // Ajouter après le titre
-        const title = answersSection.querySelector('h3');
-        if (title) {
-            title.insertAdjacentElement('afterend', answerDiv);
-        } else {
-            answersSection.appendChild(answerDiv);
-        }
-        
-        // Afficher le bouton suivant
-        setTimeout(() => {
-            const nextBtn = document.getElementById('next-btn');
-            if (nextBtn) {
-                nextBtn.style.display = 'flex';
-            }
-        }, 500);
+    console.log('\n📋 ========== AFFICHAGE RÉPONSE PHASE 2 ==========');
+    
+    // D'ABORD, cacher définitivement les boutons
+    this.hideAnswerButtons();
+    
+    // Ensuite, afficher la réponse
+    const qm = window.gameManager?.questionManager;
+    if (!qm) {
+        console.error('❌ QuestionManager non trouvé');
+        return;
     }
+    
+    const currentGame = qm.getCurrentGame();
+    if (!currentGame) {
+        console.error('❌ Jeu actuel non trouvé');
+        return;
+    }
+    
+    console.log(`📋 Jeu: ${currentGame.name}`);
+    
+    // Finaliser l'affichage des réponses
+    if (typeof qm.finalizeAnswer === 'function') {
+        qm.finalizeAnswer();
+    }
+    
+    if (typeof qm.revealAnswers === 'function') {
+        qm.revealAnswers();
+    }
+    
+    // Nettoyer toute ancienne réponse
+    this.cleanAnswerDisplay();
+    
+    // Créer la nouvelle réponse
+    const answersSection = document.querySelector('.answers-section');
+    if (!answersSection) {
+        console.error('❌ Section réponses non trouvée');
+        return;
+    }
+    
+    // S'assurer que la section est visible
+    answersSection.style.display = 'block';
+    answersSection.style.opacity = '1';
+    
+    // Déterminer couleurs et texte
+    let statusColor = '#747d8c';
+    let statusText = 'PAS DE RÉPONSE';
+    let statusIcon = '⏰';
+    
+    if (qm.hasUserAnswered()) {
+        if (qm.userAnswerCorrect) {
+            statusColor = '#2ed573';
+            statusText = 'CORRECT !';
+            statusIcon = '🎉';
+        } else {
+            statusColor = '#ff4757';
+            statusText = 'INCORRECT';
+            statusIcon = '❌';
+        }
+    }
+    
+    // Créer l'élément de réponse
+    const answerDiv = document.createElement('div');
+    answerDiv.id = 'current-answer-display';
+    answerDiv.className = 'answer-display';
+    answerDiv.style.cssText = `
+        border: 3px solid ${statusColor};
+        background: ${statusColor}15;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        text-align: center;
+        animation: fadeIn 0.5s ease;
+    `;
+    
+    // Contenu
+    let userChoiceHTML = '';
+    if (qm.hasUserAnswered()) {
+        const userAnswer = qm.selectedButton?.textContent || 'Aucune';
+        const choiceColor = qm.userAnswerCorrect ? '#2ed573' : '#ff4757';
+        userChoiceHTML = `
+            <div style="
+                background: rgba(255,255,255,0.05);
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 15px;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #a4b0be;">Votre choix :</span>
+                    <span style="color: ${choiceColor}; font-weight: bold;">
+                        ${userAnswer}
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+    
+    answerDiv.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 15px; color: ${statusColor}">
+            ${statusIcon}
+        </div>
+        
+        <h3 style="color: ${statusColor}; margin-bottom: 25px; font-size: 1.8rem;">
+            ${statusText}
+        </h3>
+        
+        <div style="
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid ${statusColor};
+            margin: 15px 0;
+        ">
+            <div style="color: #a4b0be; font-size: 0.9rem; margin-bottom: 10px;">
+                LA RÉPONSE ÉTAIT :
+            </div>
+            <div style="color: white; font-size: 2rem; font-weight: bold;">
+                ${currentGame.name}
+            </div>
+        </div>
+        
+        ${userChoiceHTML}
+    `;
+    
+    // VIDER la section et ajouter la réponse
+    answersSection.innerHTML = '';
+    answersSection.appendChild(answerDiv);
+    
+    // Afficher le bouton suivant EN DESSOUS
+    setTimeout(() => {
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) {
+            nextBtn.style.display = 'flex';
+            nextBtn.style.marginTop = '20px';
+            console.log('✅ Bouton suivant affiché');
+        }
+    }, 500);
+    
+    console.log('✅ Réponse affichée dans la colonne (boutons cachés)');
+}
     
     // Afficher les boutons
     showAnswerButtons() {
@@ -228,19 +247,29 @@ class PhaseManager {
     
     // Cacher les boutons
     hideAnswerButtons() {
-        const answersGrid = document.getElementById('answers-grid');
-        if (answersGrid) {
-            answersGrid.style.display = 'none';
-        }
-    }
+    console.log('🔧 Masquage des boutons pour phase 2');
     
-    // Nettoyer l'affichage
-    cleanAnswerDisplay() {
-        const oldAnswer = document.getElementById('current-answer-display');
-        if (oldAnswer) {
-            oldAnswer.remove();
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        // Masquer COMPLÈTEMENT la grille
+        answersGrid.style.display = 'none';
+        answersGrid.style.opacity = '0';
+        answersGrid.style.visibility = 'hidden';
+        answersGrid.style.height = '0';
+        answersGrid.style.overflow = 'hidden';
+        
+        // Masquer aussi le titre "Quel est ce jeu vidéo ?"
+        const answersSection = document.querySelector('.answers-section');
+        if (answersSection) {
+            const title = answersSection.querySelector('h3');
+            if (title) {
+                title.style.display = 'none';
+            }
         }
+        
+        console.log('✅ Boutons masqués pour phase 2');
     }
+}
     
     fadeOutBlackOverlay(duration = 2000) {
         if (!this.blackOverlay) return;

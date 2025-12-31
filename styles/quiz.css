@@ -728,3 +728,60 @@ body.phase-2 .answers-grid {
     z-index: 9999;
     font-size: 0.9rem;
 }
+
+/* AJOUTER à la fin de quiz.css */
+
+/* Masquage des boutons en phase 2 */
+.phase-2 #answers-grid {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+.phase-2 .answers-section h3 {
+    display: none !important;
+}
+
+/* Affichage de la réponse en phase 2 */
+.answer-display {
+    display: block !important;
+    opacity: 1 !important;
+    animation: fadeIn 0.5s ease !important;
+}
+
+/* Animation d'apparition */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* S'assurer que le bouton suivant est visible */
+#next-btn {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#next-btn.show {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
+/* Classe pour indiquer la phase */
+body.phase-1 #answers-grid {
+    display: grid !important;
+    opacity: 1 !important;
+}
+
+body.phase-2 #answers-grid {
+    display: none !important;
+    opacity: 0 !important;
+}
