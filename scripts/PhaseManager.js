@@ -63,7 +63,6 @@ class PhaseManager {
                 
                 // AFFICHER LA RÉPONSE DANS LA COLONNE DROITE
                 this.showAnswerInColumn();
-                this.fadeOutBlackOverlay();
                 
                 setTimeout(() => {
                     this.fadeInBlackOverlay();
