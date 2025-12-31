@@ -1,4 +1,4 @@
-// scripts/QuestionManager.js
+// scripts/QuestionManager.js - VERSION CORRECTE
 class QuestionManager {
     constructor() {
         this.remainingGames = [...GAMES];
@@ -11,15 +11,15 @@ class QuestionManager {
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
         
-        // Éléments DOM
+        // Références DOM
         this.answersGrid = document.getElementById('answers-grid');
         this.questionCountEl = document.getElementById('question-count');
         this.totalQuestionsEl = document.getElementById('total-questions');
         this.nextBtn = document.getElementById('next-btn');
-        this.answersSection = document.getElementById('answers-section');
+        
+        console.log('❓ QuestionManager initialisé');
     }
 
-    // Initialiser pour mode solo
     init(totalQuestions) {
         this.totalQuestions = totalQuestions;
         this.totalQuestionsEl.textContent = totalQuestions;
@@ -27,7 +27,6 @@ class QuestionManager {
         shuffleArray(this.remainingGames);
     }
 
-    // Initialiser avec jeux spécifiques (mode session)
     initWithGames(games) {
         this.remainingGames = [...games];
         this.currentGame = null;
@@ -37,130 +36,157 @@ class QuestionManager {
         this.resetStats();
         
         shuffleArray(this.remainingGames);
-        
-        console.log(`📦 QuestionManager initialisé avec ${games.length} jeux de session`);
+        console.log(`❓ QuestionManager initialisé avec ${games.length} jeux`);
     }
 
-    // Prépare une nouvelle question
+    // PRÉPARE une nouvelle question
     prepareQuestion(questionNumber) {
+        console.log(`❓ Préparation question ${questionNumber}`);
+        
         if (this.remainingGames.length === 0) {
+            console.error('❌ Plus de jeux disponibles');
             return false;
         }
 
         this.resetQuestionState();
         this.questionCountEl.textContent = questionNumber;
         
-        // Sélectionner un jeu aléatoire
+        // SÉLECTIONNER un jeu
         const randomIndex = Math.floor(Math.random() * this.remainingGames.length);
         this.currentGame = this.remainingGames[randomIndex];
         this.remainingGames.splice(randomIndex, 1);
         
-        // Préparer les réponses
-        this.prepareAnswers();
+        console.log(`🎮 Jeu sélectionné: ${this.currentGame.name}`);
+        
+        // CRÉER LES BOUTONS DE RÉPONSE
+        this.createAnswerButtons();
         
         return true;
     }
 
-    // Prépare les boutons de réponse (6 choix maintenant)
-    prepareAnswers() {
+    // CRÉE les 6 boutons de réponse
+    createAnswerButtons() {
+        console.log('🔄 Création des 6 boutons de réponse');
+        
+        if (!this.currentGame) {
+            console.error('❌ Pas de jeu courant pour créer les boutons');
+            return;
+        }
+        
         const correctAnswer = this.currentGame.name;
         const wrongGames = GAMES.filter(game => game.name !== correctAnswer);
         
-        // Prendre 5 mauvaises réponses au hasard
+        // Prendre 5 mauvaises réponses
         const shuffledWrong = shuffleArray([...wrongGames]).slice(0, 5);
         const wrongAnswers = shuffledWrong.map(game => game.name);
         
-        // Mélanger les 6 réponses (1 bonne + 5 mauvaises)
+        // Mélanger les 6 réponses
         const allAnswers = shuffleArray([correctAnswer, ...wrongAnswers]);
+        
+        // VIDER et CRÉER
+        if (!this.answersGrid) {
+            console.error('❌ answers-grid non trouvé');
+            this.answersGrid = document.getElementById('answers-grid');
+            if (!this.answersGrid) return;
+        }
         
         this.answersGrid.innerHTML = '';
         this.selectedButton = null;
         
-        allAnswers.forEach((answer) => {
+        // CRÉER CHAQUE BOUTON
+        allAnswers.forEach((answer, index) => {
             const button = document.createElement('button');
             button.className = 'answer-btn';
             button.textContent = answer;
             button.dataset.correct = (answer === correctAnswer).toString();
-            button.addEventListener('click', () => this.selectAnswer(button));
+            button.dataset.index = index;
+            
+            // ÉVÉNEMENT CLICK
+            button.addEventListener('click', (e) => {
+                console.log(`🎯 Clic sur: ${answer}`);
+                this.selectAnswer(button);
+            });
+            
             this.answersGrid.appendChild(button);
         });
         
         this.userAnswered = false;
         this.userAnswerCorrect = false;
+        
+        // FORCER l'affichage
+        this.answersGrid.style.display = 'grid';
+        this.answersGrid.style.opacity = '1';
+        this.answersGrid.style.visibility = 'visible';
+        
+        console.log(`✅ ${allAnswers.length} boutons créés`);
     }
 
-    // Sélectionner une réponse
+    // SÉLECTIONNER une réponse
     selectAnswer(clickedButton) {
-        if (!this.currentGame) return;
+        if (!this.currentGame || this.userAnswered) return;
         
-        // Désélectionner le bouton précédent
+        console.log(`🎯 Sélection: ${clickedButton.textContent}`);
+        
+        // Désélectionner précédent
         if (this.selectedButton && this.selectedButton !== clickedButton) {
             this.selectedButton.classList.remove('user-selected');
         }
         
-        // Sélectionner le nouveau bouton
+        // Sélectionner nouveau
         this.selectedButton = clickedButton;
         clickedButton.classList.add('user-selected');
         
-        // Enregistrer la réponse
+        // Enregistrer
         this.userAnswered = true;
         this.userAnswerCorrect = clickedButton.dataset.correct === 'true';
         
-        // Enregistrer pour statistiques
         this.recordAnswer(clickedButton.textContent, this.userAnswerCorrect);
-        
-        console.log(`🎯 Réponse: ${clickedButton.textContent} (${this.userAnswerCorrect ? 'correcte' : 'incorrecte'})`);
     }
 
-    // Finaliser la réponse à la fin des 20s
+    // FINALISER la réponse
     finalizeAnswer() {
-        console.log('⏱️ Finalisation de la réponse');
+        console.log('⏱️ Finalisation réponse');
         
-        if (!this.userAnswered || !this.currentGame) {
-            console.log('⏱️ Pas de réponse donnée');
-            this.autoRevealAnswer();
-            return;
-        }
+        if (!this.currentGame) return;
         
         // Désactiver tous les boutons
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
-        buttons.forEach(btn => btn.disabled = true);
-        
-        // Marquer la réponse finale
-        if (this.selectedButton) {
-            if (this.userAnswerCorrect) {
-                this.selectedButton.classList.add('correct');
-            } else {
-                this.selectedButton.classList.add('incorrect');
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            if (btn === this.selectedButton) {
+                if (this.userAnswerCorrect) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('incorrect');
+                }
             }
-        }
-        
-        console.log(`📊 Réponse finalisée: ${this.userAnswerCorrect ? 'Correcte' : 'Incorrecte'}`);
+        });
     }
 
-    // Révéler les réponses (phase 2)
+    // RÉVÉLER les réponses
     revealAnswers() {
-        console.log('🔍 Révélation des réponses');
+        console.log('🔍 Révélation réponses');
         
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
         
-        // Montrer la réponse correcte
+        // Montrer la bonne réponse
         buttons.forEach(btn => {
             if (btn.dataset.correct === 'true') {
-                btn.classList.add('correct-answer');
-                btn.classList.add('correct');
+                btn.classList.add('correct-answer', 'correct');
             }
         });
         
-        // Afficher le bouton suivant
+        // Afficher bouton suivant
         setTimeout(() => {
-            this.showNextButton();
-        }, 7000);
+            if (this.nextBtn) {
+                this.nextBtn.style.display = 'flex';
+            }
+        }, 1000);
     }
 
-    // Réponse automatique (temps écoulé sans réponse)
+    // AUTO si pas de réponse
     autoRevealAnswer() {
-        console.log('⏱️ autoRevealAnswer() - pas de réponse');
+        console.log('⏰ Auto-révélation (pas de réponse)');
         
         if (this.userAnswered || !this.currentGame) return null;
         
@@ -170,8 +196,6 @@ class QuestionManager {
         const buttons = this.answersGrid.querySelectorAll('.answer-btn');
         buttons.forEach(btn => btn.disabled = true);
         
-        console.log(`🔍 Pas de réponse - bonne réponse: ${this.currentGame.name}`);
-        
         return {
             isCorrect: false,
             gameName: this.currentGame.name,
@@ -179,74 +203,35 @@ class QuestionManager {
         };
     }
 
-    // Afficher le bouton suivant
+    // Afficher bouton suivant
     showNextButton() {
         if (this.nextBtn) {
             this.nextBtn.style.display = 'flex';
         }
     }
 
-reset() {
-    this.userAnswered = false;
-    this.userAnswerCorrect = false;
-    this.selectedButton = null;
-    
-    // 1. Réafficher la grille de réponses
-    this.answersGrid.style.display = 'grid';
-    this.answersGrid.style.opacity = '1';
-    this.answersGrid.innerHTML = '';
-    
-    // 2. SUPPRIMER le résultat de la question précédente
-    const resultContainer = document.getElementById('answer-result-container');
-    if (resultContainer) {
-        resultContainer.remove(); // Supprime complètement l'élément
-    }
-    
-    // OU : Si on utilise simple-result
-    const simpleResult = document.querySelector('.simple-result');
-    if (simpleResult) {
-        simpleResult.remove();
-    }
-    
-    // 3. Réafficher le titre original si nécessaire
-    const answersSection = document.querySelector('.answers-section');
-    if (answersSection) {
-        const existingTitle = answersSection.querySelector('h3');
-        if (!existingTitle) {
-            // Remettre le titre original
-            answersSection.innerHTML = `
-                <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
-                <div class="answers-grid" id="answers-grid"></div>
-            `;
-            this.answersGrid = document.getElementById('answers-grid');
-        }
-    }
-    
-    // 4. Cacher le bouton suivant
-    if (this.nextBtn) {
-        this.nextBtn.style.display = 'none';
-    }
-    
-    console.log('🔄 Réinitialisation pour nouvelle question');
-}
-
-    // Réinitialiser état question (sans reset stats)
+    // RÉINITIALISER pour nouvelle question
     resetQuestionState() {
+        console.log('🔄 Réinitialisation état question');
+        
         this.userAnswered = false;
         this.userAnswerCorrect = false;
         this.selectedButton = null;
         
-        this.answersGrid.style.display = 'grid';
-        this.answersGrid.style.opacity = '1';
-        this.answersGrid.style.transform = 'translateY(0)';
-        this.answersGrid.innerHTML = '';
+        // S'ASSURER que la grille est visible
+        if (this.answersGrid) {
+            this.answersGrid.style.display = 'grid';
+            this.answersGrid.style.opacity = '1';
+            this.answersGrid.innerHTML = '';
+        }
         
+        // Cacher bouton suivant
         if (this.nextBtn) {
             this.nextBtn.style.display = 'none';
         }
     }
 
-    // Enregistrer une réponse pour statistiques
+    // Enregistrer statistiques
     recordAnswer(answer, isCorrect) {
         this.resultsDetails.push({
             question: this.questionCountEl ? parseInt(this.questionCountEl.textContent) : 0,
@@ -261,50 +246,30 @@ reset() {
         }
     }
 
-    // Réinitialiser les statistiques
+    // Réinitialiser stats
     resetStats() {
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
     }
 
-    // Obtenir le nombre de bonnes réponses
+    // GETTERS
     getCorrectCount() {
         return this.correctAnswersCount;
     }
 
-    // Obtenir les détails des résultats
     getResultsDetails() {
         return this.resultsDetails;
     }
 
-    // Vérifier si l'utilisateur a répondu
     hasUserAnswered() {
         return this.userAnswered;
     }
 
-    // Obtenir le jeu actuel
     getCurrentGame() {
         return this.currentGame;
     }
 
-    // Vérifier s'il reste des questions
     hasMoreQuestions() {
         return this.remainingGames.length > 0;
     }
-
-    // Cacher les réponses pour révélation
-    hideAnswersForReveal() {
-        console.log('🎮 Cacher les réponses pour révélation');
-        
-        this.answersGrid.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        this.answersGrid.style.opacity = '0';
-        this.answersGrid.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            this.answersGrid.style.display = 'none';
-        }, 300);
-    }
 }
-
-// Pas de double déclaration ici !
-// Si tu as une autre déclaration "class QuestionManager" plus bas, SUPPRIME-LA
