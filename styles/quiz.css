@@ -862,3 +862,65 @@ body.phase-2 .btn-next.show {
 .btn-next:active {
     transform: scale(0.98) !important;
 }
+
+/* AJOUTER À LA FIN DE quiz.css */
+
+/* Animation pour l'affichage de la réponse */
+.answer-display {
+    display: none;
+    animation: fadeInUp 0.5s ease forwards;
+    margin-bottom: 20px;
+    opacity: 0;
+}
+
+.answer-display.active {
+    display: block;
+    opacity: 1;
+}
+
+.answer-display-content {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    border: 2px solid;
+}
+
+.answer-display-content.correct {
+    border-color: #2ed573;
+    background: rgba(46, 213, 115, 0.1);
+    animation: pulseCorrect 2s infinite;
+}
+
+.answer-display-content.incorrect {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+}
+
+.answer-display-content.no-answer {
+    border-color: #747d8c;
+    background: rgba(116, 125, 140, 0.1);
+}
+
+@keyframes pulseCorrect {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(46, 213, 115, 0.6);
+    }
+}
+
+/* S'assurer que les boutons répondent au clic */
+.answer-btn {
+    cursor: pointer !important;
+}
+
+.answer-btn:active {
+    transform: scale(0.98) !important;
+}
+
+/* Transition pour le masque noir */
+.black-overlay {
+    transition: background-color 3s ease !important;
+}

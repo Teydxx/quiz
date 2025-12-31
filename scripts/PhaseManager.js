@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js
+// scripts/PhaseManager.js - VERSION SIMPLIFIÉE
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -16,28 +16,55 @@ class PhaseManager {
         
         switch(phaseNumber) {
             case 1:
-                this.phaseTimer = CONFIG.PHASE1_TIME; // 20 secondes
+                this.phaseTimer = CONFIG.PHASE1_TIME;
                 this.setBlackOverlayOpacity(1);
                 this.showTimerBox();
-                this.hideResultBox();
-                this.showAnswersSection();
+                this.hideAnswersSection(); // On cache d'abord
+                setTimeout(() => this.showAnswersSection(), 100); // Puis on montre
                 this.startPhaseTimer();
                 break;
                 
             case 2:
-                this.phaseTimer = CONFIG.PHASE2_TIME; // 10 secondes
+                this.phaseTimer = CONFIG.PHASE2_TIME;
                 this.hideTimerBox();
+                
+                // FINALISER LA RÉPONSE UTILISATEUR
+                this.finalizeUserAnswer();
+                
+                // Cacher les boutons de réponse
                 this.hideAnswersSection();
+                
+                // Afficher la réponse sur le côté seulement
                 this.showAnswerDisplay();
-                this.showResultBox();
+                
+                // FONDU pour voir la vidéo
                 this.fadeOutBlackOverlay();
+                
+                // Démarrer le timer de phase 2
                 this.startPhaseTimer();
                 
-                // Passer automatiquement à la suivante après 10 secondes
+                // Passer automatiquement après 10 secondes
                 setTimeout(() => {
                     this.endPhase();
                 }, this.phaseTimer * 1000);
                 break;
+        }
+    }
+    
+    // NOUVELLE MÉTHODE : Finaliser la réponse utilisateur
+    finalizeUserAnswer() {
+        if (!window.gameManager || !window.gameManager.questionManager) return;
+        
+        const qm = window.gameManager.questionManager;
+        
+        // Appeler finalizeSelection pour s'assurer que la réponse est enregistrée
+        if (qm.finalizeSelection) {
+            qm.finalizeSelection();
+        }
+        
+        // Révéler les réponses
+        if (qm.revealAnswers) {
+            qm.revealAnswers();
         }
     }
     
@@ -95,18 +122,23 @@ class PhaseManager {
         
         if (!currentGame) return;
         
-        // Supprimer l'ancien affichage
+        console.log(`📝 Affichage réponse côté: ${currentGame.name}`);
+        
+        // Créer ou mettre à jour l'affichage de la réponse
         let answerDisplay = document.getElementById('current-answer-display');
+        
         if (answerDisplay) {
             answerDisplay.innerHTML = '';
         } else {
             answerDisplay = document.createElement('div');
             answerDisplay.id = 'current-answer-display';
             answerDisplay.className = 'answer-display';
-            document.querySelector('.answers-column').insertBefore(
-                answerDisplay,
-                document.getElementById('next-btn')
-            );
+            const answersColumn = document.querySelector('.answers-column');
+            const nextBtn = document.getElementById('next-btn');
+            
+            if (answersColumn && nextBtn) {
+                answersColumn.insertBefore(answerDisplay, nextBtn);
+            }
         }
         
         // Déterminer le statut
@@ -119,11 +151,15 @@ class PhaseManager {
                 resultClass = 'correct';
                 statusText = 'CORRECT !';
                 icon = '🎉';
+                console.log('✅ Réponse correcte enregistrée');
             } else {
                 resultClass = 'incorrect';
                 statusText = 'INCORRECT';
                 icon = '❌';
+                console.log('❌ Réponse incorrecte enregistrée');
             }
+        } else {
+            console.log('⚠️ Aucune réponse donnée');
         }
         
         // Créer le contenu
@@ -139,7 +175,7 @@ class PhaseManager {
             </div>
         `;
         
-        // Afficher
+        // Afficher avec animation
         setTimeout(() => {
             answerDisplay.classList.add('active');
         }, 100);
@@ -178,10 +214,12 @@ class PhaseManager {
         const answersSection = document.getElementById('answers-section');
         if (answersSection) {
             answersSection.style.display = 'block';
+            answersSection.style.opacity = '1';
         }
         const answersGrid = document.getElementById('answers-grid');
         if (answersGrid) {
             answersGrid.style.display = 'grid';
+            answersGrid.style.opacity = '1';
         }
     }
     
@@ -189,58 +227,12 @@ class PhaseManager {
         const answersSection = document.getElementById('answers-section');
         if (answersSection) {
             answersSection.style.display = 'none';
+            answersSection.style.opacity = '0';
         }
         const answersGrid = document.getElementById('answers-grid');
         if (answersGrid) {
             answersGrid.style.display = 'none';
-        }
-    }
-    
-    showResultBox() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        
-        if (!currentGame) return;
-        
-        let resultClass = 'no-answer';
-        let resultIcon = '❌';
-        let statusText = 'PAS DE RÉPONSE';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                resultClass = 'correct';
-                resultIcon = '🎉';
-                statusText = 'CORRECT !';
-            } else {
-                resultClass = 'incorrect';
-                resultIcon = '❌';
-                statusText = 'INCORRECT';
-            }
-        }
-        
-        const resultIconEl = document.querySelector('.result-icon');
-        const resultGameNameEl = document.querySelector('.result-game-name');
-        const resultStatusEl = document.querySelector('.result-status');
-        const resultBox = document.getElementById('result-box');
-        
-        if (resultIconEl) resultIconEl.textContent = resultIcon;
-        if (resultGameNameEl) resultGameNameEl.textContent = currentGame.name;
-        if (resultStatusEl) resultStatusEl.textContent = statusText;
-        
-        if (resultBox) {
-            resultBox.className = `result-box ${resultClass}`;
-            setTimeout(() => {
-                resultBox.classList.add('active');
-            }, 100);
-        }
-    }
-    
-    hideResultBox() {
-        const resultBox = document.getElementById('result-box');
-        if (resultBox) {
-            resultBox.classList.remove('active');
+            answersGrid.style.opacity = '0';
         }
     }
     
@@ -248,7 +240,6 @@ class PhaseManager {
         console.log('🏁 Fin de phase 2');
         
         this.clearTimers();
-        this.hideResultBox();
         this.fadeInBlackOverlay();
         
         // Attendre 1 seconde puis passer à la suivante
@@ -275,7 +266,6 @@ class PhaseManager {
         
         this.setBlackOverlayOpacity(1);
         this.showTimerBox();
-        this.hideResultBox();
         this.showAnswersSection();
         
         // Supprimer l'affichage de la réponse

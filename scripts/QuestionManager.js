@@ -1,4 +1,4 @@
-// scripts/QuestionManager.js - VERSION SIMPLE
+// scripts/QuestionManager.js - VERSION CORRIGÉE
 class QuestionManager {
     constructor() {
         console.log('✅ QuestionManager initialisé');
@@ -7,7 +7,6 @@ class QuestionManager {
         this.userAnswered = false;
         this.userAnswerCorrect = false;
         this.selectedButton = null;
-        
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
     }
@@ -23,6 +22,7 @@ class QuestionManager {
     prepareQuestion(questionNumber) {
         console.log(`✅ Question ${questionNumber}`);
         
+        // RESET COMPLET de l'état
         this.resetQuestionState();
         
         const countEl = document.getElementById('question-count');
@@ -67,24 +67,31 @@ class QuestionManager {
             button.textContent = answer;
             button.dataset.correct = (answer === correctAnswer).toString();
             
-            button.addEventListener('click', () => {
+            // CORRECTION : Gestion du clic
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.selectAnswer(button);
             });
             
             grid.appendChild(button);
         });
         
-        // Afficher la grille
         grid.style.display = 'grid';
     }
 
+    // CORRECTION CRITIQUE : Cette méthode doit bien enregistrer la réponse
     selectAnswer(clickedButton) {
-        if (this.userAnswered) return;
+        console.log(`🎯 Clic sur: ${clickedButton.textContent}`);
         
-        console.log(`🎯 Clic: ${clickedButton.textContent}`);
+        // Si déjà répondu, on ne fait rien
+        if (this.userAnswered) {
+            console.log('⚠️ Déjà répondu');
+            return;
+        }
         
         // Si même bouton, désélectionner
         if (this.selectedButton === clickedButton) {
+            console.log('↩️ Désélection');
             clickedButton.classList.remove('user-selected');
             this.selectedButton = null;
             return;
@@ -98,31 +105,46 @@ class QuestionManager {
         // Sélectionner nouveau
         this.selectedButton = clickedButton;
         clickedButton.classList.add('user-selected');
+        
+        console.log(`✅ Réponse sélectionnée: ${clickedButton.textContent}`);
+        
+        // ENREGISTRER LA RÉPONSE IMMÉDIATEMENT
+        this.userAnswered = true;
+        this.userAnswerCorrect = clickedButton.dataset.correct === 'true';
+        
+        console.log(`📊 Correct ? ${this.userAnswerCorrect}`);
     }
 
+    // Cette méthode est appelée par PhaseManager
     finalizeSelection() {
-        console.log('🔒 Finalisation');
+        console.log('🔒 Finalisation de la sélection');
         
-        if (!this.selectedButton) {
+        if (!this.selectedButton && !this.userAnswered) {
+            console.log('❌ Aucune réponse donnée');
             this.userAnswered = false;
             this.userAnswerCorrect = false;
             return;
         }
         
-        this.userAnswered = true;
-        this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
+        // Si on a déjà répondu via selectAnswer(), on ne fait rien
+        if (this.userAnswered) {
+            console.log('✅ Réponse déjà enregistrée');
+            return;
+        }
         
-        // Enregistrer
-        const countEl = document.getElementById('question-count');
-        this.resultsDetails.push({
-            question: countEl ? parseInt(countEl.textContent) : 0,
-            game: this.currentGame.name,
-            userAnswer: this.selectedButton.textContent,
-            isCorrect: this.userAnswerCorrect
-        });
-        
-        if (this.userAnswerCorrect) {
+        // Sinon, enregistrer maintenant
+        if (this.selectedButton) {
+            this.userAnswered = true;
+            this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
+            console.log(`📝 Réponse finalisée: ${this.userAnswerCorrect ? 'CORRECT' : 'INCORRECT'}`);
+        }
+    }
+
+    // AJOUTER CETTE MÉTHODE POUR LE SCORE
+    registerAnswer() {
+        if (this.userAnswered && this.userAnswerCorrect) {
             this.correctAnswersCount++;
+            console.log(`🎯 Score: ${this.correctAnswersCount}`);
         }
     }
 
@@ -135,11 +157,6 @@ class QuestionManager {
         if (grid) {
             grid.innerHTML = '';
             grid.style.display = 'grid';
-        }
-        
-        const nextBtn = document.getElementById('next-btn');
-        if (nextBtn) {
-            nextBtn.style.display = 'none';
         }
     }
 
@@ -159,43 +176,29 @@ class QuestionManager {
         return true;
     }
 
-
-// scripts/QuestionManager.js - AJOUTER ces méthodes à la classe
-
-// AJOUTER cette méthode pour finaliser la réponse
-finalizeAnswer() {
-    console.log('✅ Finalisation de la réponse');
-    this.finalizeSelection();
-}
-
-// AJOUTER cette méthode pour révéler les réponses
-revealAnswers() {
-    console.log('🔍 Révélation des réponses');
-    
-    const buttons = document.querySelectorAll('.answer-btn');
-    const currentGame = this.getCurrentGame();
-    
-    if (!currentGame) return;
-    
-    buttons.forEach(button => {
-        const isCorrect = button.dataset.correct === 'true';
+    // NOUVELLE MÉTHODE pour révéler les réponses
+    revealAnswers() {
+        console.log('🔍 Révélation des réponses');
         
-        if (isCorrect) {
-            button.classList.add('correct');
-            button.classList.add('correct-answer');
-        } else if (button.classList.contains('user-selected')) {
-            button.classList.add('incorrect');
-        }
+        const buttons = document.querySelectorAll('.answer-btn');
+        const currentGame = this.getCurrentGame();
         
-        button.disabled = true;
-    });
-}
-
-// AJOUTER cette méthode pour vider la grille
-clearAnswersGrid() {
-    const grid = document.getElementById('answers-grid');
-    if (grid) {
-        grid.innerHTML = '';
+        if (!currentGame) return;
+        
+        buttons.forEach(button => {
+            const isCorrect = button.dataset.correct === 'true';
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                button.classList.add('correct-answer');
+            } else if (button.classList.contains('user-selected')) {
+                button.classList.add('incorrect');
+            }
+            
+            button.disabled = true;
+        });
+        
+        // Enregistrer le score
+        this.registerAnswer();
     }
-}
 }
