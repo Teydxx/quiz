@@ -1,388 +1,139 @@
-// scripts/PhaseManager.js - VERSION CORRIGÉE COMPLÈTE
-class PhaseManager {
-    constructor() {
-        this.currentPhase = 1;
-        this.phaseTimer = CONFIG.PHASE1_TIME;
-        this.phaseInterval = null;
-        this.onPhaseComplete = null;
-        
-        // Éléments DOM
-        this.blackOverlay = document.getElementById('black-overlay');
-        this.resultBox = document.getElementById('result-box');
-        this.timerBox = document.getElementById('timer-box');
-        this.timerCount = document.querySelector('.timer-count');
-        this.answersSection = document.getElementById('answers-section');
-        this.answersGrid = document.getElementById('answers-grid');
-        
-        // Éléments résultat
-        this.resultIcon = document.querySelector('.result-icon');
-        this.resultGameName = document.querySelector('.result-game-name');
-        this.resultStatus = document.querySelector('.result-status');
-        
-        console.log('⏱️ PhaseManager initialisé');
-    }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Jeux Vidéos</title>
     
-    startPhase(phaseNumber) {
-        console.log(`🔄 Début phase ${phaseNumber}`);
-        this.currentPhase = phaseNumber;
-        this.clearTimers();
-        
-        // Mettre à jour la classe du body pour le CSS
-        document.body.className = '';
-        document.body.classList.add(`phase-${phaseNumber}`);
-        
-        switch(phaseNumber) {
-            case 1:
-                this.phaseTimer = CONFIG.PHASE1_TIME;
-                this.setBlackOverlayOpacity(1);
-                this.timerBox.classList.remove('hidden');
-                this.timerCount.textContent = this.phaseTimer;
-                this.resultBox.classList.remove('active');
-                
-                // Afficher les réponses
-                this.showAnswersSection();
-                break;
-                
-            case 2:
-                this.phaseTimer = CONFIG.PHASE2_TIME;
-                this.timerBox.classList.add('hidden');
-                
-                // Cacher les réponses IMMÉDIATEMENT
-                this.hideAnswersSection();
-                
-                // Finaliser la réponse de l'utilisateur
-                this.finalizeUserAnswer();
-                
-                // Créer et afficher l'affichage de la réponse
-                this.showAnswerDisplay();
-                this.showResult();
-                
-                // FONDU du masque noir pour révéler la vidéo
-                this.fadeOutBlackOverlay();
-                
-                // Démarrer le timer de phase 2
-                this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
-                break;
-        }
-    }
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    updatePhaseTimer() {
-        this.phaseTimer--;
-        console.log(`⏰ Phase ${this.currentPhase}: ${this.phaseTimer}s restantes`);
-        
-        if (this.currentPhase === 1) {
-            this.timerCount.textContent = this.phaseTimer;
-        }
-        
-        if (this.phaseTimer <= 0) {
-            console.log(`⏰ Phase ${this.currentPhase} terminée`);
-            
-            if (this.currentPhase < 2) {
-                this.startPhase(2);
-            } else {
-                this.clearTimers();
-                this.endPhase();
-            }
-        }
-    }
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/quiz.css">
     
-    fadeOutBlackOverlay() {
-        if (!this.blackOverlay) {
-            console.error('❌ black-overlay non trouvé');
-            return;
-        }
+    <!-- YouTube API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+    <!-- ÉCRAN QUIZ -->
+    <div id="quiz-screen" class="screen active">
+        <div class="header">
+            <div class="title">
+                <i class="fas fa-gamepad"></i>
+                QUIZ JEUX VIDÉOS
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <i class="fas fa-question"></i>
+                    Question: <span id="question-count">1</span>/<span id="total-questions">10</span>
+                </div>
+                <button id="delete-video-btn" class="stat delete-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    Supprimer cette vidéo
+                </button>
+                <a href="deleted-videos.html" class="stat" style="text-decoration: none; color: white;">
+                    <i class="fas fa-trash-alt"></i>
+                    Vidéos supprimées
+                </a>
+            </div>
+        </div>
         
-        console.log('🌅 Début du fondu du masque noir');
-        
-        let opacity = 1;
-        const duration = 3000; // 3 secondes pour le fondu
-        const steps = 60; // Plus de steps pour un fondu plus smooth
-        const stepDuration = duration / steps;
-        const decrement = 1 / steps;
-        
-        let step = 0;
-        const fade = () => {
-            opacity -= decrement;
-            this.setBlackOverlayOpacity(Math.max(0, opacity));
-            
-            step++;
-            if (step < steps) {
-                setTimeout(fade, stepDuration);
-            } else {
-                this.setBlackOverlayOpacity(0);
-                console.log('✅ Masque noir complètement fondu');
-            }
-        };
-        
-        // Démarrer le fondu
-        setTimeout(fade, stepDuration);
-    }
-    
-    fadeInBlackOverlay() {
-        if (!this.blackOverlay) return;
-        
-        console.log('🌑 Début du fondu entrant du masque noir');
-        
-        let opacity = 0;
-        const duration = 3000; // 3 secondes
-        const steps = 60;
-        const stepDuration = duration / steps;
-        const increment = 1 / steps;
-        
-        let step = 0;
-        const fade = () => {
-            opacity += increment;
-            this.setBlackOverlayOpacity(Math.min(1, opacity));
-            
-            step++;
-            if (step < steps) {
-                setTimeout(fade, stepDuration);
-            } else {
-                this.setBlackOverlayOpacity(1);
-                console.log('✅ Masque noir complètement réapparu');
-            }
-        };
-        
-        // Démarrer après 7 secondes (10s total - 3s pour le fondu)
-        setTimeout(fade, 4000);
-    }
-    
-    setBlackOverlayOpacity(opacity) {
-        if (this.blackOverlay) {
-            this.blackOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
-            console.log(`🎨 Opacité masque noir: ${opacity}`);
-        }
-    }
-    
-    // NOUVELLE MÉTHODE : Finaliser la réponse de l'utilisateur
-    finalizeUserAnswer() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        
-        // Finaliser la sélection si l'utilisateur a sélectionné un bouton
-        if (qm.selectedButton && !qm.userAnswered) {
-            console.log('✅ Finalisation de la réponse utilisateur');
-            qm.finalizeSelection();
-        }
-        
-        // Révéler les bonnes/mauvaises réponses
-        qm.revealAnswers();
-    }
-    
-    // NOUVELLE MÉTHODE : Afficher l'affichage de la réponse
-    showAnswerDisplay() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        
-        if (!currentGame) return;
-        
-        console.log(`📝 Affichage réponse: ${currentGame.name}`);
-        
-        // Créer ou mettre à jour l'affichage de la réponse
-        let answerDisplay = document.getElementById('current-answer-display');
-        
-        if (answerDisplay) {
-            answerDisplay.remove();
-        }
-        
-        answerDisplay = document.createElement('div');
-        answerDisplay.id = 'current-answer-display';
-        answerDisplay.className = 'answer-display';
-        
-        // Déterminer le statut
-        let resultClass = 'no-answer';
-        let statusText = 'PAS DE RÉPONSE';
-        let icon = '❌';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                resultClass = 'correct';
-                statusText = 'CORRECT !';
-                icon = '🎉';
-            } else {
-                resultClass = 'incorrect';
-                statusText = 'INCORRECT';
-                icon = '❌';
-            }
-        }
-        
-        // Créer le contenu
-        answerDisplay.innerHTML = `
-            <div class="answer-display-content ${resultClass}">
-                <div class="answer-icon">${icon}</div>
-                <div class="answer-game-name">${currentGame.name}</div>
-                <div class="answer-status">${statusText}</div>
-                <div class="answer-description">
-                    <i class="fas fa-info-circle"></i>
-                    La réponse était : <strong>${currentGame.name}</strong>
+        <div class="quiz-content">
+            <div class="video-column">
+                <div class="video-section">
+                    <div id="player-container"></div>
+                    <div class="black-overlay" id="black-overlay"></div>
+                    <div class="result-box" id="result-box">
+                        <div class="result-content">
+                            <div class="result-icon"></div>
+                            <div class="result-game-name"></div>
+                            <div class="result-status"></div>
+                        </div>
+                    </div>
+                    <div class="timer-box" id="timer-box">
+                        <div class="timer-icon">🎵</div>
+                        <div class="timer-text">Écoutez la musique</div>
+                        <div class="timer-count">20</div>
+                    </div>
+                    <div class="youtube-mask">
+                        <div class="mask-top"></div>
+                        <div class="mask-bottom"></div>
+                    </div>
                 </div>
             </div>
-        `;
-        
-        // Insérer dans la colonne de réponses
-        const answersColumn = document.querySelector('.answers-column');
-        const nextBtn = document.getElementById('next-btn');
-        
-        if (answersColumn && nextBtn) {
-            answersColumn.insertBefore(answerDisplay, nextBtn);
-        } else if (answersColumn) {
-            answersColumn.appendChild(answerDisplay);
-        }
-        
-        // Ajouter la classe active pour l'animation
-        setTimeout(() => {
-            answerDisplay.classList.add('active');
-        }, 100);
-        
-        // Afficher le bouton suivant
-        this.showNextButton();
-    }
-    
-    // NOUVELLE MÉTHODE : Afficher le bouton suivant
-    showNextButton() {
-        const nextBtn = document.getElementById('next-btn');
-        if (nextBtn) {
-            setTimeout(() => {
-                nextBtn.style.display = 'flex';
-                nextBtn.classList.add('show');
-                console.log('▶️ Bouton suivant affiché');
+            
+            <div class="answers-column">
+                <div class="answers-section" id="answers-section">
+                    <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+                    <div class="answers-grid" id="answers-grid"></div>
+                </div>
                 
-                // Ajouter l'événement click si pas déjà fait
-                if (!nextBtn.hasAttribute('data-listener-added')) {
-                    nextBtn.setAttribute('data-listener-added', 'true');
-                    nextBtn.addEventListener('click', () => {
-                        if (window.gameManager && window.gameManager.nextQuestion) {
-                            window.gameManager.nextQuestion();
-                        }
-                    });
-                }
-            }, 500);
-        }
-    }
+                <div id="current-answer-display" class="answer-display"></div>
+                
+                <button id="next-btn" class="btn-next">
+                    <i class="fas fa-forward"></i>
+                    QUESTION SUIVANTE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts DANS L'ORDRE CORRECT -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/games.js"></script>
+    <script src="scripts/deletedGames.js"></script>
+    <script src="scripts/QuestionManager.js"></script>
+    <script src="scripts/YouTubePlayer.js"></script>
+    <script src="scripts/PhaseManager.js"></script>
+    <script src="scripts/SessionManager.js"></script>
+    <script src="scripts/GameManager.js"></script>
     
-    // NOUVELLE MÉTHODE : Afficher la section réponses
-    showAnswersSection() {
-        if (this.answersSection) {
-            this.answersSection.style.display = 'block';
-            this.answersSection.style.opacity = '1';
-            this.answersSection.classList.remove('hidden');
-        }
-        if (this.answersGrid) {
-            this.answersGrid.style.display = 'grid';
-            this.answersGrid.style.opacity = '1';
-        }
-    }
-    
-    // NOUVELLE MÉTHODE : Cacher la section réponses
-    hideAnswersSection() {
-        if (this.answersSection) {
-            this.answersSection.style.display = 'none';
-            this.answersSection.style.opacity = '0';
-            this.answersSection.classList.add('hidden');
-        }
-        if (this.answersGrid) {
-            this.answersGrid.style.display = 'none';
-            this.answersGrid.style.opacity = '0';
-        }
-    }
-    
-    showResult() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        
-        if (!currentGame) return;
-        
-        let resultClass = 'no-answer';
-        let resultIcon = '❌';
-        let statusText = 'PAS DE RÉPONSE';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                resultClass = 'correct';
-                resultIcon = '🎉';
-                statusText = 'CORRECT !';
-            } else {
-                resultClass = 'incorrect';
-                resultIcon = '❌';
-                statusText = 'INCORRECT';
+    <script>
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎮 Quiz - Initialisation...');
+            
+            // Vérifier que tous les fichiers sont chargés
+            if (typeof CONFIG === 'undefined') {
+                console.error('❌ config.js non chargé');
+                alert('Erreur: config.js non chargé. Vérifiez le fichier.');
+                return;
             }
-        }
-        
-        this.resultIcon.textContent = resultIcon;
-        this.resultGameName.textContent = currentGame.name;
-        this.resultStatus.textContent = statusText;
-        this.resultBox.className = `result-box ${resultClass}`;
-        
-        setTimeout(() => {
-            this.resultBox.classList.add('active');
-        }, 100);
-    }
-    
-    endPhase() {
-        console.log('🏁 Fin de phase 2 - Prêt pour la question suivante');
-        
-        this.clearTimers();
-        this.resultBox.classList.remove('active');
-        this.setBlackOverlayOpacity(1);
-        
-        // Programmer le fondu entrant du masque noir
-        this.fadeInBlackOverlay();
-        
-        // Appeler le callback pour passer à la question suivante
-        setTimeout(() => {
-            if (this.onPhaseComplete) {
-                console.log('📞 Appel de onPhaseComplete');
-                this.onPhaseComplete();
+            
+            if (typeof GAMES === 'undefined') {
+                console.error('❌ games.js non chargé');
+                alert('Erreur: games.js non chargé. Vérifiez le fichier.');
+                return;
             }
-        }, 1000);
-    }
-    
-    clearTimers() {
-        if (this.phaseInterval) {
-            clearInterval(this.phaseInterval);
-            this.phaseInterval = null;
+            
+            // Créer le GameManager
+            const gameManager = new GameManager();
+            window.gameManager = gameManager;
+            
+            // Détecter le mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+            
+            if (sessionId) {
+                console.log(`🎮 Mode Session: ${sessionId}`);
+            }
+            
+            // Initialiser
+            gameManager.init();
+            
+            // Démarrer après un court délai
+            setTimeout(() => {
+                gameManager.startGame();
+            }, 1000);
+        });
+        
+        // Vérifier si YouTube API est chargé
+        if (typeof YT === 'undefined') {
+            console.warn('⚠️ YouTube API non chargée');
+        } else {
+            console.log('✅ YouTube API chargée');
         }
-    }
-    
-    reset() {
-        console.log('🔄 Reset PhaseManager');
-        this.clearTimers();
-        this.currentPhase = 1;
-        this.phaseTimer = CONFIG.PHASE1_TIME;
-        
-        // Réinitialiser les classes du body
-        document.body.className = 'phase-1';
-        
-        this.setBlackOverlayOpacity(1);
-        this.timerBox.classList.remove('hidden');
-        this.timerCount.textContent = this.phaseTimer;
-        this.resultBox.classList.remove('active');
-        this.resultBox.className = 'result-box';
-        
-        // Réafficher les réponses
-        this.showAnswersSection();
-        
-        // Supprimer l'affichage de la réponse
-        const answerDisplay = document.getElementById('current-answer-display');
-        if (answerDisplay) {
-            answerDisplay.remove();
-        }
-        
-        // Cacher le bouton suivant
-        this.hideNextButton();
-    }
-    
-    // NOUVELLE MÉTHODE : Cacher le bouton suivant
-    hideNextButton() {
-        const nextBtn = document.getElementById('next-btn');
-        if (nextBtn) {
-            nextBtn.style.display = 'none';
-            nextBtn.classList.remove('show');
-        }
-    }
-}
+    </script>
+</body>
+</html>
