@@ -11,12 +11,10 @@ class YouTubePlayer {
         this.MAX_LOAD_ATTEMPTS = 5;
         
         this.videoQueue = [];
-        this.currentVolume = 100;
         
         console.log('🎬 Initialisation YouTubePlayer');
     }
 
-    // Initialiser le player YouTube
     init() {
         console.log('🎬 Initialisation YouTubePlayer...');
         
@@ -31,7 +29,6 @@ class YouTubePlayer {
         }
     }
 
-    // Attendre que l'API YouTube soit disponible
     waitForYouTubeAPI() {
         const checkInterval = setInterval(() => {
             if (window.YT && window.YT.Player) {
@@ -43,7 +40,6 @@ class YouTubePlayer {
         }, 500);
     }
 
-    // Charger l'API YouTube
     loadYouTubeAPI() {
         console.log('📦 Chargement de l\'API YouTube...');
         
@@ -67,7 +63,6 @@ class YouTubePlayer {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     }
 
-    // Créer l'instance du player
     createPlayer() {
         console.log('🎬 Création du player YouTube...');
         
@@ -95,8 +90,6 @@ class YouTubePlayer {
                     'onReady': (event) => {
                         console.log('✅ YouTube Player prêt');
                         this.isReady = true;
-                        this.player.setVolume(100);
-                        this.currentVolume = 100;
                         
                         if (this.videoQueue.length > 0) {
                             console.log(`📋 Traitement de ${this.videoQueue.length} vidéo(s) en attente`);
@@ -130,23 +123,6 @@ class YouTubePlayer {
         }
     }
 
-    // SIMPLE : Changer le volume
-    setVolume(percent) {
-        if (this.isReady && this.player) {
-            const volume = Math.max(0, Math.min(100, Math.round(percent)));
-            if (this.currentVolume !== volume) {
-                this.player.setVolume(volume);
-                this.currentVolume = volume;
-            }
-        }
-    }
-
-    // Remettre le volume à 100%
-    resetVolume() {
-        this.setVolume(100);
-    }
-
-    // Charger et jouer une vidéo
     loadVideo(videoId, startTime) {
         console.log(`🎬 Chargement: ${videoId} à ${startTime}s`);
         
@@ -165,7 +141,6 @@ class YouTubePlayer {
         }
         
         try {
-            this.resetVolume(); // Volume à 100% pour nouvelle vidéo
             this.player.loadVideoById({
                 videoId: videoId,
                 startSeconds: startTime,
@@ -179,7 +154,6 @@ class YouTubePlayer {
         }
     }
 
-    // Jouer la vidéo
     play() {
         if (this.isReady && this.player && this.player.playVideo) {
             try {
@@ -190,7 +164,6 @@ class YouTubePlayer {
         }
     }
 
-    // Arrêter la vidéo
     stop() {
         if (this.isReady && this.player && this.player.stopVideo) {
             try {
@@ -201,7 +174,6 @@ class YouTubePlayer {
         }
     }
 
-    // Activer/désactiver le son
     mute() {
         if (this.isReady && this.player && this.player.mute) {
             this.player.mute();
@@ -214,7 +186,6 @@ class YouTubePlayer {
         }
     }
 
-    // Réinitialiser le compteur
     resetLoadAttempts() {
         this.loadAttempts = 0;
         this.videoQueue = [];

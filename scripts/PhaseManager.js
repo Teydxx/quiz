@@ -6,10 +6,6 @@ class PhaseManager {
         this.phaseInterval = null;
         this.onPhaseComplete = null;
         
-        // FADE OUT OBLIGATOIRE selon config.js
-        this.fadeStartSeconds = CONFIG.FADE_OUT_SECONDS;
-        this.isFading = false;
-        
         // Éléments DOM
         this.blackOverlay = document.getElementById('black-overlay');
         this.resultBox = document.getElementById('result-box');
@@ -21,37 +17,24 @@ class PhaseManager {
         this.resultIcon = document.querySelector('.result-icon');
         this.resultGameName = document.querySelector('.result-game-name');
         this.resultStatus = document.querySelector('.result-status');
-        
-        console.log(`⏱️ PhaseManager - Fade out audio: ${this.fadeStartSeconds}s avant la fin`);
     }
     
-    // Démarrer une phase
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
         this.clearTimers();
-        this.isFading = false;
         
         switch(phaseNumber) {
             case 1:
-                // Phase 1 : Écoute
                 this.phaseTimer = CONFIG.PHASE1_TIME;
-                
-                // Réinitialiser le volume à 100%
-                this.resetAudioVolume();
-                
-                // Setup UI
                 this.setBlackOverlayOpacity(1);
                 this.timerBox.classList.remove('hidden');
                 this.timerCount.textContent = this.phaseTimer;
                 this.resultBox.classList.remove('active');
                 this.answersSection.classList.remove('hidden');
-                
                 break;
                 
             case 2:
-                // Phase 2 : Révélation
                 this.phaseTimer = CONFIG.PHASE2_TIME;
-                
                 this.timerBox.classList.add('hidden');
                 this.answersSection.classList.add('hidden');
                 this.showResult();
@@ -60,80 +43,28 @@ class PhaseManager {
                 setTimeout(() => {
                     this.fadeInBlackOverlay();
                 }, 7000);
-                
                 break;
         }
         
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // Mettre à jour timer avec fade out OBLIGATOIRE
-updatePhaseTimer() {
-    this.phaseTimer--;
-    
-    if (this.currentPhase === 1) {
-        this.timerCount.textContent = this.phaseTimer;
+    updatePhaseTimer() {
+        this.phaseTimer--;
         
-        // SIMPLE FADE OUT
-        if (window.gameManager?.youtubePlayer) {
-            const player = window.gameManager.youtubePlayer;
-            
-            if (this.phaseTimer === 2) player.setVolume(70);
-            else if (this.phaseTimer === 1) player.setVolume(40);
-            else if (this.phaseTimer === 0) player.setVolume(20);
+        if (this.currentPhase === 1) {
+            this.timerCount.textContent = this.phaseTimer;
         }
-    }
-    
-    if (this.phaseTimer <= 0) {
-        if (this.currentPhase < 2) {
-            this.startPhase(2);
-        } else {
-            this.clearTimers();
-            this.endPhase();
-        }
-    }
-}
-    
-    // Gérer le fade out audio (OBLIGATOIRE)
-    handleAudioFade() {
-        if (!window.gameManager || !window.gameManager.youtubePlayer) return;
         
-        const youtubePlayer = window.gameManager.youtubePlayer;
-        const timeLeft = this.phaseTimer;
-        
-        // Si on est dans la période de fade out configurée
-        if (timeLeft <= this.fadeStartSeconds && timeLeft > 0) {
-            if (!this.isFading) {
-                this.isFading = true;
-                console.log(`🔉 Fade out audio (${timeLeft}/${this.fadeStartSeconds}s)`);
+        if (this.phaseTimer <= 0) {
+            if (this.currentPhase < 2) {
+                this.startPhase(2);
+            } else {
+                this.clearTimers();
+                this.endPhase();
             }
-            
-            // Volume proportionnel au temps restant
-            // Ex avec 3s: 3s→100%, 2s→66%, 1s→33%, 0s→0%
-            const volumePercent = (timeLeft / this.fadeStartSeconds) * 100;
-            youtubePlayer.setVolume(volumePercent);
-            
-        } 
-        // Timer à 0 = son coupé
-        else if (timeLeft === 0) {
-            youtubePlayer.setVolume(0);
-        }
-        // Si bug: on sort du fade, on remet à 100%
-        else if (this.isFading && timeLeft > this.fadeStartSeconds) {
-            this.isFading = false;
-            youtubePlayer.setVolume(100);
         }
     }
-    
-    // Réinitialiser le volume audio
-    resetAudioVolume() {
-        if (window.gameManager && window.gameManager.youtubePlayer) {
-            window.gameManager.youtubePlayer.resetVolume();
-            this.isFading = false;
-        }
-    }
-    
-    // === MÉTHODES EXISTANTES (inchangées) ===
     
     fadeOutBlackOverlay() {
         if (!this.blackOverlay) return;
@@ -232,7 +163,6 @@ updatePhaseTimer() {
         this.clearTimers();
         this.resultBox.classList.remove('active');
         this.setBlackOverlayOpacity(1);
-        this.resetAudioVolume();
         
         setTimeout(() => {
             if (this.onPhaseComplete) {
@@ -252,17 +182,12 @@ updatePhaseTimer() {
         this.clearTimers();
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
-        this.isFading = false;
         
         this.setBlackOverlayOpacity(1);
-        this.resetAudioVolume();
-        
         this.timerBox.classList.remove('hidden');
         this.timerCount.textContent = this.phaseTimer;
-        
         this.resultBox.classList.remove('active');
         this.resultBox.className = 'result-box';
-        
         this.answersSection.classList.remove('hidden');
     }
 }
