@@ -284,6 +284,8 @@
     border-radius: 15px;
     padding: 25px;
     border: 2px solid rgba(255, 71, 87, 0.2);
+    position: relative;
+    min-height: 200px;
 }
 
 .answers-section h3 {
@@ -295,6 +297,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    transition: opacity 0.3s ease;
 }
 
 .answers-section h3 i {
@@ -309,7 +312,7 @@
     flex: 1;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .answers-grid.hidden {
@@ -410,11 +413,32 @@
     text-align: center;
     animation: fadeIn 0.5s ease;
     width: 100%;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInAnswer {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.answer-display.active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: slideInAnswer 0.5s ease forwards !important;
 }
 
 /* ===== BOUTON SUIVANT ===== */
@@ -427,7 +451,7 @@
     border-radius: 50px;
     cursor: pointer;
     margin-top: auto;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     gap: 12px;
@@ -437,6 +461,12 @@
     box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
     text-transform: uppercase;
     letter-spacing: 1px;
+    opacity: 0;
+}
+
+.btn-next.show {
+    display: flex !important;
+    opacity: 1 !important;
 }
 
 .btn-next:hover {
@@ -446,6 +476,48 @@
 
 .btn-next i {
     font-size: 1.2rem;
+}
+
+/* ===== CLASSES DE PHASE ===== */
+/* Phase 1 : Boutons visibles */
+body.phase-1 #answers-grid {
+    display: grid !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.phase-1 .answers-section h3 {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.phase-1 #current-answer-display {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Phase 2 : Boutons cachés, réponse visible */
+body.phase-2 #answers-grid {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+body.phase-2 .answers-section h3 {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+body.phase-2 #current-answer-display {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -666,19 +738,6 @@
     border-radius: 12px;
 }
 
-/* États de phase pour debug */
-body.phase-1 .answers-grid {
-    display: grid !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-body.phase-2 .answers-grid {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
 /* S'assurer que les boutons sont toujours visibles quand ils existent */
 #answers-grid:has(.answer-btn) {
     display: grid !important;
@@ -729,59 +788,62 @@ body.phase-2 .answers-grid {
     font-size: 0.9rem;
 }
 
-/* AJOUTER à la fin de quiz.css */
+/* Classes pour le contrôle des phases */
+.phase-1 #answers-grid,
+.phase-1 .answers-section h3 {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
 
-/* Masquage des boutons en phase 2 */
-.phase-2 #answers-grid {
+.phase-1 #current-answer-display,
+.phase-1 .btn-next:not(.show) {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.phase-2 #answers-grid,
+.phase-2 .answers-section h3 {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
     height: 0 !important;
     overflow: hidden !important;
+    pointer-events: none !important;
 }
 
-.phase-2 .answers-section h3 {
-    display: none !important;
-}
-
-/* Affichage de la réponse en phase 2 */
-.answer-display {
+.phase-2 #current-answer-display {
     display: block !important;
     opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* AJOUTER À LA FIN DU FICHIER */
+
+/* Style pour masquer les boutons en phase 2 */
+.answers-grid.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Style pour l'affichage de la réponse */
+.answer-display {
+    display: block !important;
     animation: fadeIn 0.5s ease !important;
 }
 
-/* Animation d'apparition */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* S'assurer que le bouton suivant est visible */
-#next-btn {
+.btn-next {
     display: none;
-    opacity: 0;
-    transition: opacity 0.3s;
 }
 
-#next-btn.show {
+.btn-next.visible {
     display: flex !important;
-    opacity: 1 !important;
-}
-
-/* Classe pour indiquer la phase */
-body.phase-1 #answers-grid {
-    display: grid !important;
-    opacity: 1 !important;
-}
-
-body.phase-2 #answers-grid {
-    display: none !important;
-    opacity: 0 !important;
 }

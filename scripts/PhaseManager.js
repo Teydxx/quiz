@@ -26,13 +26,29 @@ class PhaseManager {
                 if (timerBox) timerBox.classList.remove('hidden');
                 if (timerCount) timerCount.textContent = this.phaseTimer;
                 
-                // Afficher les boutons
-                const grid = document.getElementById('answers-grid');
-                if (grid) grid.style.display = 'grid';
+                // AFFICHER les boutons de réponse
+                const answersGrid = document.getElementById('answers-grid');
+                if (answersGrid) {
+                    answersGrid.style.display = 'grid';
+                    answersGrid.style.visibility = 'visible';
+                    answersGrid.style.opacity = '1';
+                }
                 
-                // Cacher la réponse précédente
+                // Afficher le titre
+                const questionTitle = document.querySelector('.answers-section h3');
+                if (questionTitle) {
+                    questionTitle.style.display = 'block';
+                }
+                
+                // Cacher l'affichage de réponse
                 const answerDisplay = document.getElementById('current-answer-display');
-                if (answerDisplay) answerDisplay.remove();
+                if (answerDisplay) {
+                    answerDisplay.style.display = 'none';
+                }
+                
+                // Cacher bouton suivant
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) nextBtn.style.display = 'none';
                 break;
                 
             case 2:
@@ -42,9 +58,19 @@ class PhaseManager {
                 const timerBox2 = document.getElementById('timer-box');
                 if (timerBox2) timerBox2.classList.add('hidden');
                 
-                // Cacher les boutons
-                const grid2 = document.getElementById('answers-grid');
-                if (grid2) grid2.style.display = 'none';
+                // CACHER les boutons de réponse
+                const answersGrid2 = document.getElementById('answers-grid');
+                if (answersGrid2) {
+                    answersGrid2.style.display = 'none';
+                    answersGrid2.style.visibility = 'hidden';
+                    answersGrid2.style.opacity = '0';
+                }
+                
+                // Cacher le titre
+                const questionTitle2 = document.querySelector('.answers-section h3');
+                if (questionTitle2) {
+                    questionTitle2.style.display = 'none';
+                }
                 
                 // Finaliser la sélection
                 const qm = window.gameManager?.questionManager;
@@ -89,9 +115,17 @@ class PhaseManager {
         const game = qm.getCurrentGame();
         if (!game) return;
         
-        // S'assurer que les boutons sont cachés
+        // Cacher les boutons (au cas où)
         const grid = document.getElementById('answers-grid');
-        if (grid) grid.style.display = 'none';
+        if (grid) {
+            grid.style.display = 'none';
+        }
+        
+        // Cacher le titre
+        const questionTitle = document.querySelector('.answers-section h3');
+        if (questionTitle) {
+            questionTitle.style.display = 'none';
+        }
         
         // Nettoyer ancienne réponse
         const oldAnswer = document.getElementById('current-answer-display');
@@ -104,7 +138,7 @@ class PhaseManager {
         const isCorrect = qm.userAnswerCorrect;
         const color = isCorrect ? '#2ed573' : (qm.userAnswered ? '#ff4757' : '#747d8c');
         const text = isCorrect ? 'CORRECT !' : (qm.userAnswered ? 'INCORRECT' : 'PAS DE RÉPONSE');
-        const icon = isCorrect ? '🎉' : (qm.userAnswered ? '❌' : '⏰');
+        const icon = isCorrect ? '🎉' : (qm.userAnswered ? '❌' : '⌛');
         
         const answerDiv = document.createElement('div');
         answerDiv.id = 'current-answer-display';
@@ -151,6 +185,24 @@ class PhaseManager {
         
         // Réafficher les boutons
         const grid = document.getElementById('answers-grid');
-        if (grid) grid.style.display = 'grid';
+        if (grid) {
+            grid.style.display = 'grid';
+            grid.style.visibility = 'visible';
+            grid.style.opacity = '1';
+        }
+        
+        // Réafficher le titre
+        const questionTitle = document.querySelector('.answers-section h3');
+        if (questionTitle) {
+            questionTitle.style.display = 'block';
+        }
+        
+        // Cacher l'affichage de réponse
+        const answerDisplay = document.getElementById('current-answer-display');
+        if (answerDisplay) answerDisplay.remove();
+        
+        // Cacher bouton suivant
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) nextBtn.style.display = 'none';
     }
 }

@@ -645,6 +645,23 @@ getCurrentPhaseTimes() {
         phase2Time: CONFIG.PHASE2_TIME
     };
 }
+// Dans GameManager.js - AJOUTER cette méthode
+forceHideAnswers() {
+    console.log('👁️ Forcer masquage des réponses');
+    
+    const grid = document.getElementById('answers-grid');
+    if (grid) {
+        grid.style.display = 'none';
+        grid.style.opacity = '0';
+        grid.style.visibility = 'hidden';
+    }
+    
+    const title = document.querySelector('.answers-section h3');
+    if (title) {
+        title.style.display = 'none';
+        title.style.opacity = '0';
+    }
+}
 }
 
 // Exposer pour debug
