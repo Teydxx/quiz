@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js - VERSION CORRIGÉE
+// scripts/PhaseManager.js - VERSION SIMPLIFIÉE ET CORRIGÉE
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -14,12 +14,7 @@ class PhaseManager {
         this.answersSection = document.getElementById('answers-section');
         this.answersGrid = document.getElementById('answers-grid');
         
-        // Éléments résultat
-        this.resultIcon = document.querySelector('.result-icon');
-        this.resultGameName = document.querySelector('.result-game-name');
-        this.resultStatus = document.querySelector('.result-status');
-        
-        console.log('⏱️ PhaseManager initialisé');
+        console.log('⏱️ PhaseManager initialisé avec config:', CONFIG);
     }
     
     startPhase(phaseNumber) {
@@ -27,13 +22,9 @@ class PhaseManager {
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
-        // Mettre à jour la classe du body pour le CSS
-        document.body.className = '';
-        document.body.classList.add(`phase-${phaseNumber}`);
-        
         switch(phaseNumber) {
             case 1:
-                this.phaseTimer = CONFIG.PHASE1_TIME;
+                this.phaseTimer = CONFIG.PHASE1_TIME; // 20 secondes
                 this.setBlackOverlayOpacity(1);
                 this.timerBox.classList.remove('hidden');
                 this.timerCount.textContent = this.phaseTimer;
@@ -41,26 +32,39 @@ class PhaseManager {
                 
                 // Afficher les réponses
                 this.showAnswersSection();
+                this.startPhaseTimer();
                 break;
                 
             case 2:
-                this.phaseTimer = CONFIG.PHASE2_TIME;
+                this.phaseTimer = CONFIG.PHASE2_TIME; // 10 secondes
                 this.timerBox.classList.add('hidden');
                 
-                // Cacher les réponses IMMÉDIATEMENT
+                // Cacher les réponses
                 this.hideAnswersSection();
                 
-                // Créer et afficher l'affichage de la réponse
+                // Afficher la réponse
                 this.showAnswerDisplay();
                 this.showResult();
+                
+                // FONDU du masque noir pour révéler la vidéo
                 this.fadeOutBlackOverlay();
                 
+                // DÉMARRER LE TIMER POUR LA PHASE 2
+                this.startPhaseTimer();
+                
+                // Après 10 secondes, passer à la question suivante
                 setTimeout(() => {
-                    this.fadeInBlackOverlay();
-                }, 7000);
+                    console.log('⏰ 10 secondes écoulées - Fin phase 2');
+                    this.endPhase();
+                }, this.phaseTimer * 1000);
+                
                 break;
         }
-        
+    }
+    
+    // NOUVELLE MÉTHODE : Démarrer le timer
+    startPhaseTimer() {
+        this.clearTimers();
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
@@ -72,11 +76,8 @@ class PhaseManager {
         }
         
         if (this.phaseTimer <= 0) {
-            if (this.currentPhase < 2) {
+            if (this.currentPhase === 1) {
                 this.startPhase(2);
-            } else {
-                this.clearTimers();
-                this.endPhase();
             }
         }
     }
@@ -84,51 +85,26 @@ class PhaseManager {
     fadeOutBlackOverlay() {
         if (!this.blackOverlay) return;
         
-        let opacity = 1;
-        const duration = 3000;
-        const steps = 30;
-        const stepDuration = duration / steps;
-        const decrement = 1 / steps;
+        console.log('🌅 Début du fondu du masque noir (3 secondes)');
         
-        let step = 0;
-        const fade = () => {
-            opacity -= decrement;
-            this.setBlackOverlayOpacity(Math.max(0, opacity));
-            
-            step++;
-            if (step < steps) {
-                setTimeout(fade, stepDuration);
-            } else {
-                this.setBlackOverlayOpacity(0);
-            }
-        };
+        // Animation simple avec transition CSS
+        this.blackOverlay.style.transition = 'background-color 3s ease';
+        this.blackOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
         
-        setTimeout(fade, stepDuration);
+        // Vérifier que c'est bien appliqué
+        setTimeout(() => {
+            console.log('✅ Masque noir devrait être transparent');
+        }, 3100);
     }
     
     fadeInBlackOverlay() {
         if (!this.blackOverlay) return;
         
-        let opacity = 0;
-        const duration = 3000;
-        const steps = 30;
-        const stepDuration = duration / steps;
-        const increment = 1 / steps;
+        console.log('🌑 Réapparition du masque noir (1 seconde)');
         
-        let step = 0;
-        const fade = () => {
-            opacity += increment;
-            this.setBlackOverlayOpacity(Math.min(1, opacity));
-            
-            step++;
-            if (step < steps) {
-                setTimeout(fade, stepDuration);
-            } else {
-                this.setBlackOverlayOpacity(1);
-            }
-        };
-        
-        setTimeout(fade, stepDuration);
+        // Réappliquer le masque noir
+        this.blackOverlay.style.transition = 'background-color 1s ease';
+        this.blackOverlay.style.backgroundColor = 'rgba(0, 0, 0, 1)';
     }
     
     setBlackOverlayOpacity(opacity) {
@@ -137,7 +113,6 @@ class PhaseManager {
         }
     }
     
-    // NOUVELLE MÉTHODE : Afficher l'affichage de la réponse
     showAnswerDisplay() {
         if (!window.gameManager || !window.gameManager.questionManager) return;
         
@@ -148,7 +123,7 @@ class PhaseManager {
         
         console.log(`📝 Affichage réponse: ${currentGame.name}`);
         
-        // Créer ou mettre à jour l'affichage de la réponse
+        // Créer l'affichage de la réponse
         let answerDisplay = document.getElementById('current-answer-display');
         
         if (answerDisplay) {
@@ -199,7 +174,7 @@ class PhaseManager {
             answersColumn.appendChild(answerDisplay);
         }
         
-        // Ajouter la classe active pour l'animation
+        // Afficher après un délai
         setTimeout(() => {
             answerDisplay.classList.add('active');
         }, 100);
@@ -208,24 +183,18 @@ class PhaseManager {
         this.showNextButton();
     }
     
-    // NOUVELLE MÉTHODE : Afficher le bouton suivant
     showNextButton() {
         const nextBtn = document.getElementById('next-btn');
         if (nextBtn) {
-            setTimeout(() => {
-                nextBtn.style.display = 'flex';
-                nextBtn.classList.add('show');
-                console.log('▶️ Bouton suivant affiché');
-            }, 500);
+            nextBtn.style.display = 'flex';
+            nextBtn.classList.add('show');
         }
     }
     
-    // NOUVELLE MÉTHODE : Afficher la section réponses
     showAnswersSection() {
         if (this.answersSection) {
             this.answersSection.style.display = 'block';
             this.answersSection.style.opacity = '1';
-            this.answersSection.classList.remove('hidden');
         }
         if (this.answersGrid) {
             this.answersGrid.style.display = 'grid';
@@ -233,12 +202,10 @@ class PhaseManager {
         }
     }
     
-    // NOUVELLE MÉTHODE : Cacher la section réponses
     hideAnswersSection() {
         if (this.answersSection) {
             this.answersSection.style.display = 'none';
             this.answersSection.style.opacity = '0';
-            this.answersSection.classList.add('hidden');
         }
         if (this.answersGrid) {
             this.answersGrid.style.display = 'none';
@@ -253,9 +220,6 @@ class PhaseManager {
         const currentGame = qm.getCurrentGame();
         
         if (!currentGame) return;
-        
-        qm.finalizeAnswer();
-        qm.revealAnswers();
         
         let resultClass = 'no-answer';
         let resultIcon = '❌';
@@ -273,26 +237,44 @@ class PhaseManager {
             }
         }
         
-        this.resultIcon.textContent = resultIcon;
-        this.resultGameName.textContent = currentGame.name;
-        this.resultStatus.textContent = statusText;
-        this.resultBox.className = `result-box ${resultClass}`;
+        // Mettre à jour la boîte de résultat
+        const resultIconEl = document.querySelector('.result-icon');
+        const resultGameNameEl = document.querySelector('.result-game-name');
+        const resultStatusEl = document.querySelector('.result-status');
         
-        setTimeout(() => {
-            this.resultBox.classList.add('active');
-        }, 100);
+        if (resultIconEl) resultIconEl.textContent = resultIcon;
+        if (resultGameNameEl) resultGameNameEl.textContent = currentGame.name;
+        if (resultStatusEl) resultStatusEl.textContent = statusText;
+        
+        const resultBox = document.getElementById('result-box');
+        if (resultBox) {
+            resultBox.className = `result-box ${resultClass}`;
+            setTimeout(() => {
+                resultBox.classList.add('active');
+            }, 100);
+        }
     }
     
     endPhase() {
-        this.clearTimers();
-        this.resultBox.classList.remove('active');
-        this.setBlackOverlayOpacity(1);
+        console.log('🏁 Fin de phase 2');
         
+        this.clearTimers();
+        
+        const resultBox = document.getElementById('result-box');
+        if (resultBox) {
+            resultBox.classList.remove('active');
+        }
+        
+        // Réappliquer le masque noir
+        this.fadeInBlackOverlay();
+        
+        // Attendre 1 seconde puis passer à la question suivante
         setTimeout(() => {
             if (this.onPhaseComplete) {
+                console.log('📞 Appel onPhaseComplete');
                 this.onPhaseComplete();
             }
-        }, 300);
+        }, 1000);
     }
     
     clearTimers() {
@@ -308,14 +290,22 @@ class PhaseManager {
         this.currentPhase = 1;
         this.phaseTimer = CONFIG.PHASE1_TIME;
         
-        // Réinitialiser les classes du body
-        document.body.className = 'phase-1';
-        
         this.setBlackOverlayOpacity(1);
-        this.timerBox.classList.remove('hidden');
-        this.timerCount.textContent = this.phaseTimer;
-        this.resultBox.classList.remove('active');
-        this.resultBox.className = 'result-box';
+        
+        const timerBox = document.getElementById('timer-box');
+        if (timerBox) {
+            timerBox.classList.remove('hidden');
+        }
+        
+        const timerCount = document.querySelector('.timer-count');
+        if (timerCount) {
+            timerCount.textContent = this.phaseTimer;
+        }
+        
+        const resultBox = document.getElementById('result-box');
+        if (resultBox) {
+            resultBox.classList.remove('active');
+        }
         
         // Réafficher les réponses
         this.showAnswersSection();
@@ -327,11 +317,6 @@ class PhaseManager {
         }
         
         // Cacher le bouton suivant
-        this.hideNextButton();
-    }
-    
-    // NOUVELLE MÉTHODE : Cacher le bouton suivant
-    hideNextButton() {
         const nextBtn = document.getElementById('next-btn');
         if (nextBtn) {
             nextBtn.style.display = 'none';

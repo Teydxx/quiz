@@ -795,3 +795,70 @@ body.phase-2 .btn-next.show {
 #player-container iframe {
     border-radius: 12px;
 }
+
+/* AJOUTER À LA FIN DE quiz.css */
+
+/* Debug pour le masque noir */
+.debug-overlay {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 9999;
+    font-size: 12px;
+}
+
+/* Assurer que le masque noir est bien positionné */
+.black-overlay {
+    pointer-events: none !important;
+    transition: background-color 3s ease !important;
+}
+
+/* Animation smooth pour le fondu */
+@keyframes fadeOutOverlay {
+    from {
+        background-color: rgba(0, 0, 0, 1);
+    }
+    to {
+        background-color: rgba(0, 0, 0, 0);
+    }
+}
+
+@keyframes fadeInOverlay {
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+    to {
+        background-color: rgba(0, 0, 0, 1);
+    }
+}
+
+.black-overlay.fade-out {
+    animation: fadeOutOverlay 3s ease forwards;
+}
+
+.black-overlay.fade-in {
+    animation: fadeInOverlay 3s ease forwards;
+}
+
+/* S'assurer que la vidéo est visible quand le masque est fondu */
+#player-container {
+    z-index: 1 !important;
+}
+
+/* Correction pour le timer */
+.timer-box {
+    z-index: 3 !important;
+}
+
+/* Bouton suivant avec événement */
+.btn-next {
+    cursor: pointer !important;
+}
+
+.btn-next:active {
+    transform: scale(0.98) !important;
+}

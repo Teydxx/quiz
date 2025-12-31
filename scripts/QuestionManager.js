@@ -158,4 +158,44 @@ class QuestionManager {
     hasMoreQuestions() {
         return true;
     }
+
+
+// scripts/QuestionManager.js - AJOUTER ces méthodes à la classe
+
+// AJOUTER cette méthode pour finaliser la réponse
+finalizeAnswer() {
+    console.log('✅ Finalisation de la réponse');
+    this.finalizeSelection();
+}
+
+// AJOUTER cette méthode pour révéler les réponses
+revealAnswers() {
+    console.log('🔍 Révélation des réponses');
+    
+    const buttons = document.querySelectorAll('.answer-btn');
+    const currentGame = this.getCurrentGame();
+    
+    if (!currentGame) return;
+    
+    buttons.forEach(button => {
+        const isCorrect = button.dataset.correct === 'true';
+        
+        if (isCorrect) {
+            button.classList.add('correct');
+            button.classList.add('correct-answer');
+        } else if (button.classList.contains('user-selected')) {
+            button.classList.add('incorrect');
+        }
+        
+        button.disabled = true;
+    });
+}
+
+// AJOUTER cette méthode pour vider la grille
+clearAnswersGrid() {
+    const grid = document.getElementById('answers-grid');
+    if (grid) {
+        grid.innerHTML = '';
+    }
+}
 }
