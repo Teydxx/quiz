@@ -92,29 +92,60 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🎮 Quiz - Initialisation...');
-    
-    // Initialiser gameManager
-    const gameManager = new GameManager();
-    window.gameManager = gameManager;
-    
-    // Détecter si on est en mode session
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session');
-    
-    if (sessionId) {
-        console.log(`🎮 Mode Session: ${sessionId}`);
-        document.querySelector('.title').innerHTML = 
-            `<i class="fas fa-gamepad"></i> QUIZ - Session ${sessionId}`;
-    }
-    
-    gameManager.init();
-    
-    // Attendre 1s pour l'initialisation, puis démarrer
-    setTimeout(() => {
-        gameManager.startGame();
-    }, 1000);
-});
+            console.log('🎮 Quiz - Initialisation...');
+            
+            // Initialiser gameManager
+            const gameManager = new GameManager();
+            window.gameManager = gameManager;
+            
+            // Détecter si on est en mode session
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+            
+            if (sessionId) {
+                console.log(`🎮 Mode Session: ${sessionId}`);
+                document.querySelector('.title').innerHTML = 
+                    `<i class="fas fa-gamepad"></i> QUIZ - Session ${sessionId}`;
+            }
+            
+            gameManager.init();
+            
+            // Attendre 1s pour l'initialisation, puis démarrer
+            setTimeout(() => {
+                gameManager.startGame();
+            }, 1000);
+        });
+        
+        // Debug helper
+        window.debugQuiz = function() {
+            console.log('🔍 DEBUG QUIZ:');
+            
+            // Vérifier les éléments
+            const answersGrid = document.getElementById('answers-grid');
+            console.log('- answers-grid:', answersGrid);
+            console.log('- answers-grid style.display:', answersGrid ? answersGrid.style.display : 'N/A');
+            console.log('- answers-grid children:', answersGrid ? answersGrid.children.length : 0);
+            
+            // Vérifier QuestionManager
+            const qm = window.gameManager?.questionManager;
+            console.log('- QuestionManager:', qm);
+            console.log('- Current game:', qm?.getCurrentGame());
+            
+            // Forcer affichage
+            if (answersGrid) {
+                answersGrid.style.display = 'grid';
+                answersGrid.innerHTML = '<div style="color:red;padding:20px;">DEBUG: Boutons manquants</div>';
+            }
+        };
+        
+        // Ajouter un bouton de debug temporaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const debugBtn = document.createElement('button');
+            debugBtn.textContent = 'DEBUG';
+            debugBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;padding:10px;background:red;color:white;border:none;border-radius:5px;';
+            debugBtn.onclick = window.debugQuiz;
+            document.body.appendChild(debugBtn);
+        });
     </script>
 </body>
 </html>

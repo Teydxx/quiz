@@ -17,7 +17,7 @@ class QuestionManager {
         this.totalQuestionsEl = document.getElementById('total-questions');
         this.nextBtn = document.getElementById('next-btn');
         
-        console.log('❓ QuestionManager initialisé');
+        console.log('✅ QuestionManager initialisé');
     }
 
     init(totalQuestions) {
@@ -36,12 +36,12 @@ class QuestionManager {
         this.resetStats();
         
         shuffleArray(this.remainingGames);
-        console.log(`❓ QuestionManager initialisé avec ${games.length} jeux`);
+        console.log(`✅ QuestionManager initialisé avec ${games.length} jeux`);
     }
 
     // PRÉPARE une nouvelle question
     prepareQuestion(questionNumber) {
-        console.log(`❓ Préparation question ${questionNumber}`);
+        console.log(`✅ Préparation question ${questionNumber}`);
         
         if (this.remainingGames.length === 0) {
             console.error('❌ Plus de jeux disponibles');
@@ -56,10 +56,13 @@ class QuestionManager {
         this.currentGame = this.remainingGames[randomIndex];
         this.remainingGames.splice(randomIndex, 1);
         
-        console.log(`🎮 Jeu sélectionné: ${this.currentGame.name}`);
+        console.log(`🎮 Jeu sélectionné: ${this.currentGame.name} (ID: ${this.currentGame.videoId})`);
         
-        // CRÉER LES BOUTONS DE RÉPONSE
+        // CRÉER LES BOUTONS DE RÉPONSE IMMÉDIATEMENT
         this.createAnswerButtons();
+        
+        // FORCER l'affichage des boutons
+        this.forceShowButtons();
         
         return true;
     }
@@ -143,6 +146,36 @@ class QuestionManager {
         this.recordAnswer(clickedButton.textContent, this.userAnswerCorrect);
     }
 
+    // FORCER l'affichage des boutons
+    forceShowButtons() {
+        console.log('🔧 Forcer affichage des boutons...');
+        
+        if (this.answersGrid) {
+            // S'assurer que la grille est visible
+            this.answersGrid.style.display = 'grid';
+            this.answersGrid.style.opacity = '1';
+            this.answersGrid.style.visibility = 'visible';
+            
+            // S'assurer qu'elle n'est pas masquée par CSS
+            this.answersGrid.classList.remove('hidden');
+            
+            console.log('✅ Grille forcée à être visible');
+            
+            // Vérifier combien de boutons sont présents
+            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+            console.log(`✅ ${buttons.length} boutons trouvés dans la grille`);
+        } else {
+            console.error('❌ answers-grid non trouvé !');
+            
+            // Essayer de récupérer l'élément
+            this.answersGrid = document.getElementById('answers-grid');
+            if (this.answersGrid) {
+                console.log('✅ answers-grid trouvé par ID, réessayer...');
+                this.forceShowButtons();
+            }
+        }
+    }
+
     // FINALISER la réponse
     finalizeAnswer() {
         console.log('⏱️ Finalisation réponse');
@@ -218,11 +251,22 @@ class QuestionManager {
         this.userAnswerCorrect = false;
         this.selectedButton = null;
         
-        // S'ASSURER que la grille est visible
+        // NETTOYER mais garder la structure
         if (this.answersGrid) {
+            // Vider le contenu
+            this.answersGrid.innerHTML = '';
+            
+            // REMETTRE les styles d'affichage
             this.answersGrid.style.display = 'grid';
             this.answersGrid.style.opacity = '1';
-            this.answersGrid.innerHTML = '';
+            this.answersGrid.style.visibility = 'visible';
+            this.answersGrid.style.gridTemplateColumns = '1fr';
+            this.answersGrid.style.gap = '12px';
+            
+            // Forcer un reflow
+            this.answersGrid.offsetHeight;
+            
+            console.log('✅ Grille réinitialisée pour nouvelle question');
         }
         
         // Cacher bouton suivant
