@@ -18,19 +18,19 @@
                 <div class="stat-card total">
                     <div class="stat-icon"><i class="fas fa-video"></i></div>
                     <div class="stat-number" id="total-count">0</div>
-                    <div class="stat-label">Total vidéos</div>
+                    <div class="stat-label">Total</div>
                 </div>
                 
                 <div class="stat-card failed-auto">
                     <div class="stat-icon"><i class="fas fa-robot"></i></div>
                     <div class="stat-number" id="auto-count">0</div>
-                    <div class="stat-label">Détectées auto</div>
+                    <div class="stat-label">Auto</div>
                 </div>
                 
                 <div class="stat-card manual">
                     <div class="stat-icon"><i class="fas fa-user-times"></i></div>
                     <div class="stat-number" id="manual-count">0</div>
-                    <div class="stat-label">Supprimées manu</div>
+                    <div class="stat-label">Manuel</div>
                 </div>
             </div>
         </div>
@@ -39,41 +39,269 @@
             <button class="control-btn btn-primary" onclick="loadAllVideos()">
                 <i class="fas fa-sync-alt"></i> Actualiser
             </button>
-            <button class="control-btn btn-danger" onclick="clearAllVideos()">
-                <i class="fas fa-trash"></i> Tout supprimer
-            </button>
-            <a href="index.html" class="control-btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Retour au Quiz
-            </a>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab-btn active" onclick="filterVideos('all')">
-                <i class="fas fa-list"></i> Toutes
-            </button>
-            <button class="tab-btn" onclick="filterVideos('auto')">
-                <i class="fas fa-robot"></i> Auto
-            </button>
-            <button class="tab-btn" onclick="filterVideos('manual')">
-                <i class="fas fa-user-times"></i> Manuel
+            <button class="control-btn btn-secondary" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i> Retour
             </button>
         </div>
         
         <div id="games-container">
             <!-- Les vidéos apparaîtront ici -->
         </div>
-        
-        <div class="footer-actions">
-            <button class="footer-btn btn-home" onclick="window.location.href='index.html'">
-                <i class="fas fa-home"></i> Accueil
-            </button>
-            <button class="footer-btn btn-quiz" onclick="window.location.href='quiz.html?mode=solo'">
-                <i class="fas fa-gamepad"></i> Jouer
-            </button>
-        </div>
     </div>
     
+    <!-- IMPORTANT : deletedGames.js DOIT être chargé en premier -->
     <script src="scripts/deletedGames.js"></script>
-    <script src="scripts/deleted-videos-manager.js"></script>
+    <script>
+        // Code JavaScript intégré directement (pas de fichier séparé)
+        let allVideos = [];
+        let currentFilter = 'all';
+        
+        function loadAllVideos() {
+            console.log('📥 Chargement des vidéos...');
+            
+            try {
+                // Utiliser les fonctions de deletedGames.js
+                if (window.FailedVideosStorage && FailedVideosStorage.getAllVideos) {
+                    allVideos = FailedVideosStorage.getAllVideos();
+                } else {
+                    // Fallback
+                    const deleted = window.DeletedGamesStorage ? 
+                        DeletedGamesStorage.get().map(v => ({...v, type: 'manual'})) : [];
+                    const failed = JSON.parse(localStorage.getItem('failedVideos') || '[]')
+                        .map(v => ({...v, type: 'auto'}));
+                    allVideos = [...deleted, ...failed];
+                }
+                
+                // Éliminer les doublons
+                const seen = new Set();
+                allVideos = allVideos.filter(video => {
+                    const key = `${video.name}-${video.videoId}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+                
+                console.log(`📊 ${allVideos.length} vidéo(s) chargée(s)`);
+                
+                // Mettre à jour les statistiques
+                updateStats();
+                
+                // Afficher
+                displayVideos(allVideos);
+                
+            } catch(error) {
+                console.error('❌ Erreur chargement:', error);
+                document.getElementById('games-container').innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erreur de chargement</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateStats() {
+            const total = allVideos.length;
+            const auto = allVideos.filter(v => v.type === 'auto').length;
+            const manual = allVideos.filter(v => v.type === 'manual').length;
+            
+            const totalEl = document.getElementById('total-count');
+            const autoEl = document.getElementById('auto-count');
+            const manualEl = document.getElementById('manual-count');
+            
+            if (totalEl) totalEl.textContent = total;
+            if (autoEl) autoEl.textContent = auto;
+            if (manualEl) manualEl.textContent = manual;
+        }
+        
+        function displayVideos(videos) {
+            const container = document.getElementById('games-container');
+            if (!container) return;
+            
+            if (videos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Aucune vidéo défaillante 🎉</h3>
+                        <p>Toutes les vidéos fonctionnent correctement</p>
+                        <button class="btn-primary" onclick="window.location.href='index.html'">
+                            <i class="fas fa-arrow-left"></i> Retour au quiz
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `<div class="games-grid">`;
+            
+            videos.forEach(video => {
+                const isAuto = video.type === 'auto';
+                const escapedName = escapeHtml(video.name);
+                const escapedId = escapeHtml(video.videoId);
+                
+                html += `
+                    <div class="game-card ${isAuto ? 'failed-auto' : 'manual'}">
+                        <div class="card-header">
+                            <div class="game-name">${escapedName}</div>
+                            <div class="card-badge ${isAuto ? 'badge-auto' : 'badge-manual'}">
+                                ${isAuto ? 'AUTO' : 'MANUEL'}
+                            </div>
+                        </div>
+                        
+                        <div class="game-info">
+                            <div class="info-row">
+                                <i class="far fa-calendar"></i>
+                                <span>${video.date || 'Date inconnue'}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-info-circle"></i>
+                                <span>${video.reason || 'Non spécifié'}</span>
+                            </div>
+                            ${video.attempts ? `
+                                <div class="info-row">
+                                    <i class="fas fa-redo"></i>
+                                    <span>${video.attempts} tentative(s)</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="video-id-container">
+                            <div class="video-id-label">ID YouTube :</div>
+                            <div class="video-id-value">
+                                <code>${escapedId}</code>
+                                <button onclick="copyToClipboard('${escapedId}')" class="copy-btn">
+                                    <i class="far fa-copy"></i> Copier
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="youtube-test">
+                            <div class="test-links">
+                                <a href="https://www.youtube.com/watch?v=${escapedId}" 
+                                   target="_blank" class="test-link">
+                                   <i class="fab fa-youtube"></i> Tester sur YouTube
+                                </a>
+                                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(escapedName)}" 
+                                   target="_blank" class="test-link">
+                                   <i class="fas fa-search"></i> Chercher alternative
+                                </a>
+                            </div>
+                            <iframe 
+                                src="https://www.youtube.com/embed/${escapedId}?modestbranding=1&rel=0"
+                                frameborder="0" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="action-btn btn-correct" 
+                                    onclick="reintegrateVideo('${escapeString(escapedName)}', '${escapedId}')">
+                                <i class="fas fa-undo"></i> Corriger
+                            </button>
+                            <button class="action-btn btn-delete" 
+                                    onclick="deleteVideo('${escapeString(escapedName)}', '${escapedId}')">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function escapeString(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Notification simple
+                const msg = document.createElement('div');
+                msg.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: #2ed573;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                `;
+                msg.innerHTML = '<i class="fas fa-check"></i> ID copié !';
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 2000);
+            }).catch(err => {
+                console.error('Erreur copie:', err);
+            });
+        }
+        
+        function reintegrateVideo(gameName, videoId) {
+            // Utiliser la fonction de deletedGames.js si elle existe
+            if (window.reintegrateGame) {
+                window.reintegrateGame(gameName, videoId);
+            } else {
+                // Fallback
+                const newId = prompt(`Corriger "${gameName}" :\n\nNouvel ID YouTube ?`, '');
+                if (!newId) return;
+                
+                const correctedGames = JSON.parse(localStorage.getItem('correctedGames') || '[]');
+                correctedGames.push({
+                    name: gameName,
+                    videoId: newId.trim(),
+                    originalId: videoId,
+                    date: new Date().toLocaleString()
+                });
+                localStorage.setItem('correctedGames', JSON.stringify(correctedGames));
+                
+                // Retirer des listes
+                if (window.DeletedGamesStorage) {
+                    DeletedGamesStorage.remove(gameName, videoId);
+                }
+                if (window.FailedVideosStorage) {
+                    FailedVideosStorage.remove(gameName, videoId);
+                }
+                
+                alert(`✅ "${gameName}" corrigé !`);
+                loadAllVideos();
+            }
+        }
+        
+        function deleteVideo(gameName, videoId) {
+            if (!confirm(`Supprimer définitivement "${gameName}" ?`)) return;
+            
+            // Utiliser la fonction de deletedGames.js si elle existe
+            if (window.permanentlyDelete) {
+                window.permanentlyDelete(gameName, videoId);
+            } else {
+                // Fallback
+                if (window.PermanentlyDeletedStorage) {
+                    PermanentlyDeletedStorage.add({name: gameName, videoId: videoId});
+                }
+                
+                // Retirer des autres listes
+                if (window.DeletedGamesStorage) {
+                    DeletedGamesStorage.remove(gameName, videoId);
+                }
+                if (window.FailedVideosStorage) {
+                    FailedVideosStorage.remove(gameName, videoId);
+                }
+                
+                alert(`🗑️ "${gameName}" supprimé.`);
+                loadAllVideos();
+            }
+        }
+        
+        // Charger au démarrage
+        document.addEventListener('DOMContentLoaded', loadAllVideos);
+    </script>
 </body>
 </html>
