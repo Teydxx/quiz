@@ -186,28 +186,48 @@ class QuestionManager {
         }
     }
 
-// Dans QuestionManager.js - Modifier la fonction reset()
-// Dans QuestionManager.js
 reset() {
     this.userAnswered = false;
     this.userAnswerCorrect = false;
     this.selectedButton = null;
     
-    // Réafficher la grille de réponses
+    // 1. Réafficher la grille de réponses
     this.answersGrid.style.display = 'grid';
     this.answersGrid.style.opacity = '1';
     this.answersGrid.innerHTML = '';
     
-    // Cacher le résultat dans la colonne
+    // 2. SUPPRIMER le résultat de la question précédente
     const resultContainer = document.getElementById('answer-result-container');
     if (resultContainer) {
-        resultContainer.style.display = 'none';
+        resultContainer.remove(); // Supprime complètement l'élément
     }
     
-    // Cacher le bouton suivant
+    // OU : Si on utilise simple-result
+    const simpleResult = document.querySelector('.simple-result');
+    if (simpleResult) {
+        simpleResult.remove();
+    }
+    
+    // 3. Réafficher le titre original si nécessaire
+    const answersSection = document.querySelector('.answers-section');
+    if (answersSection) {
+        const existingTitle = answersSection.querySelector('h3');
+        if (!existingTitle) {
+            // Remettre le titre original
+            answersSection.innerHTML = `
+                <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+                <div class="answers-grid" id="answers-grid"></div>
+            `;
+            this.answersGrid = document.getElementById('answers-grid');
+        }
+    }
+    
+    // 4. Cacher le bouton suivant
     if (this.nextBtn) {
         this.nextBtn.style.display = 'none';
     }
+    
+    console.log('🔄 Réinitialisation pour nouvelle question');
 }
 
     // Réinitialiser état question (sans reset stats)

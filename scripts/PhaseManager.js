@@ -231,26 +231,21 @@ displayAnswerInColumn() {
     }
     
     reset() {
-        this.clearTimers();
-        this.currentPhase = 1;
-        
-        // Recharger la config dynamique
-        this.getDynamicConfig();
-        this.phaseTimer = this.phase1Time;
-        
-        this.setBlackOverlayOpacity(1);
-        this.timerBox.classList.remove('hidden');
-        this.timerCount.textContent = this.phaseTimer;
-        
-        // Cacher les résultats
-        this.resultBox.classList.remove('active');
-        this.resultBox.className = 'result-box';
-        this.answersSection.classList.remove('hidden');
-        
-        // Cacher le résultat dans la colonne
-        const resultContainer = document.getElementById('answer-result-container');
-        if (resultContainer) {
-            resultContainer.style.display = 'none';
-        }
+    this.clearTimers();
+    this.currentPhase = 1;
+    this.phaseTimer = this.phase1Time;
+    
+    this.setBlackOverlayOpacity(1);
+    this.timerBox.classList.remove('hidden');
+    this.timerCount.textContent = this.phaseTimer;
+    
+    // S'assurer que la section réponse est réinitialisée
+    const answersSection = document.getElementById('answers-section');
+    if (answersSection) {
+        answersSection.classList.remove('hidden');
+        answersSection.style.display = 'block';
     }
+    
+    console.log('🔄 PhaseManager réinitialisé');
+}
 }
