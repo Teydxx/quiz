@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js - VERSION CORRECTE
+// scripts/PhaseManager.js
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -13,40 +13,43 @@ class PhaseManager {
         this.timerCount = document.querySelector('.timer-count');
         this.answersSection = document.getElementById('answers-section');
         
-        // Configuration dynamique
-        this.getDynamicConfig();
-    }
-    
-    getDynamicConfig() {
-        if (window.gameManager && window.gameManager.session && window.gameManager.session.settings) {
-            this.phase1Time = window.gameManager.session.settings.phase1Time;
-            this.phase2Time = window.gameManager.session.settings.phase2Time;
-        } else {
-            this.phase1Time = CONFIG.PHASE1_TIME;
-            this.phase2Time = CONFIG.PHASE2_TIME;
-        }
+        console.log('⏱️ PhaseManager initialisé');
     }
     
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
-        this.getDynamicConfig();
+        // Récupérer config dynamique
+        let phase1Time = CONFIG.PHASE1_TIME;
+        let phase2Time = CONFIG.PHASE2_TIME;
+        
+        if (window.gameManager && window.gameManager.session && window.gameManager.session.settings) {
+            phase1Time = window.gameManager.session.settings.phase1Time || CONFIG.PHASE1_TIME;
+            phase2Time = window.gameManager.session.settings.phase2Time || CONFIG.PHASE2_TIME;
+        }
         
         switch(phaseNumber) {
             case 1:
-                this.phaseTimer = this.phase1Time;
+                this.phaseTimer = phase1Time;
                 this.setBlackOverlayOpacity(1);
                 this.timerBox.classList.remove('hidden');
                 this.timerCount.textContent = this.phaseTimer;
                 this.resultBox.classList.remove('active');
-                this.answersSection.classList.remove('hidden');
+                
+                // Nettoyer toute réponse précédente
+                this.cleanAnswerDisplay();
+                
+                // Montrer la grille de réponses
+                const answersGrid = document.getElementById('answers-grid');
+                if (answersGrid) {
+                    answersGrid.style.display = 'grid';
+                }
                 break;
                 
             case 2:
-                this.phaseTimer = this.phase2Time;
+                this.phaseTimer = phase2Time;
                 this.timerBox.classList.add('hidden');
-                this.answersSection.classList.add('hidden');
                 
                 // AFFICHER LA RÉPONSE DANS LA COLONNE
                 this.showAnswerInColumn();
@@ -126,15 +129,23 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    // LA FONCTION IMPORTANTE : Affiche la réponse dans la colonne
+    // Affiche la réponse dans la colonne
     showAnswerInColumn() {
+        console.log('📋 Affichage réponse dans colonne');
+        
         const qm = window.gameManager?.questionManager;
-        if (!qm) return;
+        if (!qm) {
+            console.error('❌ QuestionManager non trouvé');
+            return;
+        }
         
         const currentGame = qm.getCurrentGame();
-        if (!currentGame) return;
+        if (!currentGame) {
+            console.error('❌ Jeu actuel non trouvé');
+            return;
+        }
         
-        // FINALISER la réponse
+        // Finaliser la réponse
         if (typeof qm.finalizeAnswer === 'function') {
             qm.finalizeAnswer();
         }
@@ -149,92 +160,139 @@ class PhaseManager {
             answersGrid.style.display = 'none';
         }
         
-        // Créer l'affichage de la réponse
-        const answersSection = document.querySelector('.answers-section');
-        if (!answersSection) return;
+        // Nettoyer toute ancienne réponse
+        this.cleanAnswerDisplay();
         
-        // DÉTERMINER LES COULEURS
-        let statusColor = '#747d8c'; // Gris
+        // Créer la nouvelle réponse
+        const answersSection = document.querySelector('.answers-section');
+        if (!answersSection) {
+            console.error('❌ Section réponses non trouvée');
+            return;
+        }
+        
+        // Déterminer couleurs et texte
+        let statusColor = '#747d8c';
         let statusText = 'PAS DE RÉPONSE';
         let statusIcon = '⏰';
         
-        if (qm.hasUserAnswered()) {
+        if (qm.hasUserAnswered && qm.hasUserAnswered()) {
             if (qm.userAnswerCorrect) {
-                statusColor = '#2ed573'; // Vert
+                statusColor = '#2ed573';
                 statusText = 'CORRECT !';
                 statusIcon = '🎉';
             } else {
-                statusColor = '#ff4757'; // Rouge
+                statusColor = '#ff4757';
                 statusText = 'INCORRECT';
                 statusIcon = '❌';
             }
         }
         
-        // HTML de la réponse
-        const answerHTML = `
-            <div id="current-answer-display" style="
-                border: 3px solid ${statusColor};
-                background: ${statusColor}15;
-                border-radius: 15px;
-                padding: 25px;
-                margin: 20px 0;
-                text-align: center;
-                animation: fadeIn 0.5s ease;
-            ">
-                <div style="font-size: 3rem; margin-bottom: 15px; color: ${statusColor}">
-                    ${statusIcon}
-                </div>
-                
-                <h3 style="color: ${statusColor}; margin-bottom: 25px; font-size: 1.8rem;">
-                    ${statusText}
-                </h3>
-                
+        // Créer l'élément de réponse
+        const answerDiv = document.createElement('div');
+        answerDiv.id = 'current-answer-display';
+        answerDiv.className = 'answer-display';
+        answerDiv.style.cssText = `
+            border: 3px solid ${statusColor};
+            background: ${statusColor}15;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        `;
+        
+        // Contenu
+        let userChoiceHTML = '';
+        if (qm.hasUserAnswered && qm.hasUserAnswered()) {
+            const userAnswer = qm.selectedButton?.textContent || 'Aucune';
+            const choiceColor = qm.userAnswerCorrect ? '#2ed573' : '#ff4757';
+            userChoiceHTML = `
                 <div style="
-                    background: rgba(0,0,0,0.2);
-                    padding: 20px;
-                    border-radius: 10px;
-                    border-left: 5px solid ${statusColor};
-                    margin: 15px 0;
+                    background: rgba(255,255,255,0.05);
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin-top: 15px;
                 ">
-                    <div style="color: #a4b0be; font-size: 0.9rem; margin-bottom: 10px;">
-                        LA RÉPONSE ÉTAIT :
-                    </div>
-                    <div style="color: white; font-size: 2rem; font-weight: bold;">
-                        ${currentGame.name}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #a4b0be;">Votre choix :</span>
+                        <span style="color: ${choiceColor}; font-weight: bold;">
+                            ${userAnswer}
+                        </span>
                     </div>
                 </div>
-                
-                ${qm.hasUserAnswered() ? `
-                    <div style="
-                        background: rgba(255,255,255,0.05);
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin-top: 15px;
-                    ">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: #a4b0be;">Votre choix :</span>
-                            <span style="color: ${qm.userAnswerCorrect ? '#2ed573' : '#ff4757'}; font-weight: bold;">
-                                ${qm.selectedButton?.textContent || 'Aucune'}
-                            </span>
-                        </div>
-                    </div>
-                ` : ''}
+            `;
+        }
+        
+        answerDiv.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 15px; color: ${statusColor}">
+                ${statusIcon}
             </div>
+            
+            <h3 style="color: ${statusColor}; margin-bottom: 25px; font-size: 1.8rem;">
+                ${statusText}
+            </h3>
+            
+            <div style="
+                background: rgba(0,0,0,0.2);
+                padding: 20px;
+                border-radius: 10px;
+                border-left: 5px solid ${statusColor};
+                margin: 15px 0;
+            ">
+                <div style="color: #a4b0be; font-size: 0.9rem; margin-bottom: 10px;">
+                    LA RÉPONSE ÉTAIT :
+                </div>
+                <div style="color: white; font-size: 2rem; font-weight: bold;">
+                    ${currentGame.name}
+                </div>
+            </div>
+            
+            ${userChoiceHTML}
         `;
         
         // Ajouter après le titre
         const title = answersSection.querySelector('h3');
         if (title) {
-            title.insertAdjacentHTML('afterend', answerHTML);
+            title.insertAdjacentElement('afterend', answerDiv);
         } else {
-            answersSection.innerHTML = `<h3>RÉSULTAT</h3>` + answerHTML;
+            answersSection.innerHTML = `<h3>RÉSULTAT</h3>`;
+            answersSection.appendChild(answerDiv);
         }
         
         // Afficher le bouton suivant
         setTimeout(() => {
             const nextBtn = document.getElementById('next-btn');
-            if (nextBtn) nextBtn.style.display = 'flex';
+            if (nextBtn) {
+                nextBtn.style.display = 'flex';
+            }
         }, 1000);
+        
+        console.log('✅ Réponse affichée:', currentGame.name);
+    }
+    
+    // Nettoie l'affichage de réponse
+    cleanAnswerDisplay() {
+        // Supprimer par ID
+        const oldAnswer = document.getElementById('current-answer-display');
+        if (oldAnswer) {
+            oldAnswer.remove();
+            console.log('🗑️ Ancienne réponse supprimée');
+        }
+        
+        // Nettoyer aussi d'autres éléments possibles
+        const answersSection = document.querySelector('.answers-section');
+        if (answersSection) {
+            // Garder seulement h3, #answers-grid, #next-btn
+            const elements = answersSection.querySelectorAll('*');
+            elements.forEach(el => {
+                if (el.tagName !== 'H3' && 
+                    el.id !== 'answers-grid' && 
+                    el.id !== 'next-btn' &&
+                    !el.classList.contains('answers-grid')) {
+                    el.remove();
+                }
+            });
+        }
     }
     
     setBlackOverlayOpacity(opacity) {
@@ -262,28 +320,31 @@ class PhaseManager {
         }
     }
     
-    // RESET : SUPPRIME LA RÉPONSE AFFICHÉE
+    // Reset complet
     reset() {
+        console.log('🔄 PhaseManager reset');
+        
         this.clearTimers();
         this.currentPhase = 1;
-        this.phaseTimer = this.phase1Time;
+        this.phaseTimer = CONFIG.PHASE1_TIME;
         
         this.setBlackOverlayOpacity(1);
         this.timerBox.classList.remove('hidden');
         this.timerCount.textContent = this.phaseTimer;
         this.resultBox.classList.remove('active');
-        this.answersSection.classList.remove('hidden');
         
-        // SUPPRIMER LA RÉPONSE AFFICHÉE
-        const answerDisplay = document.getElementById('current-answer-display');
-        if (answerDisplay) {
-            answerDisplay.remove();
-        }
+        // Nettoyer réponse
+        this.cleanAnswerDisplay();
         
-        // RÉAFFICHER LA GRILLE
+        // Réafficher grille
         const answersGrid = document.getElementById('answers-grid');
         if (answersGrid) {
             answersGrid.style.display = 'grid';
+        }
+        
+        // S'assurer que la section est visible
+        if (this.answersSection) {
+            this.answersSection.style.display = 'block';
         }
     }
 }

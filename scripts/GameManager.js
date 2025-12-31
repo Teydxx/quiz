@@ -280,29 +280,70 @@ class GameManager {
         });
     }
 
-    // Question suivante
-    nextQuestion() {
-        console.log('⏭️ Question suivante');
-        
-        const deleteBtn = document.getElementById('delete-video-btn');
-        if (deleteBtn) {
-            deleteBtn.style.display = 'none';
-        }
-        
-        if (this.youtubePlayer.resetLoadAttempts) {
-            this.youtubePlayer.resetLoadAttempts();
-        }
-        
-        this.youtubePlayer.stop();
+// Dans GameManager.js - REMPLACER nextQuestion() par :
+nextQuestion() {
+    console.log('⏭️ QUESTION SUIVANTE - NETTOYAGE FORCE');
+    
+    // 1. FORCE NETTOYAGE DE LA RÉPONSE PRÉCÉDENTE
+    this.forceCleanAnswer();
+    
+    // 2. Arrêter vidéo
+    this.youtubePlayer.stop();
+    
+    // 3. Reset phase manager
+    if (this.phaseManager && this.phaseManager.reset) {
         this.phaseManager.reset();
-        
-        const nextBtn = document.getElementById('next-btn');
-        if (nextBtn) {
-            nextBtn.style.display = 'none';
-        }
-        
-        setTimeout(() => this.startQuestion(), 1000);
     }
+    
+    // 4. Cacher bouton suivant
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) {
+        nextBtn.style.display = 'none';
+    }
+    
+    // 5. Réinitialiser QuestionManager
+    if (this.questionManager && this.questionManager.resetQuestionState) {
+        this.questionManager.resetQuestionState();
+    }
+    
+    // 6. Délai puis nouvelle question
+    setTimeout(() => {
+        this.startQuestion();
+    }, 500);
+}
+
+// AJOUTER cette fonction dans GameManager.js
+forceCleanAnswer() {
+    console.log('🧹 FORCE NETTOYAGE RÉPONSE');
+    
+    // Méthode 1: Supprimer par ID
+    const answerDisplay = document.getElementById('current-answer-display');
+    if (answerDisplay) {
+        answerDisplay.remove();
+        console.log('✅ Supprimé par ID');
+    }
+    
+    // Méthode 2: Nettoyer answers-section
+    const answersSection = document.querySelector('.answers-section');
+    if (answersSection) {
+        // Sauvegarder le HTML original
+        const originalHTML = `
+            <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
+            <div class="answers-grid" id="answers-grid"></div>
+        `;
+        
+        // Réinitialiser complètement
+        answersSection.innerHTML = originalHTML;
+        console.log('✅ Section réponses réinitialisée');
+    }
+    
+    // Réafficher la grille
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        answersGrid.style.display = 'grid';
+        answersGrid.innerHTML = '';
+    }
+}
 
     // Terminer le jeu
     endGame() {
