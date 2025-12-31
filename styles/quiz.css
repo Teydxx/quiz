@@ -260,9 +260,9 @@
 
 /* Grid en colonne unique pour la sidebar */
 .answers-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes au lieu de 1 */
+    gap: 12px; /* Espacement réduit */
     flex: 1;
 }
 
@@ -270,16 +270,18 @@
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 20px;
+    padding: 15px 10px; /* Padding réduit pour plus de jeux */
     color: white;
-    font-size: 1.2rem;
+    font-size: 1rem; /* Taille police réduite */
     cursor: pointer;
     transition: all 0.3s;
-    min-height: 80px;
+    min-height: 70px; /* Hauteur réduite */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    word-break: break-word; /* Casse les longs mots */
+    line-height: 1.2;
 }
 
 .answer-btn:hover:not(:disabled) {
@@ -405,9 +407,8 @@
         min-width: auto;
     }
     
-    .answers-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+   .answers-grid {
+        grid-template-columns: 1fr; /* 1 colonne sur mobile */
     }
     
     .video-section {
@@ -429,6 +430,12 @@
     
     .answers-grid {
         grid-template-columns: 1fr;
+    }
+
+    .answer-btn {
+        font-size: 0.95rem;
+        padding: 12px 8px;
+        min-height: 65px;
     }
     
     .timer-icon {

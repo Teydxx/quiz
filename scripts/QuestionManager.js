@@ -61,13 +61,16 @@ class QuestionManager {
         return true;
     }
 
-    // Prépare les boutons de réponse
+    // Prépare les boutons de réponse (6 choix maintenant)
     prepareAnswers() {
         const correctAnswer = this.currentGame.name;
         const wrongGames = GAMES.filter(game => game.name !== correctAnswer);
-        const shuffledWrong = shuffleArray([...wrongGames]).slice(0, 3);
+        
+        // Prendre 5 mauvaises réponses au hasard
+        const shuffledWrong = shuffleArray([...wrongGames]).slice(0, 5);
         const wrongAnswers = shuffledWrong.map(game => game.name);
         
+        // Mélanger les 6 réponses (1 bonne + 5 mauvaises)
         const allAnswers = shuffleArray([correctAnswer, ...wrongAnswers]);
         
         this.answersGrid.innerHTML = '';
