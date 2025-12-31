@@ -1,3 +1,4 @@
+// scripts/YouTubePlayer.js
 class YouTubePlayer {
     constructor(playerContainerId, onReadyCallback, onErrorCallback) {
         this.playerContainerId = playerContainerId;
@@ -9,7 +10,8 @@ class YouTubePlayer {
         this.loadAttempts = 0;
         this.MAX_LOAD_ATTEMPTS = 5;
         
-        this.videoQueue = []; // File d'attente pour les vidéos
+        this.videoQueue = [];
+        this.currentVolume = 100;
         
         console.log('🎬 Initialisation YouTubePlayer');
     }
@@ -25,7 +27,6 @@ class YouTubePlayer {
             this.createPlayer();
         } else {
             console.log('⏳ API YouTube en cours de chargement...');
-            // Attendre que l'API soit chargée
             this.waitForYouTubeAPI();
         }
     }
@@ -46,7 +47,6 @@ class YouTubePlayer {
     loadYouTubeAPI() {
         console.log('📦 Chargement de l\'API YouTube...');
         
-        // Vérifier si le script est déjà en cours de chargement
         if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
             console.log('⚠️ API YouTube déjà en cours de chargement');
             this.waitForYouTubeAPI();
@@ -95,8 +95,9 @@ class YouTubePlayer {
                     'onReady': (event) => {
                         console.log('✅ YouTube Player prêt');
                         this.isReady = true;
+                        this.player.setVolume(100);
+                        this.currentVolume = 100;
                         
-                        // Traiter la file d'attente s'il y a des vidéos en attente
                         if (this.videoQueue.length > 0) {
                             console.log(`📋 Traitement de ${this.videoQueue.length} vidéo(s) en attente`);
                             this.videoQueue.forEach(video => {
@@ -123,18 +124,32 @@ class YouTubePlayer {
     onPlayerStateChange(event) {
         console.log(`🎬 État YouTube: ${event.data}`);
         
-        // Rejouer la vidéo en boucle
         if (event.data === YT.PlayerState.ENDED) {
-            console.log('🔄 Vidéo terminée, relecture...');
+            console.log('🔁 Vidéo terminée, relecture...');
             this.play();
         }
     }
 
+    // SIMPLE : Changer le volume
+    setVolume(percent) {
+        if (this.isReady && this.player) {
+            const volume = Math.max(0, Math.min(100, Math.round(percent)));
+            if (this.currentVolume !== volume) {
+                this.player.setVolume(volume);
+                this.currentVolume = volume;
+            }
+        }
+    }
+
+    // Remettre le volume à 100%
+    resetVolume() {
+        this.setVolume(100);
+    }
+
     // Charger et jouer une vidéo
     loadVideo(videoId, startTime) {
-        console.log(`🎬 Demande de chargement: ${videoId} à ${startTime}s`);
+        console.log(`🎬 Chargement: ${videoId} à ${startTime}s`);
         
-        // Si le player n'est pas prêt, mettre en file d'attente
         if (!this.isReady || !this.player) {
             console.log('⏳ Player non prêt, mise en file d\'attente...');
             this.videoQueue.push({ videoId, startTime });
@@ -150,6 +165,7 @@ class YouTubePlayer {
         }
         
         try {
+            this.resetVolume(); // Volume à 100% pour nouvelle vidéo
             this.player.loadVideoById({
                 videoId: videoId,
                 startSeconds: startTime,
@@ -201,28 +217,7 @@ class YouTubePlayer {
     // Réinitialiser le compteur
     resetLoadAttempts() {
         this.loadAttempts = 0;
-        this.videoQueue = []; // Vider aussi la file d'attente
+        this.videoQueue = [];
         console.log('🔄 Compteur de tentatives réinitialisé');
     }
-// Ajouter dans YouTubePlayer.js
-setVolume(percent) {
-    if (this.isReady && this.player) {
-        const clampedPercent = Math.max(0, Math.min(100, Math.round(percent)));
-        
-        // Éviter de spammer les logs
-        if (this.currentVolume !== clampedPercent) {
-            this.player.setVolume(clampedPercent);
-            this.currentVolume = clampedPercent;
-            
-            // Log uniquement pour debug ou changements significatifs
-            if (clampedPercent % 25 === 0 || clampedPercent === 0) {
-                console.log(`🔊 Volume: ${clampedPercent}%`);
-            }
-        }
-    }
-}
-
-resetVolume() {
-    this.setVolume(100);
-}
 }

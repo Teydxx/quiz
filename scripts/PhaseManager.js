@@ -68,25 +68,31 @@ class PhaseManager {
     }
     
     // Mettre à jour timer avec fade out OBLIGATOIRE
-    updatePhaseTimer() {
-        this.phaseTimer--;
+updatePhaseTimer() {
+    this.phaseTimer--;
+    
+    if (this.currentPhase === 1) {
+        this.timerCount.textContent = this.phaseTimer;
         
-        if (this.currentPhase === 1) {
-            this.timerCount.textContent = this.phaseTimer;
+        // SIMPLE FADE OUT
+        if (window.gameManager?.youtubePlayer) {
+            const player = window.gameManager.youtubePlayer;
             
-            // FADE OUT AUDIO OBLIGATOIRE
-            this.handleAudioFade();
-        }
-        
-        if (this.phaseTimer <= 0) {
-            if (this.currentPhase < 2) {
-                this.startPhase(2);
-            } else {
-                this.clearTimers();
-                this.endPhase();
-            }
+            if (this.phaseTimer === 2) player.setVolume(70);
+            else if (this.phaseTimer === 1) player.setVolume(40);
+            else if (this.phaseTimer === 0) player.setVolume(20);
         }
     }
+    
+    if (this.phaseTimer <= 0) {
+        if (this.currentPhase < 2) {
+            this.startPhase(2);
+        } else {
+            this.clearTimers();
+            this.endPhase();
+        }
+    }
+}
     
     // Gérer le fade out audio (OBLIGATOIRE)
     handleAudioFade() {
