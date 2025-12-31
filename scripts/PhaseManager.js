@@ -145,94 +145,106 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    // MODIFIER displayAnswerInColumn() pour inclure le timing
-    displayAnswerInColumn() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
+// Dans PhaseManager.js - MODIFIER displayAnswerInColumn()
+displayAnswerInColumn() {
+    if (!window.gameManager || !window.gameManager.questionManager) return;
+    
+    const qm = window.gameManager.questionManager;
+    const currentGame = qm.getCurrentGame();
+    if (!currentGame) return;
+    
+    // NOUVEAU : Appeler les fonctions pour finaliser et révéler
+    if (typeof qm.finalizeAnswer === 'function') {
+        qm.finalizeAnswer();
+    }
+    
+    if (typeof qm.revealAnswers === 'function') {
+        qm.revealAnswers();
+    }
+    
+    // Cacher la grille de réponses
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        answersGrid.style.display = 'none';
+    }
+    
+    // Créer ou réutiliser le conteneur de résultat
+    let resultContainer = document.getElementById('answer-result-container');
+    if (!resultContainer) {
+        resultContainer = document.createElement('div');
+        resultContainer.id = 'answer-result-container';
+        resultContainer.className = 'answer-result-container';
         
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        if (!currentGame) return;
-        
-        // Cacher la grille de réponses
-        const answersGrid = document.getElementById('answers-grid');
-        if (answersGrid) {
-            answersGrid.style.display = 'none';
-        }
-        
-        // Créer ou réutiliser le conteneur de résultat
-        let resultContainer = document.getElementById('answer-result-container');
-        if (!resultContainer) {
-            resultContainer = document.createElement('div');
-            resultContainer.id = 'answer-result-container';
-            resultContainer.className = 'answer-result-container';
-            document.querySelector('.answers-section').appendChild(resultContainer);
-        }
-        
-        // Déterminer le statut
-        let statusClass = 'no-answer';
-        let statusIcon = '❌';
-        let statusText = 'PAS DE RÉPONSE';
-        let statusColor = '#747d8c';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                statusClass = 'correct';
-                statusIcon = '🎉';
-                statusText = 'CORRECT !';
-                statusColor = '#2ed573';
+        // S'assurer qu'on l'ajoute au bon endroit
+        const answersSection = document.querySelector('.answers-section');
+        if (answersSection) {
+            // Placer AVANT le bouton suivant
+            const nextBtn = document.getElementById('next-btn');
+            if (nextBtn && nextBtn.parentNode === answersSection) {
+                answersSection.insertBefore(resultContainer, nextBtn);
             } else {
-                statusClass = 'incorrect';
-                statusIcon = '❌';
-                statusText = 'INCORRECT';
-                statusColor = '#ff4757';
+                answersSection.appendChild(resultContainer);
             }
         }
-        
-        // Afficher aussi le timing utilisé
-        const phase1Time = this.phase1Time || CONFIG.PHASE1_TIME;
-        const phase2Time = this.phase2Time || CONFIG.PHASE2_TIME;
-        
-        // Mettre à jour le contenu
-        resultContainer.innerHTML = `
-            <div class="answer-result-content ${statusClass}">
-                <div class="answer-result-icon">${statusIcon}</div>
-                <h3 class="answer-result-title">${statusText}</h3>
-                
-                <div class="timing-info">
-                    <div class="timing-item">
-                        <span class="timing-label">Temps d'écoute :</span>
-                        <span class="timing-value">${phase1Time}s</span>
-                    </div>
-                    <div class="timing-item">
-                        <span class="timing-label">Temps de visionnage :</span>
-                        <span class="timing-value">${phase2Time}s</span>
-                    </div>
-                </div>
-                
-                <div class="answer-result-game">
-                    <div class="game-label">JEU :</div>
-                    <div class="game-name">${currentGame.name}</div>
-                </div>
-                
-                <div class="answer-result-stats">
-                    <div class="stats-row">
-                        <span>Votre réponse :</span>
-                        <span class="user-answer ${qm.userAnswerCorrect ? 'correct' : 'incorrect'}">
-                            ${qm.hasUserAnswered() ? (qm.selectedButton?.textContent || 'Aucune') : 'Aucune'}
-                        </span>
-                    </div>
-                    <div class="stats-row">
-                        <span>Question :</span>
-                        <span class="question-number">
-                            ${document.getElementById('question-count')?.textContent || '1'}/10
-                        </span>
-                    </div>
+    }
+    
+    // Déterminer le statut
+    let statusClass = 'no-answer';
+    let statusIcon = '❌';
+    let statusText = 'PAS DE RÉPONSE';
+    
+    if (qm.hasUserAnswered && qm.hasUserAnswered()) {
+        if (qm.userAnswerCorrect) {
+            statusClass = 'correct';
+            statusIcon = '🎉';
+            statusText = 'CORRECT !';
+        } else {
+            statusClass = 'incorrect';
+            statusIcon = '❌';
+            statusText = 'INCORRECT';
+        }
+    }
+    
+    // Obtenir la réponse de l'utilisateur
+    let userAnswerText = 'Aucune';
+    if (qm.hasUserAnswered && qm.hasUserAnswered()) {
+        if (qm.selectedButton && qm.selectedButton.textContent) {
+            userAnswerText = qm.selectedButton.textContent;
+        }
+    }
+    
+    // Mettre à jour le contenu
+    resultContainer.innerHTML = `
+        <div class="answer-result-content ${statusClass}">
+            <div class="answer-result-icon">${statusIcon}</div>
+            <h3 class="answer-result-title">${statusText}</h3>
+            
+            <div class="answer-result-game">
+                <div class="game-label">RÉPONSE :</div>
+                <div class="game-name">${currentGame.name}</div>
+            </div>
+            
+            <div class="answer-result-stats">
+                <div class="stats-row">
+                    <span>Votre choix :</span>
+                    <span class="user-answer ${qm.userAnswerCorrect ? 'correct' : 'incorrect'}">
+                        ${userAnswerText}
+                    </span>
                 </div>
             </div>
-        `;
-        
-        resultContainer.style.display = 'block';
-    }
+        </div>
+    `;
+    
+    resultContainer.style.display = 'block';
+    
+    // NOUVEAU : Afficher le bouton suivant
+    setTimeout(() => {
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) {
+            nextBtn.style.display = 'flex';
+        }
+    }, 1000);
+}
     
     // Le reste du code reste identique...
     setBlackOverlayOpacity(opacity) {
