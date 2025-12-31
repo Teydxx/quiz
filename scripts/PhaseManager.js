@@ -1,8 +1,8 @@
-// scripts/PhaseManager.js - Version corrigée
+// scripts/PhaseManager.js - VERSION CORRECTE
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
-        this.phaseTimer = CONFIG.PHASE1_TIME; // Utilise la config par défaut
+        this.phaseTimer = CONFIG.PHASE1_TIME;
         this.phaseInterval = null;
         this.onPhaseComplete = null;
         
@@ -13,41 +13,29 @@ class PhaseManager {
         this.timerCount = document.querySelector('.timer-count');
         this.answersSection = document.getElementById('answers-section');
         
-        // NOUVEAU : Obtenir la configuration dynamique du GameManager
+        // Configuration dynamique
         this.getDynamicConfig();
     }
     
-    // NOUVELLE MÉTHODE : Récupérer la configuration dynamique
     getDynamicConfig() {
-        if (window.gameManager) {
-            // Vérifier si on est en mode session
-            if (window.gameManager.session && window.gameManager.session.settings) {
-                this.phase1Time = window.gameManager.session.settings.phase1Time;
-                this.phase2Time = window.gameManager.session.settings.phase2Time;
-            } else {
-                // Mode solo : utiliser CONFIG
-                this.phase1Time = CONFIG.PHASE1_TIME;
-                this.phase2Time = CONFIG.PHASE2_TIME;
-            }
+        if (window.gameManager && window.gameManager.session && window.gameManager.session.settings) {
+            this.phase1Time = window.gameManager.session.settings.phase1Time;
+            this.phase2Time = window.gameManager.session.settings.phase2Time;
         } else {
-            // Fallback à CONFIG
             this.phase1Time = CONFIG.PHASE1_TIME;
             this.phase2Time = CONFIG.PHASE2_TIME;
         }
-        
-        console.log(`⏱️ Configuration dynamique : Phase1=${this.phase1Time}s, Phase2=${this.phase2Time}s`);
     }
     
     startPhase(phaseNumber) {
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
-        // Mettre à jour la configuration dynamique
         this.getDynamicConfig();
         
         switch(phaseNumber) {
             case 1:
-                this.phaseTimer = this.phase1Time; // Utiliser le temps dynamique
+                this.phaseTimer = this.phase1Time;
                 this.setBlackOverlayOpacity(1);
                 this.timerBox.classList.remove('hidden');
                 this.timerCount.textContent = this.phaseTimer;
@@ -56,19 +44,18 @@ class PhaseManager {
                 break;
                 
             case 2:
-    this.phaseTimer = this.phase2Time;
-    this.timerBox.classList.add('hidden');
-    
-    // SIMPLE : Appeler la fonction
-    this.displayAnswerInColumn();
-    
-    // Fade de la vidéo
-    setTimeout(() => {
-        if (this.fadeOutBlackOverlay) {
-            this.fadeOutBlackOverlay(3000);
-        }
-    }, 500);
-    break;
+                this.phaseTimer = this.phase2Time;
+                this.timerBox.classList.add('hidden');
+                this.answersSection.classList.add('hidden');
+                
+                // AFFICHER LA RÉPONSE DANS LA COLONNE
+                this.showAnswerInColumn();
+                
+                // Faire apparaître la vidéo
+                setTimeout(() => {
+                    this.fadeOutBlackOverlay(3000);
+                }, 500);
+                break;
         }
         
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
@@ -139,70 +126,117 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-displayAnswerInColumn() {
-    console.log('🔄 Affichage réponse dans colonne...');
-    
-    // 1. Cacher les boutons de réponse
-    const answersGrid = document.getElementById('answers-grid');
-    if (answersGrid) {
-        answersGrid.style.display = 'none';
-    }
-    
-    // 2. Récupérer les données MANUELLEMENT
-    const qm = window.gameManager?.questionManager;
-    if (!qm) {
-        console.error('❌ QuestionManager non trouvé');
-        return;
-    }
-    
-    // FORCER la récupération des données
-    const currentGame = qm.getCurrentGame ? qm.getCurrentGame() : null;
-    if (!currentGame) {
-        console.error('❌ Jeu actuel non trouvé');
-        return;
-    }
-    
-    console.log('✅ Jeu trouvé:', currentGame.name);
-    
-    // 3. Afficher DIRECTEMENT dans answers-section
-    const answersSection = document.querySelector('.answers-section');
-    if (!answersSection) return;
-    
-    // Sauvegarder le h3 original
-    const originalTitle = answersSection.querySelector('h3');
-    
-    // Créer le HTML de la réponse
-    const resultHTML = `
-        <div class="simple-result">
-            <div class="result-status">
-                ${qm.hasUserAnswered?.() ? (qm.userAnswerCorrect ? '🎉 CORRECT' : '❌ FAUX') : '⏰ PAS DE RÉPONSE'}
-            </div>
-            <div class="result-game">
-                <div class="game-label">LA RÉPONSE ÉTAIT :</div>
-                <div class="game-name">${currentGame.name}</div>
-            </div>
-            ${qm.hasUserAnswered?.() ? `
-                <div class="user-choice">
-                    Votre choix : <strong>${qm.selectedButton?.textContent || 'Aucune'}</strong>
+    // LA FONCTION IMPORTANTE : Affiche la réponse dans la colonne
+    showAnswerInColumn() {
+        const qm = window.gameManager?.questionManager;
+        if (!qm) return;
+        
+        const currentGame = qm.getCurrentGame();
+        if (!currentGame) return;
+        
+        // FINALISER la réponse
+        if (typeof qm.finalizeAnswer === 'function') {
+            qm.finalizeAnswer();
+        }
+        
+        if (typeof qm.revealAnswers === 'function') {
+            qm.revealAnswers();
+        }
+        
+        // Cacher la grille de réponses
+        const answersGrid = document.getElementById('answers-grid');
+        if (answersGrid) {
+            answersGrid.style.display = 'none';
+        }
+        
+        // Créer l'affichage de la réponse
+        const answersSection = document.querySelector('.answers-section');
+        if (!answersSection) return;
+        
+        // DÉTERMINER LES COULEURS
+        let statusColor = '#747d8c'; // Gris
+        let statusText = 'PAS DE RÉPONSE';
+        let statusIcon = '⏰';
+        
+        if (qm.hasUserAnswered()) {
+            if (qm.userAnswerCorrect) {
+                statusColor = '#2ed573'; // Vert
+                statusText = 'CORRECT !';
+                statusIcon = '🎉';
+            } else {
+                statusColor = '#ff4757'; // Rouge
+                statusText = 'INCORRECT';
+                statusIcon = '❌';
+            }
+        }
+        
+        // HTML de la réponse
+        const answerHTML = `
+            <div id="current-answer-display" style="
+                border: 3px solid ${statusColor};
+                background: ${statusColor}15;
+                border-radius: 15px;
+                padding: 25px;
+                margin: 20px 0;
+                text-align: center;
+                animation: fadeIn 0.5s ease;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 15px; color: ${statusColor}">
+                    ${statusIcon}
                 </div>
-            ` : ''}
-        </div>
-    `;
-    
-    // Ajouter après le titre
-    if (originalTitle) {
-        originalTitle.insertAdjacentHTML('afterend', resultHTML);
-    } else {
-        answersSection.innerHTML = `<h3>RÉSULTAT</h3>` + resultHTML;
+                
+                <h3 style="color: ${statusColor}; margin-bottom: 25px; font-size: 1.8rem;">
+                    ${statusText}
+                </h3>
+                
+                <div style="
+                    background: rgba(0,0,0,0.2);
+                    padding: 20px;
+                    border-radius: 10px;
+                    border-left: 5px solid ${statusColor};
+                    margin: 15px 0;
+                ">
+                    <div style="color: #a4b0be; font-size: 0.9rem; margin-bottom: 10px;">
+                        LA RÉPONSE ÉTAIT :
+                    </div>
+                    <div style="color: white; font-size: 2rem; font-weight: bold;">
+                        ${currentGame.name}
+                    </div>
+                </div>
+                
+                ${qm.hasUserAnswered() ? `
+                    <div style="
+                        background: rgba(255,255,255,0.05);
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-top: 15px;
+                    ">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #a4b0be;">Votre choix :</span>
+                            <span style="color: ${qm.userAnswerCorrect ? '#2ed573' : '#ff4757'}; font-weight: bold;">
+                                ${qm.selectedButton?.textContent || 'Aucune'}
+                            </span>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        // Ajouter après le titre
+        const title = answersSection.querySelector('h3');
+        if (title) {
+            title.insertAdjacentHTML('afterend', answerHTML);
+        } else {
+            answersSection.innerHTML = `<h3>RÉSULTAT</h3>` + answerHTML;
+        }
+        
+        // Afficher le bouton suivant
+        setTimeout(() => {
+            const nextBtn = document.getElementById('next-btn');
+            if (nextBtn) nextBtn.style.display = 'flex';
+        }, 1000);
     }
     
-    // 4. Appeler revealAnswers() pour les boutons
-    if (typeof qm.revealAnswers === 'function') {
-        qm.revealAnswers();
-    }
-}
-    
-    // Le reste du code reste identique...
     setBlackOverlayOpacity(opacity) {
         if (this.blackOverlay) {
             this.blackOverlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
@@ -211,8 +245,6 @@ displayAnswerInColumn() {
     
     endPhase() {
         this.clearTimers();
-        
-        // Cacher les résultats sur la vidéo
         this.resultBox.classList.remove('active');
         this.setBlackOverlayOpacity(1);
         
@@ -230,22 +262,28 @@ displayAnswerInColumn() {
         }
     }
     
+    // RESET : SUPPRIME LA RÉPONSE AFFICHÉE
     reset() {
-    this.clearTimers();
-    this.currentPhase = 1;
-    this.phaseTimer = this.phase1Time;
-    
-    this.setBlackOverlayOpacity(1);
-    this.timerBox.classList.remove('hidden');
-    this.timerCount.textContent = this.phaseTimer;
-    
-    // S'assurer que la section réponse est réinitialisée
-    const answersSection = document.getElementById('answers-section');
-    if (answersSection) {
-        answersSection.classList.remove('hidden');
-        answersSection.style.display = 'block';
+        this.clearTimers();
+        this.currentPhase = 1;
+        this.phaseTimer = this.phase1Time;
+        
+        this.setBlackOverlayOpacity(1);
+        this.timerBox.classList.remove('hidden');
+        this.timerCount.textContent = this.phaseTimer;
+        this.resultBox.classList.remove('active');
+        this.answersSection.classList.remove('hidden');
+        
+        // SUPPRIMER LA RÉPONSE AFFICHÉE
+        const answerDisplay = document.getElementById('current-answer-display');
+        if (answerDisplay) {
+            answerDisplay.remove();
+        }
+        
+        // RÉAFFICHER LA GRILLE
+        const answersGrid = document.getElementById('answers-grid');
+        if (answersGrid) {
+            answersGrid.style.display = 'grid';
+        }
     }
-    
-    console.log('🔄 PhaseManager réinitialisé');
-}
 }
