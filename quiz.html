@@ -91,33 +91,30 @@
     <script src="scripts/SessionManager.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🎮 Quiz - Initialisation...');
-            
-            // Initialiser gameManager
-            const gameManager = new GameManager();
-            window.gameManager = gameManager;
-            
-            // Détecter si on est en mode session
-            const urlParams = new URLSearchParams(window.location.search);
-            const sessionId = urlParams.get('session');
-            
-            if (sessionId) {
-                console.log(`🎮 Mode Session: ${sessionId}`);
-                // Ajouter session dans le titre
-                document.querySelector('.title').innerHTML = 
-                    `<i class="fas fa-gamepad"></i> QUIZ - Session ${sessionId}`;
-            }
-            
-            gameManager.init();
-            
-            // Démarrer directement
-            setTimeout(() => {
-                if (gameManager.startGame) {
-                    gameManager.startGame();
-                }
-            }, 1000);
-        });
+        document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🎮 Quiz - Initialisation...');
+    
+    // Initialiser gameManager
+    const gameManager = new GameManager();
+    window.gameManager = gameManager;
+    
+    // Détecter si on est en mode session
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    
+    if (sessionId) {
+        console.log(`🎮 Mode Session: ${sessionId}`);
+        document.querySelector('.title').innerHTML = 
+            `<i class="fas fa-gamepad"></i> QUIZ - Session ${sessionId}`;
+    }
+    
+    gameManager.init();
+    
+    // Attendre 1s pour l'initialisation, puis démarrer
+    setTimeout(() => {
+        gameManager.startGame();
+    }, 1000);
+});
     </script>
 </body>
 </html>

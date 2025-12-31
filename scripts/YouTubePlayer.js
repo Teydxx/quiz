@@ -191,4 +191,21 @@ class YouTubePlayer {
         this.videoQueue = [];
         console.log('🔄 Compteur de tentatives réinitialisé');
     }
+
+        // NOUVEAU : Attendre que le player soit prêt
+    waitForReady() {
+        return new Promise((resolve) => {
+            if (this.isReady) {
+                resolve();
+                return;
+            }
+            
+            const checkInterval = setInterval(() => {
+                if (this.isReady) {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 100);
+        });
+    }
 }

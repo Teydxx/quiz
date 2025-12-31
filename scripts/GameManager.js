@@ -225,7 +225,7 @@ class GameManager {
     }
 
     // Démarrer une question
-    startQuestion() {
+    async startQuestion() {
         const maxQuestions = this.isSessionMode && this.session ? 
             this.session.settings.totalQuestions : CONFIG.TOTAL_QUESTIONS;
         
@@ -248,12 +248,15 @@ class GameManager {
             return;
         }
         
-        this.loadAndStartVideo();
+        // ATTENDRE le chargement de la vidéo avant de continuer
+        await this.loadAndStartVideo();
+        
+        // Démarrer la phase SEULEMENT quand la vidéo est chargée
         this.phaseManager.startPhase(1);
     }
 
     // Charger vidéo
-    loadAndStartVideo() {
+    async loadAndStartVideo() {
         const currentGame = this.questionManager.getCurrentGame();
         if (!currentGame) return;
         
@@ -263,6 +266,13 @@ class GameManager {
         
         console.log(`🎵 Chargement: ${currentGame.name} à ${this.startTime}s`);
         
+        // ATTENDRE que YouTube soit prêt
+        if (!this.youtubePlayer.isReady) {
+            console.log('⏳ En attente du player YouTube...');
+            await this.youtubePlayer.waitForReady();
+        }
+        
+        // Maintenant charger la vidéo
         this.youtubePlayer.loadVideo(currentGame.videoId, this.startTime);
         this.youtubePlayer.unmute();
     }
