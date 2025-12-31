@@ -286,6 +286,7 @@
     border: 2px solid rgba(255, 71, 87, 0.2);
     position: relative;
     min-height: 200px;
+    transition: opacity 0.3s ease, display 0.3s ease;
 }
 
 .answers-section h3 {
@@ -313,13 +314,6 @@
     opacity: 1;
     visibility: visible;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.answers-grid.hidden {
-    opacity: 0;
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
 }
 
 .answer-btn {
@@ -403,42 +397,83 @@
     50% { transform: scale(1.05); }
 }
 
-/* ===== AFFICHAGE DE LA RÉPONSE ===== */
+/* ===== AFFICHAGE DE LA RÉPONSE (PHASE 2) ===== */
 .answer-display {
-    border: 3px solid;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    padding: 25px;
-    margin: 20px 0;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-    width: 100%;
     display: none;
     opacity: 0;
-    visibility: hidden;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInAnswer {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    margin-bottom: 20px;
+    animation: fadeInUp 0.5s ease forwards;
 }
 
 .answer-display.active {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    animation: slideInAnswer 0.5s ease forwards !important;
+    display: block;
+    opacity: 1;
+}
+
+.answer-display-content {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    border: 2px solid;
+    animation: pulseGlow 2s infinite;
+}
+
+.answer-display-content.correct {
+    border-color: #2ed573;
+    background: rgba(46, 213, 115, 0.1);
+    animation: pulseCorrect 2s infinite;
+}
+
+.answer-display-content.incorrect {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+}
+
+.answer-display-content.no-answer {
+    border-color: #747d8c;
+    background: rgba(116, 125, 140, 0.1);
+}
+
+.answer-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.answer-game-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: white;
+    word-break: break-word;
+}
+
+.answer-status {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.answer-description {
+    color: #a4b0be;
+    font-size: 1rem;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.answer-description i {
+    color: #3742fa;
+    margin-right: 8px;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 71, 87, 0.6);
+    }
 }
 
 /* ===== BOUTON SUIVANT ===== */
@@ -478,46 +513,49 @@
     font-size: 1.2rem;
 }
 
-/* ===== CLASSES DE PHASE ===== */
-/* Phase 1 : Boutons visibles */
-body.phase-1 #answers-grid {
-    display: grid !important;
+/* ===== GESTION DES PHASES ===== */
+body.phase-1 .answers-section {
+    display: flex !important;
     opacity: 1 !important;
-    visibility: visible !important;
 }
 
-body.phase-1 .answers-section h3 {
-    display: block !important;
+body.phase-1 .answers-grid {
+    display: grid !important;
     opacity: 1 !important;
-    visibility: visible !important;
 }
 
 body.phase-1 #current-answer-display {
     display: none !important;
     opacity: 0 !important;
-    visibility: hidden !important;
 }
 
-/* Phase 2 : Boutons cachés, réponse visible */
-body.phase-2 #answers-grid {
+body.phase-1 .btn-next:not(.show) {
     display: none !important;
     opacity: 0 !important;
-    visibility: hidden !important;
+}
+
+body.phase-2 .answers-section {
+    display: none !important;
+    opacity: 0 !important;
     height: 0 !important;
     overflow: hidden !important;
-    pointer-events: none !important;
 }
 
-body.phase-2 .answers-section h3 {
+body.phase-2 .answers-grid {
     display: none !important;
     opacity: 0 !important;
-    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
 }
 
 body.phase-2 #current-answer-display {
     display: block !important;
     opacity: 1 !important;
-    visibility: visible !important;
+}
+
+body.phase-2 .btn-next.show {
+    display: flex !important;
+    opacity: 1 !important;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -649,6 +687,18 @@ body.phase-2 #current-answer-display {
     .answers-section h3 {
         font-size: 1.3rem;
     }
+    
+    .answer-game-name {
+        font-size: 1.5rem;
+    }
+    
+    .answer-status {
+        font-size: 1.2rem;
+    }
+    
+    .answer-icon {
+        font-size: 2.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -699,6 +749,14 @@ body.phase-2 #current-answer-display {
     .result-status {
         font-size: 1.1rem;
     }
+    
+    .answer-game-name {
+        font-size: 1.3rem;
+    }
+    
+    .answer-status {
+        font-size: 1.1rem;
+    }
 }
 
 /* ===== CLASSES UTILITAIRES ===== */
@@ -736,180 +794,4 @@ body.phase-2 #current-answer-display {
 /* Correction pour les iframes YouTube */
 #player-container iframe {
     border-radius: 12px;
-}
-
-/* S'assurer que les boutons sont toujours visibles quand ils existent */
-#answers-grid:has(.answer-btn) {
-    display: grid !important;
-    opacity: 1 !important;
-}
-/* AJOUTER à la fin de quiz.css */
-
-/* Animations pour les notifications */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -100%);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-    to {
-        opacity: 0;
-        transform: translate(-50%, -100%);
-    }
-}
-
-/* Style de la notification d'erreur */
-.video-error-notification {
-    animation: slideDown 0.3s ease forwards !important;
-}
-
-/* Bouton pour tester une vidéo défaillante (debug) */
-.debug-test-error {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #ff4757;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 9999;
-    font-size: 0.9rem;
-}
-
-/* Classes pour le contrôle des phases */
-.phase-1 #answers-grid,
-.phase-1 .answers-section h3 {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-.phase-1 #current-answer-display,
-.phase-1 .btn-next:not(.show) {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
-.phase-2 #answers-grid,
-.phase-2 .answers-section h3 {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
-}
-
-.phase-2 #current-answer-display {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* AJOUTER À LA FIN DU FICHIER */
-
-/* Style pour masquer les boutons en phase 2 */
-.answers-grid.hidden {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
-/* Style pour l'affichage de la réponse */
-.answer-display {
-    display: block !important;
-    animation: fadeIn 0.5s ease !important;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* S'assurer que le bouton suivant est visible */
-.btn-next {
-    display: none;
-}
-
-.btn-next.visible {
-    display: flex !important;
-}
-
-/* AJOUTER À LA FIN DU FICHIER */
-
-/* Forcer le masquage en phase 2 */
-#answers-section.hidden {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
-#answers-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-}
-
-/* S'assurer que la grille est bien cachée */
-.answers-section.hidden .answers-grid {
-    display: none !important;
-}
-
-/* Debug info */
-.debug-phase {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: #ff4757;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    z-index: 9999;
-}
-
-/* AJOUTER À LA FIN DE QUIZ.CSS */
-
-/* Affichage de la réponse */
-.answer-display {
-    display: none; /* Caché par défaut */
-    opacity: 0;
-    animation: fadeIn 0.5s ease forwards !important;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* S'assurer que la colonne droite reste visible */
-.answers-column {
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 400px !important;
-}
-
-/* Bouton suivant */
-.btn-next {
-    display: none !important;
-    opacity: 0 !important;
-    transition: opacity 0.3s !important;
-}
-
-.btn-next.show {
-    display: flex !important;
-    opacity: 1 !important;
 }

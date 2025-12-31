@@ -405,6 +405,9 @@ getYouTubeErrorMessage(errorCode) {
 nextQuestion() {
     console.log('⏭️ Question suivante');
     
+    // Nettoyer l'affichage actuel
+    this.cleanAnswerDisplay();
+    
     // Arrêter la vidéo
     if (this.youtubePlayer) {
         this.youtubePlayer.stop();
@@ -415,18 +418,34 @@ nextQuestion() {
         this.phaseManager.reset();
     }
     
-    // Cacher bouton suivant
-    const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) nextBtn.style.display = 'none';
-    
-    // Nettoyer l'affichage
-    const answerDisplay = document.getElementById('current-answer-display');
-    if (answerDisplay) answerDisplay.remove();
-    
     // Démarrer nouvelle question
     setTimeout(() => {
         this.startQuestion();
     }, 500);
+}
+
+// AJOUTER cette méthode à la classe GameManager :
+cleanAnswerDisplay() {
+    console.log('🧹 Nettoyage de l\'affichage des réponses');
+    
+    // Supprimer l'affichage de réponse précédent
+    const answerDisplay = document.getElementById('current-answer-display');
+    if (answerDisplay) {
+        answerDisplay.remove();
+    }
+    
+    // Vider la grille de réponses
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        answersGrid.innerHTML = '';
+    }
+    
+    // Cacher le bouton suivant
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) {
+        nextBtn.style.display = 'none';
+        nextBtn.classList.remove('show');
+    }
 }
 
 // AJOUTER cette méthode à GameManager.js
