@@ -731,3 +731,52 @@
         display: inline;
     }
 }
+
+/* Style minimal pour la réponse */
+.simple-result {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 2px solid rgba(255, 71, 87, 0.5);
+    text-align: center;
+}
+
+.result-status {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ff4757;
+}
+
+.result-game {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.game-label {
+    font-size: 0.9rem;
+    color: #a4b0be;
+    margin-bottom: 10px;
+}
+
+.game-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.user-choice {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: #a4b0be;
+}
+
+/* Cache les boutons quand on affiche le résultat */
+#answers-grid[style*="display: none"] {
+    display: none !important;
+}

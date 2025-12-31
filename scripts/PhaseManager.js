@@ -56,25 +56,19 @@ class PhaseManager {
                 break;
                 
             case 2:
-                this.phaseTimer = this.phase2Time; // Utiliser le temps dynamique
-                this.timerBox.classList.add('hidden');
-                this.answersSection.classList.add('hidden');
-                
-                // NOUVEAU : Utiliser le temps de fade dynamique
-                const fadeDuration = Math.min(this.phase2Time * 300, 7000); // Maximum 7 secondes
-                
-                // Afficher le résultat dans la colonne
-                this.displayAnswerInColumn();
-                
-                // Effets visuels sur la vidéo
-                setTimeout(() => {
-                    this.fadeOutBlackOverlay(fadeDuration);
-                }, 1000);
-                
-                setTimeout(() => {
-                    this.fadeInBlackOverlay(fadeDuration);
-                }, 1000 + fadeDuration);
-                break;
+    this.phaseTimer = this.phase2Time;
+    this.timerBox.classList.add('hidden');
+    
+    // SIMPLE : Appeler la fonction
+    this.displayAnswerInColumn();
+    
+    // Fade de la vidéo
+    setTimeout(() => {
+        if (this.fadeOutBlackOverlay) {
+            this.fadeOutBlackOverlay(3000);
+        }
+    }, 500);
+    break;
         }
         
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
@@ -145,105 +139,67 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-// Dans PhaseManager.js - MODIFIER displayAnswerInColumn()
 displayAnswerInColumn() {
-    if (!window.gameManager || !window.gameManager.questionManager) return;
+    console.log('🔄 Affichage réponse dans colonne...');
     
-    const qm = window.gameManager.questionManager;
-    const currentGame = qm.getCurrentGame();
-    if (!currentGame) return;
-    
-    // NOUVEAU : Appeler les fonctions pour finaliser et révéler
-    if (typeof qm.finalizeAnswer === 'function') {
-        qm.finalizeAnswer();
-    }
-    
-    if (typeof qm.revealAnswers === 'function') {
-        qm.revealAnswers();
-    }
-    
-    // Cacher la grille de réponses
+    // 1. Cacher les boutons de réponse
     const answersGrid = document.getElementById('answers-grid');
     if (answersGrid) {
         answersGrid.style.display = 'none';
     }
     
-    // Créer ou réutiliser le conteneur de résultat
-    let resultContainer = document.getElementById('answer-result-container');
-    if (!resultContainer) {
-        resultContainer = document.createElement('div');
-        resultContainer.id = 'answer-result-container';
-        resultContainer.className = 'answer-result-container';
-        
-        // S'assurer qu'on l'ajoute au bon endroit
-        const answersSection = document.querySelector('.answers-section');
-        if (answersSection) {
-            // Placer AVANT le bouton suivant
-            const nextBtn = document.getElementById('next-btn');
-            if (nextBtn && nextBtn.parentNode === answersSection) {
-                answersSection.insertBefore(resultContainer, nextBtn);
-            } else {
-                answersSection.appendChild(resultContainer);
-            }
-        }
+    // 2. Récupérer les données MANUELLEMENT
+    const qm = window.gameManager?.questionManager;
+    if (!qm) {
+        console.error('❌ QuestionManager non trouvé');
+        return;
     }
     
-    // Déterminer le statut
-    let statusClass = 'no-answer';
-    let statusIcon = '❌';
-    let statusText = 'PAS DE RÉPONSE';
-    
-    if (qm.hasUserAnswered && qm.hasUserAnswered()) {
-        if (qm.userAnswerCorrect) {
-            statusClass = 'correct';
-            statusIcon = '🎉';
-            statusText = 'CORRECT !';
-        } else {
-            statusClass = 'incorrect';
-            statusIcon = '❌';
-            statusText = 'INCORRECT';
-        }
+    // FORCER la récupération des données
+    const currentGame = qm.getCurrentGame ? qm.getCurrentGame() : null;
+    if (!currentGame) {
+        console.error('❌ Jeu actuel non trouvé');
+        return;
     }
     
-    // Obtenir la réponse de l'utilisateur
-    let userAnswerText = 'Aucune';
-    if (qm.hasUserAnswered && qm.hasUserAnswered()) {
-        if (qm.selectedButton && qm.selectedButton.textContent) {
-            userAnswerText = qm.selectedButton.textContent;
-        }
-    }
+    console.log('✅ Jeu trouvé:', currentGame.name);
     
-    // Mettre à jour le contenu
-    resultContainer.innerHTML = `
-        <div class="answer-result-content ${statusClass}">
-            <div class="answer-result-icon">${statusIcon}</div>
-            <h3 class="answer-result-title">${statusText}</h3>
-            
-            <div class="answer-result-game">
-                <div class="game-label">RÉPONSE :</div>
+    // 3. Afficher DIRECTEMENT dans answers-section
+    const answersSection = document.querySelector('.answers-section');
+    if (!answersSection) return;
+    
+    // Sauvegarder le h3 original
+    const originalTitle = answersSection.querySelector('h3');
+    
+    // Créer le HTML de la réponse
+    const resultHTML = `
+        <div class="simple-result">
+            <div class="result-status">
+                ${qm.hasUserAnswered?.() ? (qm.userAnswerCorrect ? '🎉 CORRECT' : '❌ FAUX') : '⏰ PAS DE RÉPONSE'}
+            </div>
+            <div class="result-game">
+                <div class="game-label">LA RÉPONSE ÉTAIT :</div>
                 <div class="game-name">${currentGame.name}</div>
             </div>
-            
-            <div class="answer-result-stats">
-                <div class="stats-row">
-                    <span>Votre choix :</span>
-                    <span class="user-answer ${qm.userAnswerCorrect ? 'correct' : 'incorrect'}">
-                        ${userAnswerText}
-                    </span>
+            ${qm.hasUserAnswered?.() ? `
+                <div class="user-choice">
+                    Votre choix : <strong>${qm.selectedButton?.textContent || 'Aucune'}</strong>
                 </div>
-            </div>
+            ` : ''}
         </div>
     `;
     
-    resultContainer.style.display = 'block';
+    // Ajouter après le titre
+    if (originalTitle) {
+        originalTitle.insertAdjacentHTML('afterend', resultHTML);
+    } else {
+        answersSection.innerHTML = `<h3>RÉSULTAT</h3>` + resultHTML;
+    }
     
-    // NOUVEAU : Afficher le bouton suivant
-    setTimeout(() => {
-        const nextBtn = document.getElementById('next-btn');
-        if (nextBtn) {
-            nextBtn.style.display = 'flex';
-        }
-    }, 1000);
+    // 4. Appeler revealAnswers() pour les boutons
+    if (typeof qm.revealAnswers === 'function') {
+        qm.revealAnswers();
+    }
 }
     
     // Le reste du code reste identique...
