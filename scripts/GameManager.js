@@ -446,6 +446,20 @@ class GameManager {
             mode: this.isSessionMode ? 'session' : 'classic'
         };
     }
+
+    // Dans GameManager.js - Ajouter cette méthode
+getCurrentPhaseTimes() {
+    if (this.isSessionMode && this.session) {
+        return {
+            phase1Time: this.session.settings.phase1Time,
+            phase2Time: this.session.settings.phase2Time
+        };
+    }
+    return {
+        phase1Time: CONFIG.PHASE1_TIME,
+        phase2Time: CONFIG.PHASE2_TIME
+    };
+}
 }
 
 // Exposer pour debug

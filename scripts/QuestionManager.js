@@ -187,6 +187,7 @@ class QuestionManager {
     }
 
 // Dans QuestionManager.js - Modifier la fonction reset()
+// Dans QuestionManager.js
 reset() {
     this.userAnswered = false;
     this.userAnswerCorrect = false;
@@ -197,7 +198,7 @@ reset() {
     this.answersGrid.style.opacity = '1';
     this.answersGrid.innerHTML = '';
     
-    // NOUVEAU : Cacher le résultat
+    // Cacher le résultat dans la colonne
     const resultContainer = document.getElementById('answer-result-container');
     if (resultContainer) {
         resultContainer.style.display = 'none';
