@@ -122,42 +122,82 @@ class PhaseManager {
         }
     }
     
-    showResult() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        
-        if (!currentGame) return;
-        
-        qm.finalizeAnswer();
-        qm.revealAnswers();
-        
-        let resultClass = 'no-answer';
-        let resultIcon = '❌';
-        let statusText = 'PAS DE RÉPONSE';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                resultClass = 'correct';
-                resultIcon = '🎉';
-                statusText = 'CORRECT !';
-            } else {
-                resultClass = 'incorrect';
-                resultIcon = '❌';
-                statusText = 'INCORRECT';
-            }
-        }
-        
-        this.resultIcon.textContent = resultIcon;
-        this.resultGameName.textContent = currentGame.name;
-        this.resultStatus.textContent = statusText;
-        this.resultBox.className = `result-box ${resultClass}`;
-        
-        setTimeout(() => {
-            this.resultBox.classList.add('active');
-        }, 100);
+// Dans PhaseManager.js - Remplacer la fonction showResult()
+showResult() {
+    if (!window.gameManager || !window.gameManager.questionManager) return;
+    
+    const qm = window.gameManager.questionManager;
+    const currentGame = qm.getCurrentGame();
+    
+    if (!currentGame) return;
+    
+    qm.finalizeAnswer();
+    qm.revealAnswers();
+    
+    // NOUVEAU : Afficher le résultat dans la colonne de réponses
+    this.displayAnswerInColumn();
+}
+
+// NOUVELLE FONCTION dans PhaseManager.js
+displayAnswerInColumn() {
+    if (!window.gameManager || !window.gameManager.questionManager) return;
+    
+    const qm = window.gameManager.questionManager;
+    const currentGame = qm.getCurrentGame();
+    if (!currentGame) return;
+    
+    // Cacher la grille de réponses
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        answersGrid.style.display = 'none';
     }
+    
+    // Créer ou réutiliser le conteneur de résultat
+    let resultContainer = document.getElementById('answer-result-container');
+    if (!resultContainer) {
+        resultContainer = document.createElement('div');
+        resultContainer.id = 'answer-result-container';
+        resultContainer.className = 'answer-result-container';
+        document.querySelector('.answers-section').appendChild(resultContainer);
+    }
+    
+    // Déterminer le statut
+    let statusClass = 'no-answer';
+    let statusIcon = '❌';
+    let statusText = 'PAS DE RÉPONSE';
+    
+    if (qm.hasUserAnswered()) {
+        if (qm.userAnswerCorrect) {
+            statusClass = 'correct';
+            statusIcon = '🎉';
+            statusText = 'CORRECT !';
+        } else {
+            statusClass = 'incorrect';
+            statusIcon = '❌';
+            statusText = 'INCORRECT';
+        }
+    }
+    
+    // Mettre à jour le contenu
+    resultContainer.innerHTML = `
+        <div class="answer-result-content ${statusClass}">
+            <div class="answer-result-icon">${statusIcon}</div>
+            <h3 class="answer-result-title">${statusText}</h3>
+            <div class="answer-result-game">
+                <div class="game-label">JEU :</div>
+                <div class="game-name">${currentGame.name}</div>
+            </div>
+            <div class="answer-result-stats">
+                <div class="stats-row">
+                    <span>Votre réponse :</span>
+                    <span class="user-answer">${qm.hasUserAnswered() ? qm.selectedButton?.textContent || 'Aucune' : 'Aucune'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    resultContainer.style.display = 'block';
+}
     
     endPhase() {
         this.clearTimers();
@@ -178,16 +218,20 @@ class PhaseManager {
         }
     }
     
-    reset() {
-        this.clearTimers();
-        this.currentPhase = 1;
-        this.phaseTimer = CONFIG.PHASE1_TIME;
-        
-        this.setBlackOverlayOpacity(1);
-        this.timerBox.classList.remove('hidden');
-        this.timerCount.textContent = this.phaseTimer;
-        this.resultBox.classList.remove('active');
-        this.resultBox.className = 'result-box';
-        this.answersSection.classList.remove('hidden');
-    }
+// Dans PhaseManager.js - Modifier la fonction reset()
+reset() {
+    this.clearTimers();
+    this.currentPhase = 1;
+    this.phaseTimer = CONFIG.PHASE1_TIME;
+    
+    this.setBlackOverlayOpacity(1);
+    this.timerBox.classList.remove('hidden');
+    this.timerCount.textContent = this.phaseTimer;
+    
+    // NOUVEAU : Cacher la boîte de résultat sur la vidéo
+    this.resultBox.classList.remove('active');
+    this.resultBox.className = 'result-box';
+    
+    this.answersSection.classList.remove('hidden');
+}
 }

@@ -186,24 +186,28 @@ class QuestionManager {
         }
     }
 
-    // Réinitialiser pour nouvelle question
-    reset() {
-        this.userAnswered = false;
-        this.userAnswerCorrect = false;
-        this.selectedButton = null;
-        
-        // Réafficher la grille de réponses
-        this.answersGrid.style.display = 'grid';
-        this.answersGrid.style.opacity = '1';
-        this.answersGrid.style.transform = 'translateY(0)';
-        this.answersGrid.style.transition = '';
-        this.answersGrid.innerHTML = '';
-        
-        // Cacher le bouton suivant
-        if (this.nextBtn) {
-            this.nextBtn.style.display = 'none';
-        }
+// Dans QuestionManager.js - Modifier la fonction reset()
+reset() {
+    this.userAnswered = false;
+    this.userAnswerCorrect = false;
+    this.selectedButton = null;
+    
+    // Réafficher la grille de réponses
+    this.answersGrid.style.display = 'grid';
+    this.answersGrid.style.opacity = '1';
+    this.answersGrid.innerHTML = '';
+    
+    // NOUVEAU : Cacher le résultat
+    const resultContainer = document.getElementById('answer-result-container');
+    if (resultContainer) {
+        resultContainer.style.display = 'none';
     }
+    
+    // Cacher le bouton suivant
+    if (this.nextBtn) {
+        this.nextBtn.style.display = 'none';
+    }
+}
 
     // Réinitialiser état question (sans reset stats)
     resetQuestionState() {

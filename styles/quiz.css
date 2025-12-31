@@ -499,3 +499,142 @@
     width: 100% !important;
     max-width: 100% !important;
 }
+
+/* ===== NOUVELLES CLASSES POUR LE RÉSULTAT DANS LA COLONNE ===== */
+.answer-result-container {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 2px solid;
+    display: none;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.answer-result-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.answer-result-icon {
+    font-size: 3.5rem;
+    margin-bottom: 5px;
+}
+
+.answer-result-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.answer-result-game {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    margin: 15px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-label {
+    font-size: 0.9rem;
+    color: #a4b0be;
+    margin-bottom: 8px;
+}
+
+.game-name {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.answer-result-stats {
+    width: 100%;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    text-align: left;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-answer {
+    font-weight: bold;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Styles pour les différents états */
+.answer-result-content.correct {
+    border-color: #2ed573;
+}
+
+.answer-result-content.correct .answer-result-icon,
+.answer-result-content.correct .answer-result-title,
+.answer-result-content.correct .game-name {
+    color: #2ed573;
+}
+
+.answer-result-content.incorrect {
+    border-color: #ff4757;
+}
+
+.answer-result-content.incorrect .answer-result-icon,
+.answer-result-content.incorrect .answer-result-title,
+.answer-result-content.incorrect .game-name {
+    color: #ff4757;
+}
+
+.answer-result-content.no-answer {
+    border-color: #747d8c;
+}
+
+.answer-result-content.no-answer .answer-result-icon,
+.answer-result-content.no-answer .answer-result-title,
+.answer-result-content.no-answer .game-name {
+    color: #747d8c;
+}
+
+/* Responsive pour la colonne de résultat */
+@media (max-width: 991px) {
+    .answer-result-container {
+        margin-top: 0;
+        order: 2;
+    }
+    
+    .game-name {
+        font-size: 1.6rem;
+    }
+    
+    .answer-result-icon {
+        font-size: 2.8rem;
+    }
+    
+    .answer-result-title {
+        font-size: 1.5rem;
+    }
+}
