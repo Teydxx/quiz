@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js
+// scripts/PhaseManager.js - VERSION CORRIGÉE
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -12,11 +12,14 @@ class PhaseManager {
         this.timerBox = document.getElementById('timer-box');
         this.timerCount = document.querySelector('.timer-count');
         this.answersSection = document.getElementById('answers-section');
+        this.answersGrid = document.getElementById('answers-grid');
         
         console.log('⏱️ PhaseManager initialisé');
     }
     
     startPhase(phaseNumber) {
+        console.log(`\n▶️ ========== DÉMARRAGE PHASE ${phaseNumber} ==========`);
+        
         this.currentPhase = phaseNumber;
         this.clearTimers();
         
@@ -29,7 +32,7 @@ class PhaseManager {
             phase2Time = window.gameManager.session.settings.phase2Time || CONFIG.PHASE2_TIME;
         }
         
-        console.log(`▶️ Démarrage Phase ${phaseNumber}: ${phaseNumber === 1 ? phase1Time : phase2Time}s`);
+        console.log(`▶️ Durées: Phase1=${phase1Time}s, Phase2=${phase2Time}s`);
         
         switch(phaseNumber) {
             case 1:
@@ -54,15 +57,18 @@ class PhaseManager {
                 // CACHER le timer
                 this.timerBox.classList.add('hidden');
                 
+                // CACHER les boutons
+                this.hideAnswerButtons();
+                
                 // Faire apparaître la vidéo
                 setTimeout(() => {
-                    this.fadeOutBlackOverlay(3000);
+                    this.fadeOutBlackOverlay(2000);
                 }, 500);
                 
                 // AFFICHER la réponse dans la colonne
                 setTimeout(() => {
                     this.showAnswerInColumn();
-                }, 1000);
+                }, 1500);
                 
                 break;
         }
@@ -79,8 +85,10 @@ class PhaseManager {
         
         if (this.phaseTimer <= 0) {
             if (this.currentPhase < 2) {
+                console.log('⏱️ Phase 1 terminée -> passage à Phase 2');
                 this.startPhase(2);
             } else {
+                console.log('⏱️ Phase 2 terminée');
                 this.clearTimers();
                 this.endPhase();
             }
@@ -89,7 +97,7 @@ class PhaseManager {
     
     // Affiche la réponse dans la colonne
     showAnswerInColumn() {
-        console.log('📋 Affichage réponse dans colonne');
+        console.log('\n📋 ========== AFFICHAGE RÉPONSE ==========');
         
         const qm = window.gameManager?.questionManager;
         if (!qm) {
@@ -103,8 +111,9 @@ class PhaseManager {
             return;
         }
         
-        // CACHER les boutons de réponse
-        this.hideAnswerButtons();
+        console.log(`📋 Jeu: ${currentGame.name}`);
+        console.log(`📋 Utilisateur a répondu: ${qm.hasUserAnswered()}`);
+        console.log(`📋 Réponse correcte: ${qm.userAnswerCorrect}`);
         
         // Finaliser la réponse
         if (typeof qm.finalizeAnswer === 'function') {
@@ -130,7 +139,7 @@ class PhaseManager {
         let statusText = 'PAS DE RÉPONSE';
         let statusIcon = '⏰';
         
-        if (qm.hasUserAnswered && qm.hasUserAnswered()) {
+        if (qm.hasUserAnswered()) {
             if (qm.userAnswerCorrect) {
                 statusColor = '#2ed573';
                 statusText = 'CORRECT !';
@@ -158,7 +167,7 @@ class PhaseManager {
         
         // Contenu
         let userChoiceHTML = '';
-        if (qm.hasUserAnswered && qm.hasUserAnswered()) {
+        if (qm.hasUserAnswered()) {
             const userAnswer = qm.selectedButton?.textContent || 'Aucune';
             const choiceColor = qm.userAnswerCorrect ? '#2ed573' : '#ff4757';
             userChoiceHTML = `
@@ -219,21 +228,21 @@ class PhaseManager {
             const nextBtn = document.getElementById('next-btn');
             if (nextBtn) {
                 nextBtn.style.display = 'flex';
+                console.log('✅ Bouton suivant affiché');
             }
-        }, 1000);
+        }, 500);
         
-        console.log('✅ Réponse affichée:', currentGame.name);
+        console.log('✅ Réponse affichée dans la colonne');
     }
     
     // Afficher les boutons de réponse
     showAnswerButtons() {
-        console.log('🔧 Affichage boutons de réponse...');
+        console.log('🔧 showAnswerButtons()');
         
         // S'assurer que la section est visible
         if (this.answersSection) {
             this.answersSection.style.display = 'block';
             this.answersSection.style.opacity = '1';
-            console.log('✅ Section réponses visible');
         }
         
         // S'assurer que la grille est visible
@@ -242,14 +251,13 @@ class PhaseManager {
             answersGrid.style.display = 'grid';
             answersGrid.style.opacity = '1';
             answersGrid.style.visibility = 'visible';
-            answersGrid.style.gridTemplateColumns = '1fr';
             
             // Vérifier si des boutons sont présents
             const buttons = answersGrid.querySelectorAll('.answer-btn');
             console.log(`✅ ${buttons.length} boutons dans la grille`);
             
             if (buttons.length === 0) {
-                console.warn('⚠️ Aucun bouton trouvé !');
+                console.warn('⚠️ Aucun bouton trouvé dans showAnswerButtons !');
                 
                 // Forcer le QuestionManager à recréer les boutons
                 if (window.gameManager && window.gameManager.questionManager) {
@@ -258,24 +266,32 @@ class PhaseManager {
                 }
             }
         } else {
-            console.error('❌ answers-grid non trouvé !');
+            console.error('❌ answers-grid non trouvé dans showAnswerButtons !');
         }
     }
     
     // Cacher les boutons de réponse
     hideAnswerButtons() {
-        console.log('🔧 Masquage des boutons de réponse...');
+        console.log('🔧 hideAnswerButtons()');
         
         const answersGrid = document.getElementById('answers-grid');
         if (answersGrid) {
             answersGrid.style.display = 'none';
             answersGrid.style.opacity = '0';
+            answersGrid.style.visibility = 'hidden';
             console.log('✅ Boutons masqués');
+        }
+        
+        // Aussi masquer via le QuestionManager
+        if (window.gameManager?.questionManager?.hideButtons) {
+            window.gameManager.questionManager.hideButtons();
         }
     }
     
     // Nettoie l'affichage de réponse
     cleanAnswerDisplay() {
+        console.log('🧹 cleanAnswerDisplay()');
+        
         // Supprimer par ID
         const oldAnswer = document.getElementById('current-answer-display');
         if (oldAnswer) {
@@ -288,18 +304,21 @@ class PhaseManager {
         if (answersSection) {
             // Garder seulement h3, #answers-grid, #next-btn
             const elements = answersSection.querySelectorAll('*');
+            let removed = 0;
             elements.forEach(el => {
                 if (el.tagName !== 'H3' && 
                     el.id !== 'answers-grid' && 
                     el.id !== 'next-btn' &&
                     !el.classList.contains('answers-grid')) {
                     el.remove();
+                    removed++;
                 }
             });
+            console.log(`🗑️ ${removed} éléments nettoyés`);
         }
     }
     
-    fadeOutBlackOverlay(duration = 3000) {
+    fadeOutBlackOverlay(duration = 2000) {
         if (!this.blackOverlay) return;
         
         let opacity = 1;
@@ -323,7 +342,7 @@ class PhaseManager {
         setTimeout(fade, stepDuration);
     }
     
-    fadeInBlackOverlay(duration = 3000) {
+    fadeInBlackOverlay(duration = 2000) {
         if (!this.blackOverlay) return;
         
         let opacity = 0;
@@ -354,27 +373,31 @@ class PhaseManager {
     }
     
     endPhase() {
+        console.log('🏁 Phase terminée');
+        
         this.clearTimers();
         this.resultBox.classList.remove('active');
         this.setBlackOverlayOpacity(1);
         
         setTimeout(() => {
             if (this.onPhaseComplete) {
+                console.log('➡️ Appel de onPhaseComplete');
                 this.onPhaseComplete();
             }
-        }, 300);
+        }, 500);
     }
     
     clearTimers() {
         if (this.phaseInterval) {
             clearInterval(this.phaseInterval);
             this.phaseInterval = null;
+            console.log('⏱️ Timers nettoyés');
         }
     }
     
     // Reset complet
     reset() {
-        console.log('🔄 PhaseManager reset');
+        console.log('🔄 PhaseManager.reset()');
         
         this.clearTimers();
         this.currentPhase = 1;
@@ -388,15 +411,9 @@ class PhaseManager {
         // Nettoyer réponse
         this.cleanAnswerDisplay();
         
-        // Réafficher grille
-        const answersGrid = document.getElementById('answers-grid');
-        if (answersGrid) {
-            answersGrid.style.display = 'grid';
-        }
+        // Afficher les boutons pour la prochaine question
+        this.showAnswerButtons();
         
-        // S'assurer que la section est visible
-        if (this.answersSection) {
-            this.answersSection.style.display = 'block';
-        }
+        console.log('✅ PhaseManager réinitialisé');
     }
 }

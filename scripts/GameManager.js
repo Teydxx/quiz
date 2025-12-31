@@ -280,36 +280,64 @@ class GameManager {
         });
     }
 
-// Dans GameManager.js - REMPLACER nextQuestion() par :
+// Dans GameManager.js - MODIFIER la méthode nextQuestion()
 nextQuestion() {
-    console.log('⏭️ QUESTION SUIVANTE - NETTOYAGE FORCE');
+    console.log('\n⏭️ ========== QUESTION SUIVANTE ==========');
     
-    // 1. FORCE NETTOYAGE DE LA RÉPONSE PRÉCÉDENTE
-    this.forceCleanAnswer();
-    
-    // 2. Arrêter vidéo
-    this.youtubePlayer.stop();
-    
-    // 3. Reset phase manager
-    if (this.phaseManager && this.phaseManager.reset) {
-        this.phaseManager.reset();
+    // 1. Arrêter la vidéo YouTube
+    if (this.youtubePlayer) {
+        this.youtubePlayer.stop();
+        console.log('⏹️ Vidéo YouTube arrêtée');
     }
     
-    // 4. Cacher bouton suivant
+    // 2. Reset du PhaseManager
+    if (this.phaseManager) {
+        this.phaseManager.reset();
+        console.log('✅ PhaseManager réinitialisé');
+    }
+    
+    // 3. Cacher le bouton suivant
     const nextBtn = document.getElementById('next-btn');
     if (nextBtn) {
         nextBtn.style.display = 'none';
+        console.log('✅ Bouton suivant caché');
     }
     
-    // 5. Réinitialiser QuestionManager
+    // 4. Nettoyer l'affichage de la réponse précédente
+    this.cleanPreviousAnswer();
+    
+    // 5. Court délai pour permettre la transition
+    setTimeout(() => {
+        console.log('🔄 Démarrage nouvelle question...');
+        this.startQuestion();
+    }, 800); // Délai un peu plus long pour être sûr
+}
+
+// AJOUTER cette méthode à GameManager.js
+cleanPreviousAnswer() {
+    console.log('🧹 Nettoyage réponse précédente');
+    
+    // Supprimer l'affichage de réponse
+    const answerDisplay = document.getElementById('current-answer-display');
+    if (answerDisplay) {
+        answerDisplay.remove();
+        console.log('🗑️ Affichage réponse supprimé');
+    }
+    
+    // S'assurer que la grille de réponses est réinitialisée
+    const answersGrid = document.getElementById('answers-grid');
+    if (answersGrid) {
+        // Garder la structure mais vider le contenu
+        answersGrid.innerHTML = '';
+        answersGrid.style.display = 'grid';
+        answersGrid.style.opacity = '1';
+        console.log('✅ Grille de réponses réinitialisée');
+    }
+    
+    // Réinitialiser l'état du QuestionManager
     if (this.questionManager && this.questionManager.resetQuestionState) {
         this.questionManager.resetQuestionState();
     }
-    
-    // 6. Délai puis nouvelle question
-    setTimeout(() => {
-        this.startQuestion();
-    }, 500);
 }
 
 // AJOUTER cette fonction dans GameManager.js

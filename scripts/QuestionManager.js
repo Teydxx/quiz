@@ -1,7 +1,11 @@
-// scripts/QuestionManager.js - VERSION CORRECTE
+// scripts/QuestionManager.js - VERSION CORRIGÉE
 class QuestionManager {
     constructor() {
-        this.remainingGames = [...GAMES];
+        console.log('🔄 QuestionManager - Constructeur appelé');
+        
+        // Réinitialiser complètement les jeux
+        this.resetAllGames();
+        
         this.currentGame = null;
         this.userAnswered = false;
         this.userAnswerCorrect = false;
@@ -10,70 +14,131 @@ class QuestionManager {
         // Statistiques
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
+        this.totalQuestions = 10;
         
-        // Références DOM
+        // Références DOM - Sera initialisé plus tard
+        this.answersGrid = null;
+        this.questionCountEl = null;
+        this.totalQuestionsEl = null;
+        this.nextBtn = null;
+        
+        console.log(`✅ QuestionManager initialisé avec ${this.remainingGames.length} jeux`);
+    }
+
+    // Réinitialiser complètement la liste des jeux
+    resetAllGames() {
+        console.log('🔄 Réinitialisation de tous les jeux');
+        this.remainingGames = [...GAMES];
+        shuffleArray(this.remainingGames);
+    }
+
+    init(totalQuestions) {
+        console.log(`✅ QuestionManager.init(${totalQuestions})`);
+        
+        this.totalQuestions = totalQuestions;
+        
+        // Obtenir les références DOM
         this.answersGrid = document.getElementById('answers-grid');
         this.questionCountEl = document.getElementById('question-count');
         this.totalQuestionsEl = document.getElementById('total-questions');
         this.nextBtn = document.getElementById('next-btn');
         
-        console.log('✅ QuestionManager initialisé');
-    }
-
-    init(totalQuestions) {
-        this.totalQuestions = totalQuestions;
-        this.totalQuestionsEl.textContent = totalQuestions;
+        if (this.totalQuestionsEl) {
+            this.totalQuestionsEl.textContent = totalQuestions;
+        }
+        
         this.resetStats();
-        shuffleArray(this.remainingGames);
+        
+        // Réinitialiser les jeux
+        this.resetAllGames();
+        
+        console.log(`✅ ${this.remainingGames.length} jeux disponibles`);
+        console.log(`✅ Références DOM:`, {
+            answersGrid: !!this.answersGrid,
+            questionCountEl: !!this.questionCountEl,
+            totalQuestionsEl: !!this.totalQuestionsEl,
+            nextBtn: !!this.nextBtn
+        });
     }
 
     initWithGames(games) {
+        console.log(`✅ QuestionManager.initWithGames(${games.length})`);
+        
         this.remainingGames = [...games];
+        shuffleArray(this.remainingGames);
+        
         this.currentGame = null;
         this.userAnswered = false;
         this.userAnswerCorrect = false;
         this.selectedButton = null;
+        
+        // Obtenir les références DOM
+        this.answersGrid = document.getElementById('answers-grid');
+        this.questionCountEl = document.getElementById('question-count');
+        this.totalQuestionsEl = document.getElementById('total-questions');
+        this.nextBtn = document.getElementById('next-btn');
+        
         this.resetStats();
         
-        shuffleArray(this.remainingGames);
         console.log(`✅ QuestionManager initialisé avec ${games.length} jeux`);
     }
 
     // PRÉPARE une nouvelle question
     prepareQuestion(questionNumber) {
-        console.log(`✅ Préparation question ${questionNumber}`);
+        console.log(`\n🎮 ========== PRÉPARATION QUESTION ${questionNumber} ==========`);
+        
+        // Réinitialiser l'état de la question actuelle
+        this.resetQuestionState();
+        
+        if (this.questionCountEl) {
+            this.questionCountEl.textContent = questionNumber;
+        }
+        
+        // Vérifier s'il reste des jeux
+        if (this.remainingGames.length === 0) {
+            console.error('❌ Plus de jeux disponibles !');
+            this.resetAllGames(); // Réinitialiser pour éviter le blocage
+            console.log('🔄 Jeux réinitialisés');
+        }
         
         if (this.remainingGames.length === 0) {
-            console.error('❌ Plus de jeux disponibles');
+            console.error('❌ Toujours aucun jeu disponible après réinitialisation');
             return false;
         }
-
-        this.resetQuestionState();
-        this.questionCountEl.textContent = questionNumber;
         
         // SÉLECTIONNER un jeu
         const randomIndex = Math.floor(Math.random() * this.remainingGames.length);
         this.currentGame = this.remainingGames[randomIndex];
         this.remainingGames.splice(randomIndex, 1);
         
-        console.log(`🎮 Jeu sélectionné: ${this.currentGame.name} (ID: ${this.currentGame.videoId})`);
+        console.log(`🎮 Jeu sélectionné: ${this.currentGame.name}`);
+        console.log(`🎮 ID YouTube: ${this.currentGame.videoId}`);
+        console.log(`🎮 Jeux restants: ${this.remainingGames.length}`);
         
-        // CRÉER LES BOUTONS DE RÉPONSE IMMÉDIATEMENT
+        // CRÉER LES BOUTONS DE RÉPONSE
         this.createAnswerButtons();
-        
-        // FORCER l'affichage des boutons
-        this.forceShowButtons();
         
         return true;
     }
 
     // CRÉE les 6 boutons de réponse
     createAnswerButtons() {
-        console.log('🔄 Création des 6 boutons de réponse');
+        console.log('🔧 Création des boutons de réponse...');
         
         if (!this.currentGame) {
             console.error('❌ Pas de jeu courant pour créer les boutons');
             return;
+        }
+        
+        // S'assurer que answersGrid existe
+        if (!this.answersGrid) {
+            console.error('❌ answers-grid non trouvé, tentative de récupération...');
+            this.answersGrid = document.getElementById('answers-grid');
+            
+            if (!this.answersGrid) {
+                console.error('❌ ÉCHEC: Impossible de trouver answers-grid');
+                return;
+            }
         }
         
         const correctAnswer = this.currentGame.name;
@@ -86,15 +151,10 @@ class QuestionManager {
         // Mélanger les 6 réponses
         const allAnswers = shuffleArray([correctAnswer, ...wrongAnswers]);
         
-        // VIDER et CRÉER
-        if (!this.answersGrid) {
-            console.error('❌ answers-grid non trouvé');
-            this.answersGrid = document.getElementById('answers-grid');
-            if (!this.answersGrid) return;
-        }
-        
+        // VIDER complètement la grille
         this.answersGrid.innerHTML = '';
-        this.selectedButton = null;
+        
+        console.log(`🔧 Création de ${allAnswers.length} boutons...`);
         
         // CRÉER CHAQUE BOUTON
         allAnswers.forEach((answer, index) => {
@@ -115,20 +175,57 @@ class QuestionManager {
         
         this.userAnswered = false;
         this.userAnswerCorrect = false;
+        this.selectedButton = null;
         
         // FORCER l'affichage
-        this.answersGrid.style.display = 'grid';
-        this.answersGrid.style.opacity = '1';
-        this.answersGrid.style.visibility = 'visible';
+        this.forceShowButtons();
         
         console.log(`✅ ${allAnswers.length} boutons créés`);
     }
 
+    // FORCER l'affichage des boutons
+    forceShowButtons() {
+        console.log('🔧 ForceShowButtons()');
+        
+        if (this.answersGrid) {
+            // Réinitialiser tous les styles
+            this.answersGrid.style.display = 'grid';
+            this.answersGrid.style.opacity = '1';
+            this.answersGrid.style.visibility = 'visible';
+            this.answersGrid.style.gridTemplateColumns = '1fr';
+            this.answersGrid.style.gap = '12px';
+            
+            // Enlever les classes qui pourraient cacher
+            this.answersGrid.classList.remove('hidden');
+            
+            // Forcer un reflow
+            this.answersGrid.offsetHeight;
+            
+            console.log('✅ Grille forcée à être visible');
+            
+            // Vérifier combien de boutons sont présents
+            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+            console.log(`✅ ${buttons.length} boutons trouvés dans la grille`);
+            
+            // Log des boutons pour debug
+            buttons.forEach((btn, i) => {
+                console.log(`  ${i + 1}. ${btn.textContent} (correct: ${btn.dataset.correct})`);
+            });
+        } else {
+            console.error('❌ answers-grid non trouvé dans forceShowButtons!');
+        }
+    }
+
     // SÉLECTIONNER une réponse
     selectAnswer(clickedButton) {
-        if (!this.currentGame || this.userAnswered) return;
+        if (!this.currentGame || this.userAnswered) {
+            console.log('⚠️ Déjà répondu ou pas de jeu');
+            return;
+        }
         
-        console.log(`🎯 Sélection: ${clickedButton.textContent}`);
+        console.log(`\n🎯 ========== SÉLECTION RÉPONSE ==========`);
+        console.log(`🎯 Choix: ${clickedButton.textContent}`);
+        console.log(`🎯 Correct: ${clickedButton.dataset.correct === 'true'}`);
         
         // Désélectionner précédent
         if (this.selectedButton && this.selectedButton !== clickedButton) {
@@ -144,36 +241,8 @@ class QuestionManager {
         this.userAnswerCorrect = clickedButton.dataset.correct === 'true';
         
         this.recordAnswer(clickedButton.textContent, this.userAnswerCorrect);
-    }
-
-    // FORCER l'affichage des boutons
-    forceShowButtons() {
-        console.log('🔧 Forcer affichage des boutons...');
         
-        if (this.answersGrid) {
-            // S'assurer que la grille est visible
-            this.answersGrid.style.display = 'grid';
-            this.answersGrid.style.opacity = '1';
-            this.answersGrid.style.visibility = 'visible';
-            
-            // S'assurer qu'elle n'est pas masquée par CSS
-            this.answersGrid.classList.remove('hidden');
-            
-            console.log('✅ Grille forcée à être visible');
-            
-            // Vérifier combien de boutons sont présents
-            const buttons = this.answersGrid.querySelectorAll('.answer-btn');
-            console.log(`✅ ${buttons.length} boutons trouvés dans la grille`);
-        } else {
-            console.error('❌ answers-grid non trouvé !');
-            
-            // Essayer de récupérer l'élément
-            this.answersGrid = document.getElementById('answers-grid');
-            if (this.answersGrid) {
-                console.log('✅ answers-grid trouvé par ID, réessayer...');
-                this.forceShowButtons();
-            }
-        }
+        console.log(`✅ Réponse enregistrée: ${this.userAnswerCorrect ? 'CORRECT' : 'INCORRECT'}`);
     }
 
     // FINALISER la réponse
@@ -183,7 +252,7 @@ class QuestionManager {
         if (!this.currentGame) return;
         
         // Désactiver tous les boutons
-        const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+        const buttons = this.answersGrid ? this.answersGrid.querySelectorAll('.answer-btn') : [];
         buttons.forEach(btn => {
             btn.disabled = true;
             if (btn === this.selectedButton) {
@@ -200,7 +269,7 @@ class QuestionManager {
     revealAnswers() {
         console.log('🔍 Révélation réponses');
         
-        const buttons = this.answersGrid.querySelectorAll('.answer-btn');
+        const buttons = this.answersGrid ? this.answersGrid.querySelectorAll('.answer-btn') : [];
         
         // Montrer la bonne réponse
         buttons.forEach(btn => {
@@ -213,39 +282,14 @@ class QuestionManager {
         setTimeout(() => {
             if (this.nextBtn) {
                 this.nextBtn.style.display = 'flex';
+                console.log('✅ Bouton suivant affiché');
             }
         }, 1000);
     }
 
-    // AUTO si pas de réponse
-    autoRevealAnswer() {
-        console.log('⏰ Auto-révélation (pas de réponse)');
-        
-        if (this.userAnswered || !this.currentGame) return null;
-        
-        this.userAnswered = true;
-        this.userAnswerCorrect = false;
-        
-        const buttons = this.answersGrid.querySelectorAll('.answer-btn');
-        buttons.forEach(btn => btn.disabled = true);
-        
-        return {
-            isCorrect: false,
-            gameName: this.currentGame.name,
-            userAnswered: false
-        };
-    }
-
-    // Afficher bouton suivant
-    showNextButton() {
-        if (this.nextBtn) {
-            this.nextBtn.style.display = 'flex';
-        }
-    }
-
     // RÉINITIALISER pour nouvelle question
     resetQuestionState() {
-        console.log('🔄 Réinitialisation état question');
+        console.log('🔄 resetQuestionState()');
         
         this.userAnswered = false;
         this.userAnswerCorrect = false;
@@ -267,11 +311,25 @@ class QuestionManager {
             this.answersGrid.offsetHeight;
             
             console.log('✅ Grille réinitialisée pour nouvelle question');
+        } else {
+            console.error('❌ answers-grid non trouvé dans resetQuestionState');
         }
         
         // Cacher bouton suivant
         if (this.nextBtn) {
             this.nextBtn.style.display = 'none';
+            console.log('✅ Bouton suivant caché');
+        }
+    }
+
+    // Masquer les boutons
+    hideButtons() {
+        console.log('🔧 hideButtons()');
+        
+        if (this.answersGrid) {
+            this.answersGrid.style.display = 'none';
+            this.answersGrid.style.opacity = '0';
+            console.log('✅ Boutons masqués');
         }
     }
 
@@ -288,12 +346,15 @@ class QuestionManager {
         if (isCorrect) {
             this.correctAnswersCount++;
         }
+        
+        console.log(`📊 Stats: ${this.correctAnswersCount} correct(s) sur ${this.resultsDetails.length}`);
     }
 
     // Réinitialiser stats
     resetStats() {
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
+        console.log('📊 Statistiques réinitialisées');
     }
 
     // GETTERS
@@ -314,6 +375,10 @@ class QuestionManager {
     }
 
     hasMoreQuestions() {
-        return this.remainingGames.length > 0;
+        // Toujours retourner true si on peut réinitialiser
+        if (this.remainingGames.length === 0) {
+            this.resetAllGames();
+        }
+        return true; // On peut toujours continuer
     }
 }
