@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js - VERSION AVEC FADE OUT SYNCHRO
+// scripts/PhaseManager.js
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -6,8 +6,8 @@ class PhaseManager {
         this.phaseInterval = null;
         this.onPhaseComplete = null;
         
-        // Configuration fade out
-        this.fadeStartSeconds = 3; // Commencer 3s avant la fin
+        // FADE OUT OBLIGATOIRE selon config.js
+        this.fadeStartSeconds = CONFIG.FADE_OUT_SECONDS;
         this.isFading = false;
         
         // Éléments DOM
@@ -22,7 +22,7 @@ class PhaseManager {
         this.resultGameName = document.querySelector('.result-game-name');
         this.resultStatus = document.querySelector('.result-status');
         
-        console.log(`⏱️ PhaseManager - Fade out: ${this.fadeStartSeconds}s avant la fin`);
+        console.log(`⏱️ PhaseManager - Fade out audio: ${this.fadeStartSeconds}s avant la fin`);
     }
     
     // Démarrer une phase
@@ -52,15 +52,11 @@ class PhaseManager {
                 // Phase 2 : Révélation
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 
-                // Cacher timer et réponses
                 this.timerBox.classList.add('hidden');
                 this.answersSection.classList.add('hidden');
-                
-                // Afficher résultat
                 this.showResult();
-                
-                // Animations overlay
                 this.fadeOutBlackOverlay();
+                
                 setTimeout(() => {
                     this.fadeInBlackOverlay();
                 }, 7000);
@@ -68,18 +64,17 @@ class PhaseManager {
                 break;
         }
         
-        // Démarrer timer
         this.phaseInterval = setInterval(() => this.updatePhaseTimer(), 1000);
     }
     
-    // Mettre à jour timer avec fade out
+    // Mettre à jour timer avec fade out OBLIGATOIRE
     updatePhaseTimer() {
         this.phaseTimer--;
         
         if (this.currentPhase === 1) {
             this.timerCount.textContent = this.phaseTimer;
             
-            // GESTION FADE OUT AUDIO
+            // FADE OUT AUDIO OBLIGATOIRE
             this.handleAudioFade();
         }
         
@@ -93,32 +88,31 @@ class PhaseManager {
         }
     }
     
-    // Gérer le fade out audio
+    // Gérer le fade out audio (OBLIGATOIRE)
     handleAudioFade() {
         if (!window.gameManager || !window.gameManager.youtubePlayer) return;
         
         const youtubePlayer = window.gameManager.youtubePlayer;
         const timeLeft = this.phaseTimer;
         
-        // Si on est dans la période de fade out
+        // Si on est dans la période de fade out configurée
         if (timeLeft <= this.fadeStartSeconds && timeLeft > 0) {
             if (!this.isFading) {
                 this.isFading = true;
-                console.log(`🔉 Début fade out (${timeLeft}s restantes)`);
+                console.log(`🔉 Fade out audio (${timeLeft}/${this.fadeStartSeconds}s)`);
             }
             
-            // Calcul volume proportionnel
-            // Ex: 3s → 100%, 2s → 66%, 1s → 33%, 0s → 0%
+            // Volume proportionnel au temps restant
+            // Ex avec 3s: 3s→100%, 2s→66%, 1s→33%, 0s→0%
             const volumePercent = (timeLeft / this.fadeStartSeconds) * 100;
             youtubePlayer.setVolume(volumePercent);
             
         } 
-        // Si le timer est à 0, couper le son
+        // Timer à 0 = son coupé
         else if (timeLeft === 0) {
             youtubePlayer.setVolume(0);
-            console.log('🔇 Son coupé (fin phase 1)');
         }
-        // Si on sort de la période de fade (au cas où)
+        // Si bug: on sort du fade, on remet à 100%
         else if (this.isFading && timeLeft > this.fadeStartSeconds) {
             this.isFading = false;
             youtubePlayer.setVolume(100);
