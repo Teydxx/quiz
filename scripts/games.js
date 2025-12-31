@@ -707,6 +707,565 @@ const GAMES = [
     {
         name: "Full Throttle",
         videoId: "doP8gF2rais"
+    },
+ {
+        name: "Pokemon",
+        videoId: "sOadAaGiq4"
+    },
+    {
+        name: "Mario",
+        videoId: "NTa6Xbzfq1U"
+    },
+    {
+        name: "Zelda",
+        videoId: "cGufy1PAeTU"
+    },
+    {
+        name: "Assassin's Creed 3",
+        videoId: "qmBynJ9eMkc"
+    },
+    {
+        name: "Mortal Kombat",
+        videoId: "KUjx8UtcKQ4"
+    },
+    {
+        name: "Tetris",
+        videoId: "hc9ATIE17GA"
+    },
+    {
+        name: "Tomb Raider",
+        videoId: "x_76AaWVQXE"
+    },
+    {
+        name: "Fez",
+        videoId: "76GnOwHorn0"
+    },
+    {
+        name: "MINECRAFT",
+        videoId: "WkYja8kVC8o"
+    },
+    {
+        name: "The Witcher 3",
+        videoId: "S9zqXmraFKQ"
+    },
+    {
+        name: "Punch-Out",
+        videoId: "ndaP9iieaok"
+    },
+    {
+        name: "Kirby",
+        videoId: "3CS93CdMv_E"
+    },
+    {
+        name: "Street Fighter II",
+        videoId: "_gEcossfP38"
+    },
+    {
+        name: "Skylanders Giants",
+        videoId: "u4ONTRIxkEE"
+    },
+    {
+        name: "Battlefield",
+        videoId: "vg0Tmydj29M"
+    },
+    {
+        name: "Guilty Gear",
+        videoId: "rGetImTgyFA"
+    },
+    {
+        name: "Dragon Ball Z Budokai 2",
+        videoId: "HfOl92zc4c8"
+    },
+    {
+        name: "Halo",
+        videoId: "0jXTBAGv9ZQ"
+    },
+    {
+        name: "PacMan",
+        videoId: "BxYzjjs6d1s"
+    },
+    {
+        name: "skyrim",
+        videoId: "bJht4ss98j8"
+    },
+    {
+        name: "MW3",
+        videoId: "fA8y4M81plQ"
+    },
+    {
+        name: "Rayman",
+        videoId: "ROetqv0ir9I"
+    },
+    {
+        name: "World Of Warcraft",
+        videoId: "QYidb1LvMs8"
+    },
+    {
+        name: "The Sims 3",
+        videoId: "34B_QDoZy64"
+    },
+    {
+        name: "assassin's creed",
+        videoId: "BoW166EKZY8"
+    },
+    {
+        name: "Sonic The Hedgehog",
+        videoId: "G-i8HYi1QH0"
+    },
+    {
+        name: "GoldenEye: Rogue Agent",
+        videoId: "I4REerh4ZGk"
+    },
+    {
+        name: "overwatch",
+        videoId: "q644OooGg5k"
+    },
+    {
+        name: "Kessen 2",
+        videoId: "beZOmvQ067Y"
+    },
+    {
+        name: "Metal Gear Solid 2",
+        videoId: "QiPon8lr48U"
+    },
+    {
+        name: "Call of Duty: Infinite Warfare",
+        videoId: "osompIOly0Q"
+    },
+    {
+        name: "Two Steps From Hell",
+        videoId: "EOrE2Qr1FMU"
+    },
+    {
+        name: "Silent Hill",
+        videoId: "w2cK8mOG4Q8"
+    },
+    {
+        name: "Doom",
+        videoId: "q657rEkgfKs"
+    },
+    {
+        name: "Portal 2",
+        videoId: "J5Erl-y9b_4"
+    },
+    {
+        name: "Fallout 4",
+        videoId: "kdOKjUfMPe0"
+    },
+    {
+        name: "Star Wars Battlefront",
+        videoId: "wzQZGb596Nk"
+    },
+    {
+        name: "Medal of Honor Frontline",
+        videoId: "YDb618RaBmo"
+    },
+    {
+        name: "Cave Story",
+        videoId: "AlYHQDsA13U"
+    },
+    {
+        name: "Far Cry 3: Blood Dragon",
+        videoId: "MEtdyn2QEzA"
+    },
+    {
+        name: "Mega Man 2",
+        videoId: "WJRoRt155mA"
+    },
+    {
+        name: "Pandora Journey",
+        videoId: "-Pn1EKQCWZY"
+    },
+    {
+        name: "Fortnite",
+        videoId: "2q-k7ScMs0k"
+    },
+    {
+        name: "Morrowind",
+        videoId: "nJD-Ufi1jGk"
+    },
+    {
+        name: "Killzone 3",
+        videoId: "aTp9ZlK_K0w"
+    },
+    {
+        name: "Spyro 1",
+        videoId: "LPOnak-ozjw"
+    },
+    {
+        name: "Total Overdose",
+        videoId: "gfVTbTT7CEo"
+    },
+    {
+        name: "Child of Light",
+        videoId: "Byz6960tWxQ"
+    },
+    {
+        name: "Team Fortress 2",
+        videoId: "PDM2qukzKwg"
+    },
+    {
+        name: "Far Cry 3",
+        videoId: "1uTG4C7g9XQ"
+    },
+    {
+        name: "GTA San Andreas",
+        videoId: "fLfoAiuQiV4"
+    },
+    {
+        name: "NFS Underground 2",
+        videoId: "u7KncmJj82s"
+    },
+    {
+        name: "Titanfall 2",
+        videoId: "MjSmqxEsj3g"
+    },
+    {
+        name: "Injustice 2",
+        videoId: "eGsbOsaHgXw"
+    },
+    {
+        name: "Outlast",
+        videoId: "nEjn63QGL-s"
+    },
+    {
+        name: "Amnesia The Dark Descent",
+        videoId: "eWDzqUud3jU"
+    },
+    {
+        name: "Fable",
+        videoId: "lgOGfi5h0bA"
+    },
+    {
+        name: "Baldur's Gate II",
+        videoId: "U88zyFLzIXQ"
+    },
+    {
+        name: "Heart of Darkness",
+        videoId: "ZxRet2Ftewo"
+    },
+    {
+        name: "Prince of Persia",
+        videoId: "CJe_22XxvMI"
+    },
+    {
+        name: "The binding of Isaac",
+        videoId: "izHxUkF4ZAQ"
+    },
+    {
+        name: "F-ZERO",
+        videoId: "wlxa4w-7DUI"
+    },
+    {
+        name: "Super Mario Odyssey",
+        videoId: "e9r5hx47kxM"
+    },
+    {
+        name: "Pokémon Omega Ruby & Alpha Sapphire",
+        videoId: "GIn8_Q27WFY"
+    },
+    {
+        name: "Spore",
+        videoId: "o1JGYc1XHAw"
+    },
+    {
+        name: "Braid",
+        videoId: "tiWXrVXOMAU"
+    },
+    {
+        name: "Portal",
+        videoId: "Y6ljFaKRTrI"
+    },
+    {
+        name: "Dishonored",
+        videoId: "urV8MIcLDFk"
+    },
+    {
+        name: "Rayman Origins",
+        videoId: "KIGY62fZgN8"
+    },
+    {
+        name: "Monster Hunter 3",
+        videoId: "RPYMHWeY9L4"
+    },
+    {
+        name: "Dark Cloud 2",
+        videoId: "DN9V0WMHfYQ"
+    },
+    {
+        name: "League of Legends",
+        videoId: "fmI_Ndrxy14"
+    },
+    {
+        name: "Metroid Prime",
+        videoId: "ZpJyyY6DhdI"
+    },
+    {
+        name: "Super Meat Boy",
+        videoId: "WL-8rU8ltA4"
+    },
+    {
+        name: "Guild Wars 2",
+        videoId: "8pJc29PAaho"
+    },
+    {
+        name: "Metal Gear Solid 4",
+        videoId: "uhRw3nE67aw"
+    },
+    {
+        name: "Pandemonium!",
+        videoId: "CkjAq6G8AOs"
+    },
+    {
+        name: "Mafia 2",
+        videoId: "SqaAxICZHFg"
+    },
+    {
+        name: "Max Payne 3",
+        videoId: "zEH_LSL4rVw"
+    },
+    {
+        name: "Saints Row 4",
+        videoId: "X0XHYyedRCo"
+    },
+    {
+        name: "The Last Guardian",
+        videoId: "F3XoaRmByFs"
+    },
+    {
+        name: "Diablo",
+        videoId: "Q2evIg-aYw8"
+    },
+    {
+        name: "PAYDAY 2",
+        videoId: "t8iOs-9oXHo"
+    },
+    {
+        name: "Shovel Knight",
+        videoId: "FrceWR4XnVU"
+    },
+    {
+        name: "Rainbow Six Siege",
+        videoId: "QX01PPyUTKQ"
+    },
+    {
+        name: "Red Dead Redemption",
+        videoId: "LsjGL6uZaoQ"
+    },
+    {
+        name: "Cuphead",
+        videoId: "rBU8wRCnaUM"
+    },
+    {
+        name: "Wii Sports",
+        videoId: "I5Gjqxa1OKY"
+    },
+    {
+        name: "Golden Sun: Dark Dawn",
+        videoId: "qYvVY_eSbbk"
+    },
+    {
+        name: "Command & Conquer",
+        videoId: "m87Ocxz5k0Q"
+    },
+    {
+        name: "Portal 2",
+        videoId: "dVVZaZ8yO6o"
+    },
+    {
+        name: "Jump Force",
+        videoId: "o5N1G2pmFj8"
+    },
+    {
+        name: "Lego Racers",
+        videoId: "dR2Sn9vnkyU"
+    },
+    {
+        name: "Cooking Mama",
+        videoId: "hu84AJmn43I"
+    },
+    {
+        name: "Sonic Colors",
+        videoId: "zpHuG2hHmEo"
+    },
+    {
+        name: "Super Smash Bros: Brawl",
+        videoId: "zeKE0NHUtUw"
+    },
+    {
+        name: "Ratchet and Clank 2",
+        videoId: "X83pgH45nj0"
+    },
+    {
+        name: "Starcraft 2",
+        videoId: "zAS8KivZX5s"
+    },
+    {
+        name: "Streets of Rage",
+        videoId: "JTm_uW2wrZM"
+    },
+    {
+        name: "Days Gone",
+        videoId: "hoSrMZldV6k"
+    },
+    {
+        name: "Death Stranding",
+        videoId: "VdwfwOafscA"
+    },
+    {
+        name: "Paladins",
+        videoId: "eLXl4tJ-Qgw"
+    },
+    {
+        name: "Call Of Duty WWII",
+        videoId: "XcHDVwL-1W8"
+    },
+    {
+        name: "Gothic 3",
+        videoId: "DLyqSQhS6E0"
+    },
+    {
+        name: "Call of Juarez: The Cartel",
+        videoId: "ZY26sGkDZW0"
+    },
+    {
+        name: "Monkey Island 1",
+        videoId: "i3dB0qEcG20"
+    },
+    {
+        name: "Papers, Please",
+        videoId: "OBQE_TNI7zw"
+    },
+    {
+        name: "Hearthstone",
+        videoId: "WXxy3Y8daks"
+    },
+    {
+        name: "Hitman",
+        videoId: "kSA4U4jNq4E"
+    },
+    {
+        name: "H1Z1: King of the Kill",
+        videoId: "bEgZl4IIRJQ"
+    },
+    {
+        name: "Sea of Thieves",
+        videoId: "9t8TFGTAAoU"
+    },
+    {
+        name: "Age of Wonders III",
+        videoId: "OlqPzgEsfW4"
+    },
+    {
+        name: "Dead Island",
+        videoId: "9CzcOcBb_ms"
+    },
+    {
+        name: "Bioshock",
+        videoId: "wp6QpMWaKpE"
+    },
+    {
+        name: "Until Dawn",
+        videoId: "yzJ0Bw37yIA"
+    },
+    {
+        name: "Tony Hawk's Pro Skater 2",
+        videoId: "1d8xYwcdjgE"
+    },
+    {
+        name: "The Legend of Zelda Tri Force Heroes",
+        videoId: "XkhVHsmQRpQ"
+    },
+    {
+        name: "Transistor",
+        videoId: "f9O2Rjn1azc"
+    },
+    {
+        name: "Evoland 2",
+        videoId: "gbzexZ9_bvY"
+    },
+    {
+        name: "C&C Red Alert 3",
+        videoId: "lDQ7hXMLxGc"
+    },
+    {
+        name: "WARFACE",
+        videoId: "QKIG8vBhnIs"
+    },
+    {
+        name: "DuckTales",
+        videoId: "KF32DRg9opA"
+    },
+    {
+        name: "Counter-Strike: Global Offensive",
+        videoId: "vLljFmx7yF8"
+    },
+    {
+        name: "Smite",
+        videoId: "i7wq0PzEYcg"
+    },
+    {
+        name: "Star Wars : The Old Republic",
+        videoId: "MEsldZjo-kM"
+    },
+    {
+        name: "FIFA 15",
+        videoId: "zxemSVYkhj8"
+    },
+    {
+        name: "Geometry Dash",
+        videoId: "EN8WThV9Bj8"
+    },
+    {
+        name: "World of Warcraft",
+        videoId: "alWTyJr1Gro"
+    },
+    {
+        name: "Ghost of Tsushima",
+        videoId: "tnY6-Q5FshQ"
+    },
+    {
+        name: "Metro 2033",
+        videoId: "WB6_phG0fuA"
+    },
+    {
+        name: "Double Dragon",
+        videoId: "DoJ7YFUotTA"
+    },
+    {
+        name: "Age of empires 3",
+        videoId: "TfeWX-rE-dA"
+    },
+    {
+        name: "Playerunknown's Battlegrounds",
+        videoId: "mNfzVFIqtJM"
+    },
+    {
+        name: "Duck Hunt",
+        videoId: "1h_89R3sHF0"
+    },
+    {
+        name: "The Legend of Zelda: Breath of the Wild",
+        videoId: "cPWBG6_jn4Y"
+    },
+    {
+        name: "Gears Of War 2",
+        videoId: "4oFgg5ZdBY0"
+    },
+    {
+        name: "Star Citizen",
+        videoId: "j_TcepynVZA"
+    },
+    {
+        name: "RAID: Shadow Legends",
+        videoId: "9VvQU2JwfDk"
+    },
+    {
+        name: "DragonBall: Raging Blast 2",
+        videoId: "Qkzb_HIqQgc"
+    },
+    {
+        name: "Mii Channel",
+        videoId: "E9s1ltPGQOo"
     }
-
 ];
