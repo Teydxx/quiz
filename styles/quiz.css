@@ -847,3 +847,36 @@ body.phase-2 #current-answer-display {
 .btn-next.visible {
     display: flex !important;
 }
+
+/* AJOUTER À LA FIN DU FICHIER */
+
+/* Forcer le masquage en phase 2 */
+#answers-section.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+#answers-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+/* S'assurer que la grille est bien cachée */
+.answers-section.hidden .answers-grid {
+    display: none !important;
+}
+
+/* Debug info */
+.debug-phase {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #ff4757;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 9999;
+}

@@ -8,14 +8,15 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- CSS -->
+    <!-- CSS EXACTEMENT COMME DANS TON INDEX.HTML ORIGINAL -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/quiz.css">
     
 </head>
 <body>
-    <!-- ÉCRAN QUIZ -->
+    <!-- ÉCRAN QUIZ SEULEMENT -->
     <div id="quiz-screen" class="screen active">
+        <!-- COPIER-COLLER EXACTEMENT TON HTML DE #quiz-screen ORIGINAL -->
         <div class="header">
             <div class="title">
                 <i class="fas fa-gamepad"></i>
@@ -67,7 +68,7 @@
                     <div class="answers-grid" id="answers-grid"></div>
                 </div>
                 
-                <button id="next-btn" class="btn-next">
+                <button id="next-btn" class="btn-next" style="display: none;">
                     <i class="fas fa-forward"></i>
                     QUESTION SUIVANTE
                 </button>
@@ -114,90 +115,28 @@
             }, 1000);
         });
         
-        // Debug helper
-        window.debugQuiz = function() {
-            console.log('🔍 DEBUG QUIZ:');
-            
-            // Vérifier les éléments
+        // Debug: vérifier si les boutons sont cachés en phase 2
+        setInterval(() => {
+            const phase = window.gameManager?.phaseManager?.currentPhase;
+            const answersSection = document.getElementById('answers-section');
             const answersGrid = document.getElementById('answers-grid');
-            console.log('- answers-grid:', answersGrid);
-            console.log('- answers-grid style.display:', answersGrid ? answersGrid.style.display : 'N/A');
-            console.log('- answers-grid children:', answersGrid ? answersGrid.children.length : 0);
             
-            // Vérifier QuestionManager
-            const qm = window.gameManager?.questionManager;
-            console.log('- QuestionManager:', qm);
-            console.log('- Current game:', qm?.getCurrentGame());
-            
-            // Vérifier phase
-            const phase = document.body.classList.contains('phase-2') ? 'Phase 2' : 'Phase 1';
-            console.log('- Phase actuelle:', phase);
-            
-            // Forcer affichage
-            if (answersGrid) {
-                answersGrid.style.display = 'grid';
-                answersGrid.innerHTML = '<div style="color:red;padding:20px;">DEBUG: Boutons manquants</div>';
+            if (phase === 2) {
+                console.log('DEBUG Phase 2: Les boutons doivent être cachés');
+                console.log('- answers-section display:', answersSection?.style.display);
+                console.log('- answers-grid display:', answersGrid?.style.display);
+                
+                // Forcer le masquage si nécessaire
+                if (answersSection && answersSection.style.display !== 'none') {
+                    console.log('FORCING HIDE answers-section!');
+                    answersSection.style.display = 'none';
+                }
+                if (answersGrid && answersGrid.style.display !== 'none') {
+                    console.log('FORCING HIDE answers-grid!');
+                    answersGrid.style.display = 'none';
+                }
             }
-        };
-        
-        // Ajouter un bouton de debug temporaire
-        document.addEventListener('DOMContentLoaded', function() {
-            const debugBtn = document.createElement('button');
-            debugBtn.textContent = 'DEBUG PHASES';
-            debugBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;padding:10px;background:red;color:white;border:none;border-radius:5px;';
-            debugBtn.onclick = window.debugQuiz;
-            document.body.appendChild(debugBtn);
-        });
-        
-        // Override pour garder le même numéro de question
-        const originalNextQuestion = window.GameManager.prototype.nextQuestion;
-        
-        window.GameManager.prototype.nextQuestion = function() {
-            console.log('⏭️ NextQuestion appelé');
-            
-            // Si c'est une erreur 150, on ne change pas le numéro
-            if (this.youtubeError150) {
-                console.log('⚠️ Erreur 150 détectée, on garde le même numéro');
-                this.youtubeError150 = false;
-                
-                // Juste nettoyer et relancer
-                this.youtubePlayer.stop();
-                this.phaseManager.reset();
-                
-                const nextBtn = document.getElementById('next-btn');
-                if (nextBtn) nextBtn.style.display = 'none';
-                
-                setTimeout(() => {
-                    this.startQuestion();
-                }, 500);
-                
-                return;
-            }
-            
-            // Sinon, comportement normal
-            return originalNextQuestion.call(this);
-        };
+        }, 500);
     </script>
-    <script>
-    // Debug: vérifier l'état des phases
-    setInterval(() => {
-        const phase = window.gameManager?.phaseManager?.currentPhase;
-        const grid = document.getElementById('answers-grid');
-        const display = document.getElementById('current-answer-display');
-        
-        if (phase === 2) {
-            console.log('DEBUG: Phase 2 - Les boutons doivent être cachés');
-            console.log('- answers-grid display:', grid?.style.display);
-            console.log('- answer-display existe:', !!display);
-            
-            // Forcer le masquage si nécessaire
-            if (grid && grid.style.display !== 'none') {
-                console.log('FORCING HIDE!');
-                grid.style.display = 'none';
-                grid.style.visibility = 'hidden';
-            }
-        }
-    }, 1000);
-</script>
 </body>
 </html>
