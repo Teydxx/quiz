@@ -402,37 +402,31 @@ getYouTubeErrorMessage(errorCode) {
         });
     }
 
-// Dans GameManager.js - MODIFIER la méthode nextQuestion()
 nextQuestion() {
-    console.log('\n⏭️ ========== QUESTION SUIVANTE ==========');
+    console.log('⏭️ Question suivante');
     
-    // 1. Arrêter la vidéo YouTube
+    // Arrêter la vidéo
     if (this.youtubePlayer) {
         this.youtubePlayer.stop();
-        console.log('⏹️ Vidéo YouTube arrêtée');
     }
     
-    // 2. Reset du PhaseManager
+    // Reset PhaseManager
     if (this.phaseManager) {
         this.phaseManager.reset();
-        console.log('✅ PhaseManager réinitialisé');
     }
     
-    // 3. Cacher le bouton suivant
+    // Cacher bouton suivant
     const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) {
-        nextBtn.style.display = 'none';
-        console.log('✅ Bouton suivant caché');
-    }
+    if (nextBtn) nextBtn.style.display = 'none';
     
-    // 4. Nettoyer l'affichage de la réponse précédente
-    this.cleanPreviousAnswer();
+    // Nettoyer l'affichage
+    const answerDisplay = document.getElementById('current-answer-display');
+    if (answerDisplay) answerDisplay.remove();
     
-    // 5. Court délai pour permettre la transition
+    // Démarrer nouvelle question
     setTimeout(() => {
-        console.log('🔄 Démarrage nouvelle question...');
         this.startQuestion();
-    }, 800); // Délai un peu plus long pour être sûr
+    }, 500);
 }
 
 // AJOUTER cette méthode à GameManager.js
