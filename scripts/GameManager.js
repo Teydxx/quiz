@@ -1,4 +1,4 @@
-// scripts/GameManager.js - VERSION STABLE (sans détection auto invasive)
+// scripts/GameManager.js - VERSION AVEC MODE INFINI
 class GameManager {
     constructor() {
         this.currentQuestion = 0;
@@ -6,13 +6,16 @@ class GameManager {
         this.hasUserInteracted = false;
         this.startTime = null;
         
+        // MODE INFINI
+        this.isInfiniteMode = false;
+        
         // SESSION SUPPORT (optionnel)
         this.sessionId = null;
         this.session = null;
         this.sessionManager = null;
         this.isSessionMode = false;
         
-        // Modules - SERONT INITIALISÉS PLUS TARD
+        // Modules
         this.youtubePlayer = null;
         this.phaseManager = null;
         this.questionManager = null;
@@ -24,7 +27,7 @@ class GameManager {
     init() {
         console.log('🎮 Initialisation du GameManager...');
         
-        // 1. Vérifier le mode (session ou classique)
+        // 1. Vérifier le mode (session, infini, ou classique)
         this.detectMode();
         
         // 2. Initialiser le QuestionManager
@@ -61,9 +64,34 @@ class GameManager {
             if (this.sessionManager && this.sessionManager.startSession) {
                 this.sessionManager.startSession(this.sessionId);
             }
+            
+        } else if (this.isInfiniteMode) {
+            // MODE INFINI
+            console.log('∞ Mode Infini activé');
+            
+            // Initialiser avec un grand nombre (999 = pratique pour l'infini)
+            this.questionManager.init(999);
+            
+            // Mettre à jour l'affichage
+            const totalQuestionsEl = document.getElementById('total-questions');
+            if (totalQuestionsEl) {
+                totalQuestionsEl.textContent = '∞';
+            }
+            
+            const titleEl = document.querySelector('.title');
+            if (titleEl) {
+                titleEl.innerHTML = `<i class="fas fa-infinity"></i> QUIZ INFINI`;
+            }
+            
+            // Cacher le bouton de suppression en mode infini
+            const deleteBtn = document.getElementById('delete-video-btn');
+            if (deleteBtn) {
+                deleteBtn.style.display = 'none';
+            }
+            
         } else {
-            // Mode Classique
-            console.log('🎮 Mode Classique');
+            // Mode Classique (désactivé maintenant, gardé pour compatibilité)
+            console.log('🎮 Mode Classique (10 questions)');
             this.questionManager.init(CONFIG.TOTAL_QUESTIONS);
         }
         
@@ -74,7 +102,7 @@ class GameManager {
             setTimeout(() => this.nextQuestion(), 500);
         };
         
-        // 5. Initialiser YouTube Player (version simple)
+        // 5. Initialiser YouTube Player
         this.initYouTubePlayer();
         
         // 6. Configurer les boutons
@@ -101,21 +129,29 @@ class GameManager {
     detectMode() {
         const urlParams = new URLSearchParams(window.location.search);
         this.sessionId = urlParams.get('session');
+        const modeParam = urlParams.get('mode');
         
         if (this.sessionId) {
             // Mode Session
             this.isSessionMode = true;
+            this.isInfiniteMode = false;
             this.sessionManager = new SessionManager();
             this.session = this.sessionManager.getSession(this.sessionId);
             
             if (!this.session) {
-                console.error('❌ Session non trouvée, basculement en mode classique');
+                console.error('❌ Session non trouvée');
                 this.isSessionMode = false;
                 this.sessionId = null;
             }
-        } else {
-            // Mode Classique
+        } else if (modeParam === 'infinite') {
+            // MODE INFINI
+            this.isInfiniteMode = true;
             this.isSessionMode = false;
+            console.log('∞ Mode Infini détecté');
+        } else {
+            // Mode Classique (désactivé)
+            this.isSessionMode = false;
+            this.isInfiniteMode = false;
         }
     }
     
@@ -148,7 +184,7 @@ class GameManager {
         this.nextQuestion();
     }
 
-    // Initialiser YouTube (version simple)
+    // Initialiser YouTube
     initYouTubePlayer() {
         this.youtubePlayer = new YouTubePlayer(
             'player-container',
@@ -159,156 +195,30 @@ class GameManager {
         this.youtubePlayer.init();
     }
 
-    // Dans GameManager.js - AJOUTER cette méthode
-handlePhaseTransition() {
-    console.log('🔄 Transition de phase');
-    
-    // Quand on passe de phase 1 à phase 2, finaliser la sélection
-    if (this.phaseManager.currentPhase === 2) {
-        const qm = this.questionManager;
-        if (qm && qm.selectedButton && !qm.userAnswered) {
-            qm.finalizeSelection();
-        }
-    }
-}
-
-// Dans GameManager.js - MODIFIER onYouTubeError()
-onYouTubeError(error) {
-    console.log('❌ Erreur YouTube 150 détectée');
-    
-    const currentGame = this.questionManager?.getCurrentGame();
-    if (!currentGame) return;
-    
-    // 1. Ajouter automatiquement aux supprimés
-    if (window.DeletedGamesStorage && DeletedGamesStorage.add) {
-        DeletedGamesStorage.add({
-            name: currentGame.name,
-            videoId: currentGame.videoId,
-            reason: 'Erreur YouTube 150 (auto)'
-        });
-        console.log(`✅ "${currentGame.name}" ajouté aux supprimés`);
-    }
-    
-    // 2. NE PAS incrémenter le compteur de question
-    // On reste sur la même question numéro
-    
-    // 3. Passer à la question suivante IMMÉDIATEMENT
-    // sans changer this.currentQuestion
-    this.youtubePlayer.stop();
-    
-    // Court délai pour la transition
-    setTimeout(() => {
-        console.log('⏭️ Passage vidéo suivante (même numéro de question)');
-        this.startQuestion(); // Relance la MÊME question
-    }, 1000);
-}
-
-// AJOUTER ces méthodes à GameManager.js
-removeGameFromAvailableList(gameName, videoId) {
-    console.log(`🗑️ Tentative de retrait: ${gameName}`);
-    
-    // Méthode 1: Via QuestionManager
-    if (this.questionManager && this.questionManager.remainingGames) {
-        const initialCount = this.questionManager.remainingGames.length;
-        this.questionManager.remainingGames = this.questionManager.remainingGames.filter(
-            game => !(game.name === gameName && game.videoId === videoId)
-        );
-        const removed = initialCount - this.questionManager.remainingGames.length;
-        console.log(`✅ ${removed} jeu(s) retiré(s) de remainingGames`);
-    }
-    
-    // Méthode 2: Via liste globale GAMES (pour les prochaines parties)
-    try {
-        // Chercher dans GAMES (liste globale)
-        const gameIndex = GAMES.findIndex(g => 
-            g.name === gameName && g.videoId === videoId
-        );
+    onYouTubeError(error) {
+        console.log('❌ Erreur YouTube 150 détectée');
         
-        if (gameIndex !== -1) {
-            // Ne pas supprimer de GAMES, mais marquer comme problématique
-            console.log(`⚠️ "${gameName}" trouvé dans GAMES à l'index ${gameIndex}`);
-            
-            // Ajouter à une liste de jeux "problématiques" pour cette session
-            if (!this.problematicGames) this.problematicGames = [];
-            this.problematicGames.push({
-                name: gameName,
-                videoId: videoId,
-                originalIndex: gameIndex
+        const currentGame = this.questionManager?.getCurrentGame();
+        if (!currentGame) return;
+        
+        // Ajouter automatiquement aux supprimés
+        if (window.DeletedGamesStorage && DeletedGamesStorage.add) {
+            DeletedGamesStorage.add({
+                name: currentGame.name,
+                videoId: currentGame.videoId,
+                reason: 'Erreur YouTube 150 (auto)'
             });
-            
-            console.log(`✅ "${gameName}" marqué comme problématique pour cette session`);
+            console.log(`✅ "${currentGame.name}" ajouté aux supprimés`);
         }
-    } catch(e) {
-        console.error('❌ Erreur lors du marquage du jeu:', e);
+        
+        // Passer à la question suivante
+        this.youtubePlayer.stop();
+        
+        setTimeout(() => {
+            console.log('⏭️ Passage vidéo suivante');
+            this.startQuestion();
+        }, 1000);
     }
-}
-
-showVideoErrorNotification(game, error) {
-    console.log(`📢 Notification erreur: ${game.name}`);
-    
-    // Créer une notification temporaire
-    const notification = document.createElement('div');
-    notification.className = 'video-error-notification';
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #ff4757, #ff3838);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 10px;
-        z-index: 10000;
-        box-shadow: 0 5px 25px rgba(255, 71, 87, 0.4);
-        border-left: 5px solid #ffaf60;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        animation: slideDown 0.3s ease;
-    `;
-    
-    const errorCode = error.data || 'Erreur inconnue';
-    const errorMessage = this.getYouTubeErrorMessage(errorCode);
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
-            <h4 style="margin: 0; font-size: 1.1rem;">VIDÉO NON DISPONIBLE</h4>
-        </div>
-        <p style="margin: 5px 0; font-size: 0.9rem;">
-            "${game.name}" - Erreur ${errorCode}
-        </p>
-        <p style="margin: 5px 0; font-size: 0.85rem; opacity: 0.9;">
-            ${errorMessage}
-        </p>
-        <small style="font-size: 0.8rem; opacity: 0.8;">
-            La vidéo a été marquée comme défaillante
-        </small>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Supprimer après 5 secondes
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideUp 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
-}
-
-getYouTubeErrorMessage(errorCode) {
-    const errors = {
-        2: "La requête contient une valeur non valide",
-        5: "Le contenu n'est pas disponible",
-        100: "La vidéo n'existe pas ou a été supprimée",
-        101: "L'embedding n'est pas autorisé",
-        150: "L'embedding n'est pas autorisé pour cette vidéo",
-        101: "Le contenu n'est pas disponible dans votre pays"
-    };
-    
-    return errors[errorCode] || "Vidéo non disponible sur YouTube";
-}
 
     onYouTubeReady() {
         console.log('✅ YouTube Player prêt');
@@ -333,20 +243,34 @@ getYouTubeErrorMessage(errorCode) {
 
     // Démarrer une question
     async startQuestion() {
-        const maxQuestions = this.isSessionMode && this.session ? 
-            this.session.settings.totalQuestions : CONFIG.TOTAL_QUESTIONS;
-        
-        if (this.currentQuestion >= maxQuestions || 
-            !this.questionManager.hasMoreQuestions()) {
-            this.endGame();
-            return;
+        // MODE INFINI : pas de limite de questions
+        if (!this.isInfiniteMode) {
+            // Vérifier limite pour mode session ou classique
+            const maxQuestions = this.isSessionMode && this.session ? 
+                this.session.settings.totalQuestions : CONFIG.TOTAL_QUESTIONS;
+            
+            if (this.currentQuestion >= maxQuestions || 
+                !this.questionManager.hasMoreQuestions()) {
+                this.endGame();
+                return;
+            }
         }
-
+        
         this.currentQuestion++;
         this.isPlaying = true;
         
+        // Afficher le numéro de question
+        const countEl = document.getElementById('question-count');
+        if (countEl) {
+            if (this.isInfiniteMode) {
+                countEl.textContent = this.currentQuestion;
+            } else {
+                countEl.textContent = this.currentQuestion;
+            }
+        }
+        
         const deleteBtn = document.getElementById('delete-video-btn');
-        if (deleteBtn) {
+        if (deleteBtn && !this.isInfiniteMode) {
             deleteBtn.style.display = 'flex';
         }
         
@@ -402,114 +326,45 @@ getYouTubeErrorMessage(errorCode) {
         });
     }
 
-nextQuestion() {
-    console.log('⏭️ Question suivante');
-    
-    // Nettoyer l'affichage actuel
-    this.cleanAnswerDisplay();
-    
-    // Arrêter la vidéo
-    if (this.youtubePlayer) {
-        this.youtubePlayer.stop();
-    }
-    
-    // Reset PhaseManager
-    if (this.phaseManager) {
-        this.phaseManager.reset();
-    }
-    
-    // Démarrer nouvelle question
-    setTimeout(() => {
-        this.startQuestion();
-    }, 500);
-}
-
-// AJOUTER cette méthode à la classe GameManager :
-cleanAnswerDisplay() {
-    console.log('🧹 Nettoyage de l\'affichage des réponses');
-    
-    // Supprimer l'affichage de réponse précédent
-    const answerDisplay = document.getElementById('current-answer-display');
-    if (answerDisplay) {
-        answerDisplay.remove();
-    }
-    
-    // Vider la grille de réponses
-    const answersGrid = document.getElementById('answers-grid');
-    if (answersGrid) {
-        answersGrid.innerHTML = '';
-    }
-    
-    // Cacher le bouton suivant
-    const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) {
-        nextBtn.style.display = 'none';
-        nextBtn.classList.remove('show');
-    }
-}
-
-// AJOUTER cette méthode à GameManager.js
-cleanPreviousAnswer() {
-    console.log('🧹 Nettoyage réponse précédente');
-    
-    // Supprimer l'affichage de réponse
-    const answerDisplay = document.getElementById('current-answer-display');
-    if (answerDisplay) {
-        answerDisplay.remove();
-        console.log('🗑️ Affichage réponse supprimé');
-    }
-    
-    // S'assurer que la grille de réponses est réinitialisée
-    const answersGrid = document.getElementById('answers-grid');
-    if (answersGrid) {
-        // Garder la structure mais vider le contenu
-        answersGrid.innerHTML = '';
-        answersGrid.style.display = 'grid';
-        answersGrid.style.opacity = '1';
-        console.log('✅ Grille de réponses réinitialisée');
-    }
-    
-    // Réinitialiser l'état du QuestionManager
-    if (this.questionManager && this.questionManager.resetQuestionState) {
-        this.questionManager.resetQuestionState();
-    }
-}
-
-// AJOUTER cette fonction dans GameManager.js
-forceCleanAnswer() {
-    console.log('🧹 FORCE NETTOYAGE RÉPONSE');
-    
-    // Méthode 1: Supprimer par ID
-    const answerDisplay = document.getElementById('current-answer-display');
-    if (answerDisplay) {
-        answerDisplay.remove();
-        console.log('✅ Supprimé par ID');
-    }
-    
-    // Méthode 2: Nettoyer answers-section
-    const answersSection = document.querySelector('.answers-section');
-    if (answersSection) {
-        // Sauvegarder le HTML original
-        const originalHTML = `
-            <h3><i class="fas fa-question"></i> Quel est ce jeu vidéo ?</h3>
-            <div class="answers-grid" id="answers-grid"></div>
-        `;
+    nextQuestion() {
+        console.log('⏭️ Question suivante');
         
-        // Réinitialiser complètement
-        answersSection.innerHTML = originalHTML;
-        console.log('✅ Section réponses réinitialisée');
+        // Arrêter la vidéo
+        if (this.youtubePlayer) {
+            this.youtubePlayer.stop();
+        }
+        
+        // Reset PhaseManager
+        if (this.phaseManager) {
+            this.phaseManager.reset();
+        }
+        
+        // Cacher bouton suivant
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) nextBtn.style.display = 'none';
+        
+        // Nettoyer l'affichage
+        const answerDisplay = document.getElementById('current-answer-display');
+        if (answerDisplay) answerDisplay.remove();
+        
+        // Démarrer nouvelle question
+        setTimeout(() => {
+            this.startQuestion();
+        }, 500);
     }
-    
-    // Réafficher la grille
-    const answersGrid = document.getElementById('answers-grid');
-    if (answersGrid) {
-        answersGrid.style.display = 'grid';
-        answersGrid.innerHTML = '';
-    }
-}
 
     // Terminer le jeu
     endGame() {
+        // MODE INFINI : ne jamais terminer automatiquement
+        if (this.isInfiniteMode) {
+            console.log('∞ Mode Infini - Continuer indéfiniment');
+            // Réinitialiser juste l'affichage du compteur si trop grand
+            if (this.currentQuestion > 999) {
+                this.currentQuestion = 0;
+            }
+            return;
+        }
+        
         console.log('🏁 Fin du jeu');
         
         // Calculer résultats
@@ -645,42 +500,36 @@ forceCleanAnswer() {
             sessionId: this.sessionId,
             currentQuestion: this.currentQuestion,
             isPlaying: this.isPlaying,
-            totalQuestions: this.isSessionMode && this.session ? 
-                this.session.settings.totalQuestions : CONFIG.TOTAL_QUESTIONS,
-            mode: this.isSessionMode ? 'session' : 'classic'
+            isInfiniteMode: this.isInfiniteMode,
+            isSessionMode: this.isSessionMode,
+            totalQuestions: this.isInfiniteMode ? '∞' : 
+                          (this.isSessionMode && this.session ? 
+                           this.session.settings.totalQuestions : CONFIG.TOTAL_QUESTIONS),
+            mode: this.isInfiniteMode ? 'infinite' : 
+                  (this.isSessionMode ? 'session' : 'classic')
         };
     }
 
-    // Dans GameManager.js - Ajouter cette méthode
-getCurrentPhaseTimes() {
-    if (this.isSessionMode && this.session) {
-        return {
-            phase1Time: this.session.settings.phase1Time,
-            phase2Time: this.session.settings.phase2Time
-        };
+    // Nettoyer l'affichage
+    cleanAnswerDisplay() {
+        console.log('🧹 Nettoyage de l\'affichage des réponses');
+        
+        const answerDisplay = document.getElementById('current-answer-display');
+        if (answerDisplay) {
+            answerDisplay.remove();
+        }
+        
+        const grid = document.getElementById('answers-grid');
+        if (grid) {
+            grid.innerHTML = '';
+        }
+        
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) {
+            nextBtn.style.display = 'none';
+            nextBtn.classList.remove('show');
+        }
     }
-    return {
-        phase1Time: CONFIG.PHASE1_TIME,
-        phase2Time: CONFIG.PHASE2_TIME
-    };
-}
-// Dans GameManager.js - AJOUTER cette méthode
-forceHideAnswers() {
-    console.log('👁️ Forcer masquage des réponses');
-    
-    const grid = document.getElementById('answers-grid');
-    if (grid) {
-        grid.style.display = 'none';
-        grid.style.opacity = '0';
-        grid.style.visibility = 'hidden';
-    }
-    
-    const title = document.querySelector('.answers-section h3');
-    if (title) {
-        title.style.display = 'none';
-        title.style.opacity = '0';
-    }
-}
 }
 
 // Exposer pour debug
