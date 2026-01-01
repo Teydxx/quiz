@@ -1,4 +1,4 @@
-// scripts/PhaseManager.js - VERSION SIMPLIFIÉE
+// scripts/PhaseManager.js - VERSION QUI VALIDE À LA FIN DE LA PHASE 1
 class PhaseManager {
     constructor() {
         this.currentPhase = 1;
@@ -6,7 +6,7 @@ class PhaseManager {
         this.phaseInterval = null;
         this.onPhaseComplete = null;
         
-        console.log('⏱️ PhaseManager initialisé');
+        console.log('⏱️ PhaseManager initialisé - Changement réponse permis en phase 1');
     }
     
     startPhase(phaseNumber) {
@@ -19,8 +19,7 @@ class PhaseManager {
                 this.phaseTimer = CONFIG.PHASE1_TIME;
                 this.setBlackOverlayOpacity(1);
                 this.showTimerBox();
-                this.hideAnswersSection(); // On cache d'abord
-                setTimeout(() => this.showAnswersSection(), 100); // Puis on montre
+                this.showAnswersSection();
                 this.startPhaseTimer();
                 break;
                 
@@ -28,13 +27,13 @@ class PhaseManager {
                 this.phaseTimer = CONFIG.PHASE2_TIME;
                 this.hideTimerBox();
                 
-                // FINALISER LA RÉPONSE UTILISATEUR
+                // IMPORTANT : Valider la réponse maintenant (fin phase 1)
                 this.finalizeUserAnswer();
                 
-                // Cacher les boutons de réponse
+                // Cacher les boutons
                 this.hideAnswersSection();
                 
-                // Afficher la réponse sur le côté seulement
+                // Afficher la réponse sur le côté
                 this.showAnswerDisplay();
                 
                 // FONDU pour voir la vidéo
@@ -48,23 +47,6 @@ class PhaseManager {
                     this.endPhase();
                 }, this.phaseTimer * 1000);
                 break;
-        }
-    }
-    
-    // NOUVELLE MÉTHODE : Finaliser la réponse utilisateur
-    finalizeUserAnswer() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
-        
-        const qm = window.gameManager.questionManager;
-        
-        // Appeler finalizeSelection pour s'assurer que la réponse est enregistrée
-        if (qm.finalizeSelection) {
-            qm.finalizeSelection();
-        }
-        
-        // Révéler les réponses
-        if (qm.revealAnswers) {
-            qm.revealAnswers();
         }
     }
     
@@ -82,12 +64,39 @@ class PhaseManager {
             
             if (this.phaseTimer <= 0) {
                 if (this.currentPhase === 1) {
+                    console.log('⏰ Fin phase 1 - Passage en phase 2');
                     this.startPhase(2);
                 }
             }
         }, 1000);
     }
     
+    // VALIDER LA RÉPONSE UTILISATEUR
+    finalizeUserAnswer() {
+        if (!window.gameManager || !window.gameManager.questionManager) {
+            console.error('❌ GameManager ou QuestionManager non disponible');
+            return;
+        }
+        
+        const qm = window.gameManager.questionManager;
+        console.log('🔒 Validation réponse utilisateur (fin phase 1)');
+        console.log('- Bouton sélectionné:', qm.selectedButton?.textContent);
+        
+        // Valider la réponse sélectionnée
+        if (typeof qm.finalizeSelection === 'function') {
+            qm.finalizeSelection();
+        }
+        
+        // Révéler les réponses
+        if (typeof qm.revealAnswers === 'function') {
+            qm.revealAnswers();
+        }
+        
+        console.log('- Réponse validée:', qm.userAnswered);
+        console.log('- Correct ?', qm.userAnswerCorrect);
+    }
+    
+    // ... (les autres méthodes restent les mêmes que précédemment)
     fadeOutBlackOverlay() {
         const blackOverlay = document.getElementById('black-overlay');
         if (!blackOverlay) return;
@@ -151,12 +160,12 @@ class PhaseManager {
                 resultClass = 'correct';
                 statusText = 'CORRECT !';
                 icon = '🎉';
-                console.log('✅ Réponse correcte enregistrée');
+                console.log('✅ Réponse correcte !');
             } else {
                 resultClass = 'incorrect';
                 statusText = 'INCORRECT';
                 icon = '❌';
-                console.log('❌ Réponse incorrecte enregistrée');
+                console.log('❌ Réponse incorrecte');
             }
         } else {
             console.log('⚠️ Aucune réponse donnée');

@@ -1,12 +1,16 @@
-// scripts/QuestionManager.js - VERSION CORRIGÉE
+// scripts/QuestionManager.js - VERSION QUI PERMET DE CHANGER D'AVIS
 class QuestionManager {
     constructor() {
         console.log('✅ QuestionManager initialisé');
         this.remainingGames = [...GAMES];
         this.currentGame = null;
-        this.userAnswered = false;
-        this.userAnswerCorrect = false;
-        this.selectedButton = null;
+        
+        // ÉTAT DE LA QUESTION COURANTE
+        this.userAnswered = false;        // Finalisé ? (seulement en phase 2)
+        this.userAnswerCorrect = false;   // La réponse finale est correcte ?
+        this.selectedButton = null;       // Bouton actuellement sélectionné
+        this.finalAnswer = null;          // Réponse finale validée
+        
         this.correctAnswersCount = 0;
         this.resultsDetails = [];
     }
@@ -22,7 +26,7 @@ class QuestionManager {
     prepareQuestion(questionNumber) {
         console.log(`✅ Question ${questionNumber}`);
         
-        // RESET COMPLET de l'état
+        // RESET COMPLET pour nouvelle question
         this.resetQuestionState();
         
         const countEl = document.getElementById('question-count');
@@ -66,10 +70,9 @@ class QuestionManager {
             button.className = 'answer-btn';
             button.textContent = answer;
             button.dataset.correct = (answer === correctAnswer).toString();
+            button.dataset.answer = answer;
             
-            // CORRECTION : Gestion du clic
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
+            button.addEventListener('click', () => {
                 this.selectAnswer(button);
             });
             
@@ -79,79 +82,72 @@ class QuestionManager {
         grid.style.display = 'grid';
     }
 
-    // CORRECTION CRITIQUE : Cette méthode doit bien enregistrer la réponse
+    // PERMET DE CHANGER D'AVIS PENDANT LA PHASE 1
     selectAnswer(clickedButton) {
         console.log(`🎯 Clic sur: ${clickedButton.textContent}`);
         
-        // Si déjà répondu, on ne fait rien
-        if (this.userAnswered) {
-            console.log('⚠️ Déjà répondu');
-            return;
-        }
+        // Pendant la phase 1, on peut toujours changer
+        // (userAnswered = false tant que pas en phase 2)
         
-        // Si même bouton, désélectionner
+        // Si on clique sur le même bouton, on le désélectionne
         if (this.selectedButton === clickedButton) {
-            console.log('↩️ Désélection');
+            console.log('↩️ Désélection du bouton');
             clickedButton.classList.remove('user-selected');
             this.selectedButton = null;
             return;
         }
         
-        // Désélectionner ancien
+        // Désélectionner l'ancien bouton si existe
         if (this.selectedButton) {
             this.selectedButton.classList.remove('user-selected');
         }
         
-        // Sélectionner nouveau
+        // Sélectionner le nouveau bouton
         this.selectedButton = clickedButton;
         clickedButton.classList.add('user-selected');
         
-        console.log(`✅ Réponse sélectionnée: ${clickedButton.textContent}`);
-        
-        // ENREGISTRER LA RÉPONSE IMMÉDIATEMENT
-        this.userAnswered = true;
-        this.userAnswerCorrect = clickedButton.dataset.correct === 'true';
-        
-        console.log(`📊 Correct ? ${this.userAnswerCorrect}`);
+        console.log(`✅ Bouton sélectionné: ${clickedButton.textContent}`);
+        console.log(`   (Pas encore validé - peut encore changer)`);
     }
 
-    // Cette méthode est appelée par PhaseManager
+    // VALIDATION FINALE (appelée à la fin de la phase 1)
     finalizeSelection() {
-        console.log('🔒 Finalisation de la sélection');
+        console.log('🔒 VALIDATION FINALE de la réponse');
         
-        if (!this.selectedButton && !this.userAnswered) {
-            console.log('❌ Aucune réponse donnée');
+        if (!this.selectedButton) {
+            console.log('❌ Aucune réponse sélectionnée');
             this.userAnswered = false;
             this.userAnswerCorrect = false;
+            this.finalAnswer = null;
             return;
         }
         
-        // Si on a déjà répondu via selectAnswer(), on ne fait rien
-        if (this.userAnswered) {
-            console.log('✅ Réponse déjà enregistrée');
-            return;
-        }
+        // Enregistrer la réponse finale
+        this.userAnswered = true;
+        this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
+        this.finalAnswer = this.selectedButton.textContent;
         
-        // Sinon, enregistrer maintenant
-        if (this.selectedButton) {
-            this.userAnswered = true;
-            this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
-            console.log(`📝 Réponse finalisée: ${this.userAnswerCorrect ? 'CORRECT' : 'INCORRECT'}`);
-        }
+        console.log(`📝 Réponse validée: ${this.finalAnswer}`);
+        console.log(`📊 Correct ? ${this.userAnswerCorrect}`);
+        
+        // Marquer le bouton comme "réponse finale"
+        this.selectedButton.classList.add('final-selection');
     }
 
-    // AJOUTER CETTE MÉTHODE POUR LE SCORE
+    // Calcul du score (appelé en phase 2)
     registerAnswer() {
         if (this.userAnswered && this.userAnswerCorrect) {
             this.correctAnswersCount++;
-            console.log(`🎯 Score: ${this.correctAnswersCount}`);
+            console.log(`🏆 Score: ${this.correctAnswersCount}`);
         }
     }
 
     resetQuestionState() {
+        // Réinitialiser pour nouvelle question
         this.userAnswered = false;
         this.userAnswerCorrect = false;
         this.selectedButton = null;
+        this.finalAnswer = null;
         
         const grid = document.getElementById('answers-grid');
         if (grid) {
@@ -176,7 +172,7 @@ class QuestionManager {
         return true;
     }
 
-    // NOUVELLE MÉTHODE pour révéler les réponses
+    // Révéler les bonnes/mauvaises réponses (phase 2)
     revealAnswers() {
         console.log('🔍 Révélation des réponses');
         
@@ -191,7 +187,8 @@ class QuestionManager {
             if (isCorrect) {
                 button.classList.add('correct');
                 button.classList.add('correct-answer');
-            } else if (button.classList.contains('user-selected')) {
+            } else if (button === this.selectedButton) {
+                // Si c'est le bouton que l'utilisateur a sélectionné (même si pas bon)
                 button.classList.add('incorrect');
             }
             

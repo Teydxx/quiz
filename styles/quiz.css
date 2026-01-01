@@ -924,3 +924,42 @@ body.phase-2 .btn-next.show {
 .black-overlay {
     transition: background-color 3s ease !important;
 }
+
+/* AJOUTER À LA FIN DE quiz.css */
+
+/* Style pour la sélection finale (phase 2) */
+.answer-btn.final-selection {
+    border-width: 3px !important;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6) !important;
+    animation: pulseFinal 1s infinite !important;
+}
+
+@keyframes pulseFinal {
+    0%, 100% { 
+        transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+    }
+}
+
+/* Permettre le changement pendant la phase 1 */
+.answer-btn.user-selected {
+    border-color: #ff4757 !important;
+    background: rgba(255, 71, 87, 0.2) !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Désactiver seulement en phase 2 */
+body.phase-2 .answer-btn {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+/* Phase 1 : on peut cliquer */
+body.phase-1 .answer-btn {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
