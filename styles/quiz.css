@@ -963,3 +963,82 @@ body.phase-1 .answer-btn {
     cursor: pointer !important;
     pointer-events: auto !important;
 }
+/* AJOUTER À LA FIN DE quiz.css */
+
+/* Styles pour les détails de réponse */
+.answer-detail {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.answer-detail i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.answer-display-content.correct .answer-detail i.fa-check-circle {
+    color: #2ed573;
+}
+
+.answer-display-content.correct .answer-detail i.fa-trophy {
+    color: #ff9f43;
+}
+
+.answer-display-content.incorrect .answer-detail i.fa-times-circle {
+    color: #ff4757;
+}
+
+.answer-display-content.incorrect .answer-detail i.fa-lightbulb {
+    color: #3742fa;
+}
+
+.answer-display-content.no-answer .answer-detail i.fa-clock {
+    color: #747d8c;
+}
+
+.answer-display-content.no-answer .answer-detail i.fa-info-circle {
+    color: #3742fa;
+}
+
+/* Améliorer l'affichage de la réponse */
+.answer-game-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 10px 0;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.answer-status {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 8px 20px;
+    border-radius: 25px;
+    display: inline-block;
+}
+
+.answer-display-content.correct .answer-status {
+    background: rgba(46, 213, 115, 0.2);
+    color: #2ed573;
+    border: 2px solid #2ed573;
+}
+
+.answer-display-content.incorrect .answer-status {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border: 2px solid #ff4757;
+}
+
+.answer-display-content.no-answer .answer-status {
+    background: rgba(116, 125, 140, 0.2);
+    color: #747d8c;
+    border: 2px solid #747d8c;
+}

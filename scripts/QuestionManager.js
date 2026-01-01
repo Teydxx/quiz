@@ -110,29 +110,29 @@ class QuestionManager {
         console.log(`   (Pas encore validé - peut encore changer)`);
     }
 
-    // VALIDATION FINALE (appelée à la fin de la phase 1)
-    finalizeSelection() {
-        console.log('🔒 VALIDATION FINALE de la réponse');
-        
-        if (!this.selectedButton) {
-            console.log('❌ Aucune réponse sélectionnée');
-            this.userAnswered = false;
-            this.userAnswerCorrect = false;
-            this.finalAnswer = null;
-            return;
-        }
-        
-        // Enregistrer la réponse finale
-        this.userAnswered = true;
-        this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
-        this.finalAnswer = this.selectedButton.textContent;
-        
-        console.log(`📝 Réponse validée: ${this.finalAnswer}`);
-        console.log(`📊 Correct ? ${this.userAnswerCorrect}`);
-        
-        // Marquer le bouton comme "réponse finale"
-        this.selectedButton.classList.add('final-selection');
+    // Dans QuestionManager.js, AJOUTER dans finalizeSelection()
+finalizeSelection() {
+    console.log('🔒 VALIDATION FINALE de la réponse');
+    
+    if (!this.selectedButton) {
+        console.log('❌ Aucune réponse sélectionnée');
+        this.userAnswered = false;
+        this.userAnswerCorrect = false;
+        this.finalAnswer = null;
+        return;
     }
+    
+    // ENREGISTRER LA RÉPONSE FINALE (important !)
+    this.userAnswered = true;
+    this.userAnswerCorrect = this.selectedButton.dataset.correct === 'true';
+    this.finalAnswer = this.selectedButton.textContent; // <-- Stocker le texte
+    
+    console.log(`📝 Réponse validée: ${this.finalAnswer}`);
+    console.log(`📊 Correct ? ${this.userAnswerCorrect}`);
+    
+    // Marquer le bouton comme "réponse finale"
+    this.selectedButton.classList.add('final-selection');
+}
 
     // Calcul du score (appelé en phase 2)
     registerAnswer() {

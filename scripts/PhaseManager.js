@@ -123,75 +123,110 @@ class PhaseManager {
         }
     }
     
-    showAnswerDisplay() {
-        if (!window.gameManager || !window.gameManager.questionManager) return;
+    // Dans PhaseManager.js, MODIFIER showAnswerDisplay()
+showAnswerDisplay() {
+    if (!window.gameManager || !window.gameManager.questionManager) return;
+    
+    const qm = window.gameManager.questionManager;
+    const currentGame = qm.getCurrentGame();
+    
+    if (!currentGame) return;
+    
+    console.log(`📝 Affichage réponse côté: ${currentGame.name}`);
+    
+    // Créer ou mettre à jour l'affichage de la réponse
+    let answerDisplay = document.getElementById('current-answer-display');
+    
+    if (answerDisplay) {
+        answerDisplay.innerHTML = '';
+    } else {
+        answerDisplay = document.createElement('div');
+        answerDisplay.id = 'current-answer-display';
+        answerDisplay.className = 'answer-display';
+        const answersColumn = document.querySelector('.answers-column');
+        const nextBtn = document.getElementById('next-btn');
         
-        const qm = window.gameManager.questionManager;
-        const currentGame = qm.getCurrentGame();
-        
-        if (!currentGame) return;
-        
-        console.log(`📝 Affichage réponse côté: ${currentGame.name}`);
-        
-        // Créer ou mettre à jour l'affichage de la réponse
-        let answerDisplay = document.getElementById('current-answer-display');
-        
-        if (answerDisplay) {
-            answerDisplay.innerHTML = '';
-        } else {
-            answerDisplay = document.createElement('div');
-            answerDisplay.id = 'current-answer-display';
-            answerDisplay.className = 'answer-display';
-            const answersColumn = document.querySelector('.answers-column');
-            const nextBtn = document.getElementById('next-btn');
-            
-            if (answersColumn && nextBtn) {
-                answersColumn.insertBefore(answerDisplay, nextBtn);
-            }
+        if (answersColumn && nextBtn) {
+            answersColumn.insertBefore(answerDisplay, nextBtn);
         }
+    }
+    
+    // DÉTERMINER CE QU'ON AFFICHE
+    let resultClass = 'no-answer';
+    let statusText = 'PAS DE RÉPONSE';
+    let icon = '❌';
+    let userAnswerText = 'Aucune réponse donnée';
+    let correctAnswerText = currentGame.name;
+    let description = '';
+    
+    if (qm.hasUserAnswered()) {
+        // L'utilisateur a répondu
+        const userAnswer = qm.finalAnswer || qm.selectedButton?.textContent || 'Inconnu';
+        userAnswerText = userAnswer;
         
-        // Déterminer le statut
-        let resultClass = 'no-answer';
-        let statusText = 'PAS DE RÉPONSE';
-        let icon = '❌';
-        
-        if (qm.hasUserAnswered()) {
-            if (qm.userAnswerCorrect) {
-                resultClass = 'correct';
-                statusText = 'CORRECT !';
-                icon = '🎉';
-                console.log('✅ Réponse correcte !');
-            } else {
-                resultClass = 'incorrect';
-                statusText = 'INCORRECT';
-                icon = '❌';
-                console.log('❌ Réponse incorrecte');
-            }
-        } else {
-            console.log('⚠️ Aucune réponse donnée');
-        }
-        
-        // Créer le contenu
-        answerDisplay.innerHTML = `
-            <div class="answer-display-content ${resultClass}">
-                <div class="answer-icon">${icon}</div>
-                <div class="answer-game-name">${currentGame.name}</div>
-                <div class="answer-status">${statusText}</div>
-                <div class="answer-description">
-                    <i class="fas fa-info-circle"></i>
-                    La réponse était : <strong>${currentGame.name}</strong>
+        if (qm.userAnswerCorrect) {
+            resultClass = 'correct';
+            statusText = 'CORRECT !';
+            icon = '🎉';
+            description = `
+                <div class="answer-detail">
+                    <i class="fas fa-check-circle"></i>
+                    Vous avez répondu : <strong>${userAnswerText}</strong>
                 </div>
+                <div class="answer-detail">
+                    <i class="fas fa-trophy"></i>
+                    Bravo ! C'était bien <strong>${correctAnswerText}</strong>
+                </div>
+            `;
+        } else {
+            resultClass = 'incorrect';
+            statusText = 'INCORRECT';
+            icon = '❌';
+            description = `
+                <div class="answer-detail">
+                    <i class="fas fa-times-circle"></i>
+                    Vous avez répondu : <strong>${userAnswerText}</strong>
+                </div>
+                <div class="answer-detail">
+                    <i class="fas fa-lightbulb"></i>
+                    La bonne réponse était : <strong>${correctAnswerText}</strong>
+                </div>
+            `;
+        }
+    } else {
+        // Pas de réponse
+        description = `
+            <div class="answer-detail">
+                <i class="fas fa-clock"></i>
+                Temps écoulé ! Aucune réponse donnée.
+            </div>
+            <div class="answer-detail">
+                <i class="fas fa-info-circle"></i>
+                La réponse était : <strong>${correctAnswerText}</strong>
             </div>
         `;
-        
-        // Afficher avec animation
-        setTimeout(() => {
-            answerDisplay.classList.add('active');
-        }, 100);
-        
-        // Afficher le bouton suivant
-        this.showNextButton();
     }
+    
+    // Créer le contenu
+    answerDisplay.innerHTML = `
+        <div class="answer-display-content ${resultClass}">
+            <div class="answer-icon">${icon}</div>
+            <div class="answer-game-name">${currentGame.name}</div>
+            <div class="answer-status">${statusText}</div>
+            <div class="answer-description">
+                ${description}
+            </div>
+        </div>
+    `;
+    
+    // Afficher avec animation
+    setTimeout(() => {
+        answerDisplay.classList.add('active');
+    }, 100);
+    
+    // Afficher le bouton suivant
+    this.showNextButton();
+}
     
     showNextButton() {
         const nextBtn = document.getElementById('next-btn');
